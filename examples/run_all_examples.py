@@ -10,13 +10,13 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-import process_arpes as pa
+from kite.tools import process_arpes as pa
 from os import system as terminal
 from os.path import exists
 
 
 _kitex_dir = "../build"
-_kite_tools_dir = "../tools/build"
+_kite_tools_dir = "../build"
 
 KITEx_exists = exists(_kitex_dir)
 tools_exists = exists(_kite_tools_dir)
@@ -109,7 +109,7 @@ def print_title(text=""):
 
 def main(selection=None):
     if selection is None:
-        selection = np.arange(17, dtype=np.int) + 1
+        selection = np.arange(17, dtype=int) + 1
     import matplotlib as mpl
     import seaborn as sns
 
@@ -517,4 +517,4 @@ def clean():
 
 if __name__ == "__main__":
     clean()
-    main()
+    main([21])

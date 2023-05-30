@@ -1,756 +1,8 @@
-"""       
-        ##############################################################################      
-        #                        KITE | Release  1.1                                 #      
-        #                                                                            #      
-        #                        Kite home: quantum-kite.com                         #           
-        #                                                                            #      
-        #  Developed by: Simao M. Joao, Joao V. Lopes, Tatiana G. Rappoport,         #       
-        #  Misa Andelkovic, Lucian Covaci, Aires Ferreira, 2018-2022                 #      
-        #                                                                            #      
-        ##############################################################################      
-"""
-
 import numpy as np
-import h5py as hp
-import pybinding as pb
-
 import warnings
+from .utils.warnings import LoudDeprecationWarning
 
-from scipy.sparse import coo_matrix
-from scipy.spatial import cKDTree
-
-
-# Class that introduces Structural Disorder into the initially built lattice.
-# The exported dataset StructuralDisorder has the following groups:
-# - Concentration: concentration of disorder,
-# - Position: If instead of concentration one want's to select an exact position of disorder,
-# - NumBondDisorder: number of bond changes,
-# - NumOnsiteDisorder: number of onsite energy,
-# The disorder is represented through nodes, where each node represents and maps a single orbital.
-# - NumNodes: total number of orbitals included in the disorded,
-# - NodePosition: orbital associated with the node,
-# - NodeFrom, and NodeTo: bond from and to with 2 columns and NumBondDisorder rows, where the second column is complex
-# conjugated hopping,
-# - Hopping: values of the new hopping, with 2 columns and NumBondDisorder rows where the hoppings in different
-# columns are conjugated values,
-# - NodeOnsite: array of nodes that have onsite disorder,
-# - U0: value of the onsite disorder.
-class StructuralDisorder:
-    def __init__(self, lattice, concentration=0, position=None):
-
-        if (concentration != 0 and not(position is None)) or (position is None and concentration == 0):
-            SystemExit('Either select concentration which results in random distribution or '
-                       'the exact position of the defect!')
-
-        self._lattice = lattice
-
-        vectors = np.asarray(self._lattice.vectors)
-        self._space_size = vectors.shape[0]
-
-        if position is None:
-            position = np.zeros(self._space_size)
-            self._exact_position = False
-        else:
-            self._exact_position = True
-
-        self._concentration = concentration
-        self._position = np.asmatrix(position)
-
-        self._num_bond_disorder_per_type = 0
-        self._num_onsite_disorder_per_type = 0
-
-        self._orbital_from = []
-        self._orbital_to = []
-        self._orbital_onsite = []
-
-        self._idx_node = 0
-        self._disorder_hopping = []
-        self._disorder_onsite = []
-
-        self._nodes_from = []
-        self._nodes_to = []
-        self._nodes_onsite = []
-
-        # only used for scaling
-        self._sub_from = []
-        self._sub_to = []
-        self._sub_onsite = []
-        self._rel_idx_onsite = []
-        self._rel_idx_to = []
-        self._rel_idx_from = []
-        self._onsite = []
-        self._hopping = []
-
-        self._orbital_vacancy = []
-        self._orbital_vacancy_cell = []
-        self._vacancy_sub = []
-
-        self._num_nodes = 0
-        self._nodes_map = dict()
-        self._node_orbital = []
-        num_orbitals = np.zeros(lattice.nsub, dtype=np.uint64)
-        for name, sub in lattice.sublattices.items():
-            # num of orbitals at each sublattice is equal to size of onsite energy
-            num_energies = np.asarray(sub.energy).shape[0]
-            num_orbitals[sub.alias_id] = num_energies
-        self._num_orbitals_total = np.sum(np.asarray(num_orbitals))
-        self._num_orbitals = np.asarray(num_orbitals)
-        self._num_orbitals_before = np.cumsum(np.asarray(num_orbitals)) - num_orbitals
-        self._lattice = lattice
-
-        vectors = np.asarray(self._lattice.vectors)
-        self._space_size = vectors.shape[0]
-
-    def add_vacancy(self, *disorder):
-        num_vacancy_disorder = 0
-        for dis in disorder:
-            if len(disorder) == 1:
-                relative_index = [0, 0]
-                dis = [relative_index, dis]
-
-            # check if it's just concentration or sublatt
-            num_vacancy_disorder += 1
-            self.add_local_vacancy_disorder(*dis)
-
-            if len(disorder) > 2:
-                raise SystemExit('Vacancy disorder should be added in a form:'
-                                 '\n sublattice name,'
-                                 '\n or in a form of:'
-                                 '\n ([rel. unit cell], sublattice_name)')
-
-    def add_structural_disorder(self, *disorder):
-        self._nodes_map = dict()
-
-        num_bond_disorder_per_type = 0
-        num_onsite_disorder_per_type = 0
-        for dis in disorder:
-            if len(dis) == 5:
-                num_bond_disorder_per_type += 1
-                self.add_local_bond_disorder(*dis)
-            else:
-                if len(dis) == 3:
-                    num_onsite_disorder_per_type += 1
-                    self.add_local_onsite_disorder(*dis)
-                else:
-                    raise SystemExit('Disorder should be added in a form of bond disorder:'
-                                     '\n([rel. unit cell from], sublattice_from, [rel. unit cell to], sublattice_to, '
-                                     'value),'
-                                     '\n or in a form of disorder onsite energy:'
-                                     '\n ([rel. unit cell], sublattice_name, '
-                                     'onsite energy)')
-
-        self._num_bond_disorder_per_type = num_bond_disorder_per_type
-        self._num_onsite_disorder_per_type = num_onsite_disorder_per_type
-        sorted_node_orb = sorted(self._nodes_map, key=lambda x: self._nodes_map[x])
-        sorted_nodes = [self._nodes_map[x] for x in sorted_node_orb]
-
-        sorted_dict = dict(zip(sorted_node_orb, sorted_nodes))
-        self._nodes_map = sorted_dict
-        self._node_orbital = sorted_node_orb
-
-    def map_the_orbital(self, orb, nodes_map):
-        idx_node = len(nodes_map)
-        if not (orb in nodes_map):
-            nodes_map[orb] = idx_node
-            idx_node += 1
-        self._nodes_map = nodes_map
-
-        return idx_node
-
-    def add_local_vacancy_disorder(self, relative_index, sub):
-        orbital_vacancy = []
-        orbital_vacancy_cell = []
-        names, sublattices = zip(*self._lattice.sublattices.items())
-
-        if sub not in names:
-            raise SystemExit('Desired initial sublattice doesn\'t exist in the chosen lattice! ')
-
-        indx = names.index(sub)
-        lattice_sub = sublattices[indx]
-
-        sub_id = lattice_sub.alias_id
-
-        it = np.nditer(lattice_sub.energy, flags=['multi_index'])
-
-        while not it.finished:
-            orbit = int(self._num_orbitals_before[sub_id] + it.multi_index[0])
-            if orbit not in orbital_vacancy:
-                orbital_vacancy.append(orbit)
-            it.iternext()
-
-        self._orbital_vacancy.extend(orbital_vacancy)
-        self._vacancy_sub.extend(sub)
-
-    def add_local_bond_disorder(self, relative_index_from, from_sub, relative_index_to, to_sub, hoppings):
-
-        # save the info used for manual scaling
-        self._sub_from.append(from_sub)
-        self._sub_to.append(to_sub)
-        self._rel_idx_to.append(relative_index_to)
-        self._rel_idx_from.append(relative_index_from)
-        self._hopping.append(np.atleast_1d(hoppings))
-
-        orbital_from = []
-        orbital_to = []
-        orbital_hop = []
-
-        if not (np.all(np.abs(np.asarray(relative_index_from)) < 2) and
-                np.all(np.abs(np.asarray(relative_index_to)) < 2)):
-            raise SystemExit('When using structural disorder, only the distance between nearest unit cells are '
-                             'supported, make the bond in the bond disorder shorter! ')
-
-        names, sublattices = zip(*self._lattice.sublattices.items())
-
-        if from_sub not in names:
-            raise SystemExit('Desired initial sublattice doesnt exist in the chosen lattice! ')
-        if to_sub not in names:
-            raise SystemExit('Desired final sublattice doesnt exist in the chosen lattice! ')
-
-        indx_from = names.index(from_sub)
-        lattice_sub_from = sublattices[indx_from]
-
-        indx_to = names.index(to_sub)
-        lattice_sub_to = sublattices[indx_to]
-
-        from_sub_id = lattice_sub_from.alias_id
-        to_sub_id = lattice_sub_to.alias_id
-
-        nodes_map = self._nodes_map
-
-        nodes_from = []
-        nodes_to = []
-
-        h = np.nditer(hoppings, flags=['multi_index'])
-        while not h.finished:
-            relative_move_from = np.dot(np.asarray(relative_index_from) + 1,
-                                        3 ** np.linspace(0, self._space_size - 1, self._space_size, dtype=np.int32))
-            relative_move_to = np.dot(np.asarray(relative_index_to) + 1,
-                                      3 ** np.linspace(0, self._space_size - 1, self._space_size, dtype=np.int32))
-
-            if isinstance(hoppings, np.ndarray):
-                orb_from = int(relative_move_from +
-                               (self._num_orbitals_before[from_sub_id] + h.multi_index[0]) * 3 ** self._space_size)
-                orb_to = int(relative_move_to +
-                             (self._num_orbitals_before[to_sub_id] + h.multi_index[1]) * 3 ** self._space_size)
-
-                self.map_the_orbital(orb_from, nodes_map)
-                self.map_the_orbital(orb_to, nodes_map)
-
-                orbital_from.append(orb_from)
-                orbital_to.append(orb_to)
-
-                nodes_from.append(nodes_map[orb_from])
-                nodes_to.append(nodes_map[orb_to])
-
-                # conjugate
-                orbital_from.append(orb_to)
-                orbital_to.append(orb_from)
-
-                nodes_from.append(nodes_map[orb_to])
-                nodes_to.append(nodes_map[orb_from])
-
-                orbital_hop.append(h[0])
-                orbital_hop.append(np.conj(np.transpose(h[0])))
-
-            else:
-                orb_from = int(relative_move_from + self._num_orbitals_before[from_sub_id] * 3 ** self._space_size)
-                orb_to = int(relative_move_to + self._num_orbitals_before[to_sub_id] * 3 ** self._space_size)
-
-                self.map_the_orbital(orb_from, nodes_map)
-                self.map_the_orbital(orb_to, nodes_map)
-
-                orbital_from.append(orb_from)
-                orbital_to.append(orb_to)
-
-                nodes_from.append(nodes_map[orb_from])
-                nodes_to.append(nodes_map[orb_to])
-
-                # conjugate
-                orbital_from.append(orb_to)
-                orbital_to.append(orb_from)
-
-                nodes_from.append(nodes_map[orb_to])
-                nodes_to.append(nodes_map[orb_from])
-
-                orbital_hop.append(h[0])
-                orbital_hop.append((h[0].conjugate()))
-
-            h.iternext()
-
-        self._orbital_from.append(orbital_from)
-        self._orbital_to.append(orbital_to)
-
-        self._disorder_hopping.append(orbital_hop)
-
-        self._nodes_from.append(nodes_from)
-        self._nodes_to.append(nodes_to)
-
-        if len(nodes_map) > self._num_nodes:
-            self._num_nodes = len(nodes_map)
-
-    def add_local_onsite_disorder(self, relative_index, sub, value):
-
-        # save the info used for manual scaling
-        self._sub_onsite.append(sub)
-        self._rel_idx_onsite.append(relative_index)
-        self._onsite.append(np.atleast_1d(value))
-
-        orbital_onsite = []
-        orbital_onsite_en = []
-
-        nodes_map = self._nodes_map
-
-        names, sublattices = zip(*self._lattice.sublattices.items())
-
-        if sub not in names:
-            raise SystemExit('Desired initial sublattice doesnt exist in the chosen lattice! ')
-
-        indx_sub = names.index(sub)
-        lattice_sub = sublattices[indx_sub]
-
-        sub_id = lattice_sub.alias_id
-
-        nodes_onsite = []
-
-        h = np.nditer(value, flags=['multi_index'])
-        while not h.finished:
-            relative_move = np.dot(np.asarray(relative_index) + 1,
-                                   3 ** np.linspace(0, self._space_size - 1, self._space_size, dtype=np.int32))
-
-            if isinstance(value, np.ndarray):
-                orb = int(relative_move + (self._num_orbitals_before[sub_id] + h.multi_index[0]) * 3 ** self._space_size)
-
-                self.map_the_orbital(orb, nodes_map)
-
-                orbital_onsite_en.append(h[0])
-
-                nodes_onsite.append(nodes_map[orb])
-                orbital_onsite.append(orb)
-            else:
-                orb = int(relative_move + self._num_orbitals_before[sub_id] * 3 ** self._space_size)
-
-                self.map_the_orbital(orb, nodes_map)
-
-                orbital_onsite_en.append(h[0])
-                nodes_onsite.append(nodes_map[orb])
-                orbital_onsite.append(orb)
-            h.iternext()
-
-        self._orbital_onsite.append(orbital_onsite)
-
-        self._disorder_onsite.append(orbital_onsite_en)
-
-        self._nodes_onsite.append(nodes_onsite)
-
-        if len(nodes_map) > self._num_nodes:
-            self._num_nodes = len(nodes_map)
-
-
-# Class that introduces Disorder into the initially built lattice.
-# The informations about the disorder are the type, mean value, and standard deviation. The function that you could use
-# in the bulding of the lattice is add_disorder. The class method takes care of the shape of the disorder chosen (it
-# needs to be same as the number of orbitals at a given atom), and takes care of the conversion to the c++ orbital-only
-# format.
-class Disorder:
-    def __init__(self, lattice):
-        # type of the disorder, can be 'Gaussian', 'Uniform' and 'Deterministic'.
-        self._type = []
-        # type_id of the disorder, can be 'Gaussian': 1, 'Uniform': 2 and 'Deterministic': 3.
-        self._type_id = []
-        # mean value of the disorder.
-        self._mean = []
-        # standard deviation of the disorder.
-        self._stdv = []
-        # orbital that has the chosen disorder.
-        self._orbital = []
-        # sublattice that has the chosen disorder.
-        self._sub_name = []
-
-        num_orbitals = np.zeros(lattice.nsub, dtype=np.uint64)
-        for name, sub in lattice.sublattices.items():
-            # num of orbitals at each sublattice is equal to size of onsite energy
-            num_energies = np.asarray(sub.energy).shape[0]
-            num_orbitals[sub.alias_id] = num_energies
-        self._num_orbitals_total = np.sum(np.asarray(num_orbitals))
-        self._num_orbitals = np.asarray(num_orbitals)
-        self._num_orbitals_before = np.cumsum(np.asarray(num_orbitals)) - num_orbitals
-        self._lattice = lattice
-
-    # class method that introduces the disorder to the lattice
-    def add_disorder(self, sublattice, dis_type, mean_value, standard_deviation=0.):
-        # make lists
-        if not (isinstance(sublattice, list)):
-            sublattice = [sublattice]
-        if not (isinstance(dis_type, list)):
-            dis_type = [dis_type]
-            mean_value = [mean_value]
-            standard_deviation = [standard_deviation]
-
-        self.add_local_disorder(sublattice, dis_type, mean_value, standard_deviation)
-
-    def add_local_disorder(self, sublattice_name, dis_type, mean_value, standard_deviation):
-
-        vectors = np.asarray(self._lattice.vectors)
-        space_size = vectors.shape[0]
-
-        names, sublattices = zip(*self._lattice.sublattices.items())
-        chosen_orbitals_single = -1 * np.ones((self._num_orbitals_total, len(dis_type)))  # automatically set to -1
-
-        orbital_dis_mean = []
-        orbital_dis_stdv = []
-        orbital_dis_type_id = []
-
-        for idx_sub, sub_name in enumerate(sublattice_name):
-            if sub_name not in names:
-                raise SystemExit('Desired sublattice doesnt exist in the chosen lattice! ')
-            indx = names.index(sub_name)
-            lattice_sub = sublattices[indx]
-            size_orb = self._num_orbitals[lattice_sub.alias_id]
-
-            hopping = {'relative_index': np.zeros(space_size, dtype=np.int32), 'from_id': lattice_sub.alias_id,
-                       'to_id': lattice_sub.alias_id, 'mean_value': lattice_sub.energy}
-
-            # number of orbitals before i-th sublattice, where is is the array index
-            orbitals_before = self._num_orbitals_before
-
-            orbital_from = []
-            orbital_dis_mean = []
-            orbital_dis_stdv = []
-            orbital_dis_type_id = []
-
-            dis_number = {'Gaussian': 1, 'Uniform': 2, 'Deterministic': 3, 'gaussian': 1, 'uniform': 2,
-                          'deterministic': 3}
-            for index, it in enumerate(mean_value):
-                if len(mean_value) > 1:
-                    chosen_orbitals_single[idx_sub, index] = orbitals_before[hopping['from_id']] + index
-                else:
-                    chosen_orbitals_single[idx_sub, index] = hopping['from_id']
-                orbital_dis_mean.append(it)
-                orbital_dis_stdv.append(standard_deviation[index])
-                if dis_type[index] in dis_number:
-                    orbital_dis_type_id.append(dis_number[dis_type[index]])
-                    if dis_type[index] == 'Deterministic' or dis_type[index] == 'deterministic':
-                        if standard_deviation[index] != 0:
-                            raise SystemExit(
-                                'Standard deviation of deterministic disorder must be 0.')
-                else:
-                    raise SystemExit(
-                        'Disorder not present! Try between Gaussian, Deterministic, and Uniform case insensitive ')
-
-            if not (all(np.asarray(i).shape == size_orb for i in [dis_type, mean_value, standard_deviation])):
-                print('Shape of disorder', len(dis_type), len(mean_value), len(standard_deviation),
-                      'is different than the number of orbitals at sublattice ', sublattice_name, 'which is', size_orb,
-                      '\n')
-                raise SystemExit('All parameters should have the same length! ')
-
-        self._type_id.extend(orbital_dis_type_id)
-        self._mean.extend(orbital_dis_mean)
-        self._stdv.extend(orbital_dis_stdv)
-
-        if len(self._orbital) == 0:
-            self._orbital = chosen_orbitals_single
-        else:
-            self._orbital = np.column_stack((self._orbital, chosen_orbitals_single))
-
-
-class Modification:
-    def __init__(self, **kwargs):
-        self._magnetic_field = kwargs.get('magnetic_field', None)
-        self._flux = kwargs.get('flux', None)
-
-    @property
-    def magnetic_field(self):  # magnetic_field:
-        """Returns true if magnetic field is on, else False."""
-        return self._magnetic_field
-
-    @property
-    def flux(self):  # flux:
-        """Returns the number of multiples of flux quantum."""
-        return self._flux
-
-
-class Calculation:
-
-    @property
-    def get_dos(self):
-        """Returns the requested DOS functions."""
-        return self._dos
-
-    @property
-    def get_ldos(self):
-        """Returns the requested LDOS functions."""
-        return self._ldos
-
-    @property
-    def get_arpes(self):
-        """Returns the requested ARPES functions."""
-        return self._arpes
-
-    @property
-    def get_gaussian_wave_packet(self):
-        """Returns the requested wave packet time evolution function, with a gaussian wavepacket mutiplied with different
-        plane waves."""
-        return self._gaussian_wave_packet
-
-    @property
-    def get_conductivity_dc(self):
-        """Returns the requested DC conductivity functions."""
-        return self._conductivity_dc
-
-    @property
-    def get_conductivity_optical(self):
-        """Returns the requested optical conductivity functions."""
-        return self._conductivity_optical
-
-    @property
-    def get_conductivity_optical_nonlinear(self):
-        """Returns the requested nonlinear optical conductivity functions."""
-        return self._conductivity_optical_nonlinear
-
-    @property
-    def get_singleshot_conductivity_dc(self):
-        """Returns the requested singleshot DC conductivity functions."""
-        return self._singleshot_conductivity_dc
-
-    def __init__(self, configuration=None):
-
-        if configuration is not None and not isinstance(configuration, Configuration):
-            raise TypeError("You're forwarding a wrong type!")
-
-        self._scaling_factor = configuration.energy_scale
-        self._energy_shift = configuration.energy_shift
-        self._dos = []
-        self._ldos = []
-        self._arpes = []
-        self._conductivity_dc = []
-        self._conductivity_optical = []
-        self._conductivity_optical_nonlinear = []
-        self._gaussian_wave_packet = []
-        self._singleshot_conductivity_dc = []
-
-        self._avail_dir_full = {'xx': 0, 'yy': 1, 'zz': 2, 'xy': 3, 'xz': 4, 'yx': 5, 'yz': 6, 'zx': 7, 'zy': 8}
-        self._avail_dir_nonl = {'xxx': 0, 'xxy': 1, 'xxz': 2, 'xyx': 3, 'xyy': 4, 'xyz': 5, 'xzx': 6, 'xzy': 7,
-                                'xzz': 8, 'yxx': 9, 'yxy': 10, 'yxz': 11, 'yyx': 12, 'yyy': 13, 'yyz': 14, 'yzx': 15,
-                                'yzy': 16, 'yzz': 17, 'zxx': 18, 'zxy': 19, 'zxz': 20, 'zyx': 21, 'zyy': 22, 'zyz': 23,
-                                'zzx': 24, 'zzy': 25, 'zzz': 26}
-        self._avail_dir_sngl = {'xx': 0, 'yy': 1, 'zz': 2}
-
-    def dos(self, num_points, num_moments, num_random, num_disorder=1):
-        """Calculate the density of states as a function of energy
-
-        Parameters
-        ----------
-        num_points : int
-            Number of energy point inside the spectrum at which the DOS will be calculated.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_random : int
-            Number of random vectors to use for the stochastic evaluation of trace.
-        num_disorder : int
-            Number of different disorder realisations.
-        """
-
-        self._dos.append({'num_points': num_points, 'num_moments': num_moments, 'num_random': num_random,
-                          'num_disorder': num_disorder})
-
-    def ldos(self, energy, num_moments, position, sublattice, num_disorder=1):
-        """Calculate the local density of states as a function of energy
-
-        Parameters
-        ----------
-        energy : list or np.array
-            List of energy points at which the LDOS will be calculated.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_disorder : int
-            Number of different disorder realisations.
-        position : list
-            Relative index of the unit cell where the LDOS will be calculated.
-        sublattice : str or list
-            Name of the sublattice at which the LDOS will be calculated.
-        """
-
-        self._ldos.append({'energy': energy, 'num_moments': num_moments, 'position': np.asmatrix(position),
-                           'sublattice': sublattice, 'num_disorder': num_disorder})
-
-    def arpes(self, k_vector, weight, num_moments, num_disorder=1):
-        """Calculate the spectral contribution for given k-points and weights.
-
-        Parameters
-        ----------
-        k_vector : List
-            List of K points with respect to reciprocal vectors b0 and b1 at which the band structure will be calculated.
-        weight : List
-            List of orbital weights used for ARPES.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_disorder : int
-            Number of different disorder realisations.
-        """
-
-        self._arpes.append({'k_vector': k_vector, 'weight': weight, 'num_moments': num_moments, 'num_disorder': num_disorder})
-
-    def gaussian_wave_packet(self, num_points, num_moments, timestep, k_vector, spinor, width, mean_value,
-                             num_disorder=1, **kwargs):
-        """Calculate the time evolution function of a wave packet
-
-        Parameters
-        ----------
-        num_points : int
-            Number of time points for the time evolution.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        timestep : float
-            Timestep for calculation of time evolution.
-        k_vector : np.array
-            Different wave vectors, components corresponding to vectors b0 and b1.
-        spinor : np.array
-            Spinors for each of the k vectors.
-        width : float
-            Width of the gaussian.
-        mean_value : [float, float]
-            Mean value of the gaussian envelope.
-        num_disorder : int
-            Number of different disorder realisations.
-
-            Optional parameters, forward probing point, defined with x, y coordinate were the wavepacket will be checked
-            at different timesteps.
-
-        """
-        probing_point = kwargs.get('probing_point', 0)
-
-        self._gaussian_wave_packet.append(
-            {'num_points': num_points, 'num_moments': num_moments,
-             'timestep': timestep, 'num_disorder': num_disorder, 'spinor': spinor, 'width': width, 'k_vector': k_vector,
-             'mean_value': mean_value, 'probing_point': probing_point})
-
-    def conductivity_dc(self, direction, num_points, num_moments, num_random, num_disorder=1, temperature=0):
-        """Calculate the DC conductivity for a given direction
-
-        Parameters
-        ----------
-        direction : str
-            direction in xyz coordinates along which the conductivity is calculated.
-            Supports 'xx', 'yy', 'zz', 'xy', 'xz', 'yx', 'yz', 'zx', 'zy'.
-        num_points : int
-            Number of energy point inside the spectrum at which the DOS will be calculated.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_random : int
-            Number of random vectors to use for the stochastic evaluation of trace.
-        num_disorder : int
-            Number of different disorder realisations.
-        temperature : float
-            Value of the temperature at which we calculate the response.
-        """
-        if direction not in self._avail_dir_full:
-            print('The desired direction is not available. Choose from a following set: \n',
-                  self._avail_dir_full.keys())
-            raise SystemExit('Invalid direction!')
-        else:
-            self._conductivity_dc.append(
-                {'direction': self._avail_dir_full[direction], 'num_points': num_points, 'num_moments': num_moments,
-                 'num_random': num_random, 'num_disorder': num_disorder,
-                 'temperature': temperature})
-
-    def conductivity_optical(self, direction, num_points, num_moments, num_random, num_disorder=1, temperature=0):
-        """Calculate optical conductivity for a given direction
-
-        Parameters
-        ----------
-        direction : string
-            direction in xyz coordinates along which the conductivity is calculated.
-            Supports 'xx', 'yy', 'zz', 'xy', 'xz', 'yx', 'yz', 'zx', 'zy'.
-        num_points : int
-            Number of energy point inside the spectrum at which the DOS will be calculated.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_random : int
-            Number of random vectors to use for the stochastic evaluation of trace.
-        num_disorder : int
-            Number of different disorder realisations.
-        temperature : float
-            Value of the temperature at which we calculate the response.
-        """
-        if direction not in self._avail_dir_full:
-            print('The desired direction is not available. Choose from a following set: \n',
-                  self._avail_dir_full.keys())
-            raise SystemExit('Invalid direction!')
-        else:
-            self._conductivity_optical.append(
-                {'direction': self._avail_dir_full[direction], 'num_points': num_points, 'num_moments': num_moments,
-                 'num_random': num_random, 'num_disorder': num_disorder,
-                 'temperature': temperature})
-
-    def conductivity_optical_nonlinear(self, direction, num_points, num_moments, num_random, num_disorder=1,
-                                       temperature=0, **kwargs):
-        """Calculate nonlinear optical conductivity for a given direction
-
-        Parameters
-        ----------
-        direction : string
-            direction in xyz coordinates along which the conductivity is calculated.
-            Supports all the combinations of the direction x, y and z with length 3 like 'xxx','zzz', 'xxy', 'xxz' etc.
-        num_points : int
-            Number of energy point inside the spectrum at which the DOS will be calculated.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_random : int
-            Number of random vectors to use for the stochastic evaluation of trace.
-        num_disorder : int
-            Number of different disorder realisations.
-        temperature : float
-            Value of the temperature at which we calculate the response.
-
-            Optional parameters, forward special, a parameter that can simplify the calculation for some materials.
-        """
-
-        if direction not in self._avail_dir_nonl:
-            print('The desired direction is not available. Choose from a following set: \n',
-                  self._avail_dir_nonl.keys())
-            raise SystemExit('Invalid direction!')
-        else:
-            special = kwargs.get('special', 0)
-
-            self._conductivity_optical_nonlinear.append(
-                {'direction': self._avail_dir_nonl[direction], 'num_points': num_points,
-                 'num_moments': num_moments, 'num_random': num_random, 'num_disorder': num_disorder,
-                 'temperature': temperature, 'special': special})
-
-    def singleshot_conductivity_dc(self, energy, direction, eta, num_moments, num_random, num_disorder=1, **kwargs):
-        """Calculate the DC conductivity using KITEx for a fiven direction and energy
-
-        Parameters
-        ----------
-        energy : ndarray or float
-            Array or a single value of energies at which singleshot_conductivity_dc will be calculated.
-        direction : string
-            direction in xyz coordinates along which the conductivity is calculated.
-            Supports 'xx', 'yy', 'zz'.
-        eta : Float
-            Parameter that affects the broadening of the kernel function.
-        num_moments : int
-            Number of polynomials in the Chebyshev expansion.
-        num_random : int
-            Number of random vectors to use for the stochastic evaluation of trace.
-        num_disorder : int
-            Number of different disorder realisations.
-        **kwargs: Optional arguments preserve_disorder.
-
-        """
-
-        preserve_disorder = kwargs.get('preserve_disorder', False)
-        if direction not in self._avail_dir_sngl:
-            print('The desired direction is not available. Choose from a following set: \n',
-                  self._avail_dir_sngl.keys())
-            raise SystemExit('Invalid direction!')
-        else:
-            self._singleshot_conductivity_dc.append(
-                {'energy': (np.atleast_1d(energy)),
-                 'direction': self._avail_dir_sngl[direction],
-                 'eta': np.atleast_1d(eta), 'num_moments': np.atleast_1d(num_moments),
-                 'num_random': num_random, 'num_disorder': num_disorder,
-                 'preserve_disorder': np.atleast_1d(preserve_disorder)})
+__all__ = ['Configuration']
 
 
 class Configuration:
@@ -881,7 +133,7 @@ class Configuration:
                 print("Badly Defined Boundaries!")
                 exit()
         return Bounds_tmp, BoundTwists
-        
+
     @property
     def leng(self):  # -> length:
         """Return the number of unit cell repetitions in each direction. """
@@ -901,245 +153,6 @@ class Configuration:
     def print_custom_pot(self):  # -> potential
         """Return print custom potential flag"""
         return self._print_custom_local
-
-
-def make_pybinding_model(lattice, disorder=None, disorder_structural=None, **kwargs):
-    """Build a Pybinding model with disorder used in Kite. Bond disorder or magnetic field are not currently supported.
-
-    Parameters
-    ----------
-    lattice : pb.Lattice
-        Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
-        onsite energies.
-    disorder : Disorder
-        Class that introduces Disorder into the initially built lattice. For more info check the Disorder class.
-    disorder_structural : StructuralDisorder
-        Class that introduces StructuralDisorder into the initially built lattice. For more info check the
-        StructuralDisorder class.
-    **kwargs: Optional arguments like shape .
-
-    """
-
-    shape = kwargs.get('shape', None)
-    if disorder_structural:
-        # check if there's a bond disorder term
-        # return an error if so
-        disorder_struc_list = disorder_structural
-        if not isinstance(disorder_structural, list):
-            disorder_struc_list = [disorder_structural]
-
-        for idx_struc, dis_struc in enumerate(disorder_struc_list):
-            if len(dis_struc._sub_from):
-                raise SystemExit(
-                    'Automatic scaling is not supported when bond disorder is specified. Please select the scaling '
-                    'bounds manually.')
-
-    def gaussian_disorder(sub, mean_value, stdv):
-        """Add gaussian disorder with selected mean value and standard deviation to the pybinding model.
-
-        Parameters
-        ----------
-        sub : str
-            Select a sublattice where disorder should be added.
-        mean_value : float
-            Select a mean value of the disorder.
-        stdv : float
-            Select standard deviation of the disorder.
-        """
-
-        @pb.onsite_energy_modifier
-        def modify_energy(energy, sub_id):
-            rand_onsite = np.random.normal(loc=mean_value, scale=stdv, size=len(energy[sub_id == sub]))
-            energy[sub_id == sub] += rand_onsite
-            return energy
-
-        return modify_energy
-
-    def deterministic_disorder(sub, mean_value):
-        """Add deterministic disorder with selected mean value to the Pybinding model.
-
-        Parameters
-        ----------
-        sub : str
-            Select a sublattice where disorder should be added.
-        mean_value : float
-            Select a mean value of the disorder.
-
-        """
-
-        @pb.onsite_energy_modifier
-        def modify_energy(energy, sub_id):
-            onsite = mean_value * np.ones(len(energy[sub_id == sub]))
-            energy[sub_id == sub] += onsite
-            return energy
-
-        return modify_energy
-
-    def uniform_disorder(sub, mean_value, stdv):
-        """Add uniform disorder with selected mean value and standard deviation to the Pybinding model.
-
-        Parameters
-        ----------
-        sub : str
-            Select a sublattice where disorder should be added.
-        mean_value : float
-            Select a mean value of the disorder.
-        stdv : float
-            Select standard deviation of the disorder.
-        """
-
-        @pb.onsite_energy_modifier
-        def modify_energy(energy, sub_id):
-            a = mean_value - stdv * np.sqrt(3)
-            b = mean_value + stdv * np.sqrt(3)
-
-            rand_onsite = np.random.uniform(low=a, high=b, size=len(energy[sub_id == sub]))
-            energy[sub_id == sub] += rand_onsite
-
-            return energy
-
-        return modify_energy
-
-    def vacancy_disorder(sub, concentration):
-        """Add vacancy disorder with selected concentration to the Pybinding model.
-
-        Parameters
-        ----------
-        sub : str
-            Select a sublattice where disorder should be added.
-        concentration : float
-            Concentration of the vacancy disorder.
-        """
-
-        @pb.site_state_modifier(min_neighbors=2)
-        def modifier(state, sub_id):
-            rand_vec = np.random.rand(len(state))
-            vacant_sublattice = np.logical_and(sub_id == sub, rand_vec < concentration)
-
-            state[vacant_sublattice] = False
-            return state
-
-        return modifier
-
-    def local_onsite_disorder(positions, value):
-        """Add onsite disorder as a part of StructuralDisorder class to the Pybinding model.
-
-        Parameters
-        ----------
-        positions : np.ndarray
-            Select positions where disorder should appear
-        value : np.ndarray
-            Value of the disordered onsite term.
-        """
-        space_size = np.array(positions).shape[1]
-
-        @pb.onsite_energy_modifier
-        def modify_energy(x, y, z, energy):
-            # all_positions = np.column_stack((x, y, z))[0:space_size, :]
-            all_positions = np.stack([x, y, z], axis=1)[:, 0:space_size]
-
-            kdtree1 = cKDTree(positions)
-            kdtree2 = cKDTree(all_positions)
-
-            d_max = 0.05
-            # find the closest elements between two trees, with d < d_max. Finds the desired elements from the
-            # parameters x, y, z being used inside the modifier function.
-            coo = kdtree1.sparse_distance_matrix(kdtree2, d_max, output_type='coo_matrix')
-
-            energy[coo.col] += value
-
-            return energy
-
-        return modify_energy
-
-    if not shape:
-
-        vectors = np.asarray(lattice.vectors)
-        space_size = vectors.shape[0]
-
-        # fix a size for 1D, 2D, or 3D
-        referent_size = 1
-
-        if space_size == 1:
-            referent_size = 1000
-        elif space_size == 2:
-            referent_size = 200
-        elif space_size == 3:
-            referent_size = 50
-
-        norm = np.sum(np.abs(vectors)**2, axis=-1)**(1./2)
-
-        num_each_dir = (referent_size / norm).astype(int)
-
-        shape_size = 2 * num_each_dir[0:space_size]
-        symmetry = 1 * num_each_dir[0:space_size]
-
-        shape = pb.primitive(*shape_size)
-        trans_symm = pb.translational_symmetry(*symmetry)
-        param = [shape, trans_symm]
-    else:
-        param = [shape]
-
-    model = pb.Model(lattice, *param)
-
-    if disorder:
-        disorder_list = disorder
-        if not isinstance(disorder, list):
-            disorder_list = [disorder]
-        for dis in disorder_list:
-            for idx in range(len(dis._type)):
-                if dis._type[idx].lower() == 'uniform':
-                    model.add(
-                        uniform_disorder(dis._sub_name[idx], dis._mean[idx], dis._stdv[idx]))
-                if dis._type[idx].lower() == 'gaussian':
-                    model.add(
-                        gaussian_disorder(dis._sub_name[idx], dis._mean[idx], dis._stdv[idx]))
-                if dis._type[idx].lower() == 'deterministic':
-                    model.add(deterministic_disorder(dis._sub_name[idx], dis._mean[idx]))
-
-    if disorder_structural:
-
-        disorder_struc_list = disorder_structural
-        if not isinstance(disorder_structural, list):
-            disorder_struc_list = [disorder_structural]
-
-        for idx_struc, dis_struc in enumerate(disorder_struc_list):
-            num_sites = model.system.num_sites
-            rand_vec = np.random.rand(num_sites)
-            space_size = np.array(lattice.vectors).shape[0]
-
-            for vac in dis_struc._vacancy_sub:
-                model.add(vacancy_disorder(sub=vac, concentration=dis_struc._concentration))
-
-            for idx in range(len(dis_struc._sub_onsite)):
-                names, sublattices = zip(*model.lattice.sublattices.items())
-
-                sublattice_alias = names.index(dis_struc._sub_onsite[idx])
-
-                select_sublattice = model.system.sublattices == sublattice_alias
-                sub_and_rand = np.logical_and(select_sublattice, rand_vec < dis_struc._concentration)
-
-                # generates a set of random positions that will be added to the nodes in structural disorder, problem
-                # because when only one sublattice is selected, effective concentration will be lower
-                positions = np.stack([model.system.positions.x[sub_and_rand],
-                                      model.system.positions.y[sub_and_rand],
-                                      model.system.positions.z[sub_and_rand]], axis=1)[:, 0:space_size]
-
-                # ref_pos = np.stack([model.system.positions.x[def_site_idx], model.system.positions.y[def_site_idx],
-                #                     model.system.positions.z[def_site_idx]], axis=1)[:, 0:space_size]
-
-                # get the position of onsite disordered sublattice
-                vectors = np.array(lattice.vectors)[:, 0:space_size]
-                pos_sub = lattice.sublattices[dis_struc._sub_onsite[idx]].position[0:space_size]
-
-                # make an array of positions of sites where the onsite disorder will be added
-                pos = pos_sub + np.dot(vectors.T, np.array(dis_struc._rel_idx_onsite[idx]))
-                select_pos = positions + pos
-
-                # add the onsite with value dis_struc._onsite[idx]
-                model.add(local_onsite_disorder(select_pos, dis_struc._onsite[idx]))
-
-    return model
 
 
 def estimate_bounds(lattice, disorder=None, disorder_structural=None):
@@ -1386,7 +399,7 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
     f.create_dataset('Boundaries', data=bound, dtype='u4')
     f.create_dataset('BoundaryTwists', data=Twists, dtype=float) # JPPP Values of the Fixed Boundary Twists
 
-    
+
     print('\n##############################################################################\n')
     print('DECOMPOSITION:\n')
     domain_dec = config.div
@@ -1397,11 +410,11 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
               'of your system! They are chosen automatically to be {}.'.format(domain_dec[0:space_size]))
     # number of divisions of the in each direction of hamiltonian. nx x ny = num_threads
     print('\nChosen number of decomposition parts is:', domain_dec[0:space_size], '.'
-          '\nINFO: this product will correspond to the total number of threads. '
-          '\nYou should choose at most the number of processor cores you have.'
-          '\nWARNING: System size need\'s to be an integer multiple of \n'
-          '[TILE * ', domain_dec, '] '
-          '\nwhere TILE is selected when compiling the C++ code. \n')
+                                                                                  '\nINFO: this product will correspond to the total number of threads. '
+                                                                                  '\nYou should choose at most the number of processor cores you have.'
+                                                                                  '\nWARNING: System size need\'s to be an integer multiple of \n'
+                                                                                  '[TILE * ', domain_dec, '] '
+                                                                                                          '\nwhere TILE is selected when compiling the C++ code. \n')
 
     f.create_dataset('Divisions', data=domain_dec[0:space_size], dtype='u4')
     # space dimension of the lattice 1D, 2D, 3D
@@ -1541,7 +554,7 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
 
             # fixed_positions_index = [i, j, k] x [1, Lx, Lx*Ly]
             fixed_positions_index = np.asarray(np.dot(fixed_positions, np.array([1, Lx, Lx * Ly], dtype=np.int32)[0:space_size]),
-                                    dtype=np.int32).reshape(-1)
+                                               dtype=np.int32).reshape(-1)
 
             num_orb_vac = len(disorder_struct._orbital_vacancy)
             num_positions = len(fixed_positions_index)
@@ -1549,12 +562,12 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
                 grp_dis_type = grp_dis_vac.create_group('Type{val}'.format(val=idx_vacancy))
 
                 grp_dis_type.create_dataset('Orbitals', data=np.asarray(disorder_struct._orbital_vacancy,
-                                                                                dtype=np.int32))
+                                                                        dtype=np.int32))
 
                 if disorder_struct._exact_position:
                     grp_dis_type.create_dataset('FixPosition',
                                                 data=np.asarray(fixed_positions_index,
-                                                dtype=np.int32))
+                                                                dtype=np.int32))
                 else:
                     grp_dis_type.create_dataset('Concentration', data=disorder_struct._concentration,
                                                 dtype=np.float64)
@@ -1582,7 +595,7 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
 
                     grp_dis_type.create_dataset('FixPosition',
                                                 data=np.asarray(fixed_positions_index,
-                                                dtype=np.int32))
+                                                                dtype=np.int32))
 
                 else:
                     # Concentration of this type
@@ -1616,19 +629,19 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
                 # Onsite disorder energy
                 grp_dis_type.create_dataset('U0',
                                             data=np.asarray(disorder_struct._disorder_onsite).real.astype(
-                                                 config.type) / config.energy_scale)
+                                                config.type) / config.energy_scale)
                 # Bond disorder hopping
                 disorder_hopping = disorder_struct._disorder_hopping
                 if complx:
                     # hoppings
                     grp_dis_type.create_dataset('Hopping',
                                                 data=np.asarray(disorder_hopping).astype(
-                                                     config.type).flatten() / config.energy_scale)
+                                                    config.type).flatten() / config.energy_scale)
                 else:
                     # hoppings
                     grp_dis_type.create_dataset('Hopping',
                                                 data=np.asarray(disorder_hopping).real.astype(
-                                                     config.type).flatten() / config.energy_scale)
+                                                    config.type).flatten() / config.energy_scale)
 
     # Calculation function defined with num_moments, num_random vectors, and num_disorder etc. realisations
     grpc = f.create_group('Calculation')
@@ -1720,7 +733,7 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
 
         # fixed_positions_index = [i, j, k] x [1, Lx, Lx*Ly]
         fixed_positions = np.asarray(np.dot(position, np.array([1, Lx, Lx * Ly], dtype=np.int32)[0:space_size]),
-                          dtype=np.int32).reshape(-1)
+                                     dtype=np.int32).reshape(-1)
         # num_positions_ldos = fixed_positions.shape[0]
         for sub in sublattice:
 
@@ -1778,7 +791,7 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
         grpc_p = grpc.create_group('gaussian_wave_packet')
 
         num_moments, num_points, num_disorder, spinor, width, k_vector, mean_value, \
-                                                                        probing_points = [], [], [], [], [], [], [], []
+        probing_points = [], [], [], [], [], [], [], []
         timestep = []
         for single_gauss_wavepacket in calculation.get_gaussian_wave_packet:
             num_moments.append(single_gauss_wavepacket['num_moments'])
@@ -1936,8 +949,3 @@ def config_system(lattice, config, calculation, modification=None, **kwargs):
     print('\nExporting of KITE configuration to {} finished.\n'.format(filename))
     print('\n##############################################################################\n')
     f.close()
-
-
-class LoudDeprecationWarning(UserWarning):
-    """Python's DeprecationWarning is silent by default"""
-    pass

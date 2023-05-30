@@ -1,1 +1,0 @@
-../tools/process_single_shot.py
