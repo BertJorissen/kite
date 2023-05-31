@@ -8,19 +8,19 @@
 #include "Generic.hpp"
 #include <Eigen/Dense>
 #include <random>
-#include "ComplexTraits.hpp"
-#include "myHDF5.hpp"
-#include "Random.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
+#include "Tools/Random.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
 template<typename T, unsigned D>
 class Simulation;
-#include "Global.hpp"
-#include "Hamiltonian.hpp"
+#include "Simulation/Global.hpp"
+#include "Hamiltonian/Hamiltonian.hpp"
 #include "KPM_VectorBasis.hpp"
 #include "KPM_Vector.hpp"
 //#include "queue.hpp"
-#include "Simulation.hpp"
+#include "Simulation/Simulation.hpp"
 
 
 // VER o que tenho que por aqui: tile, tile_ghosts, transf_max, x, std

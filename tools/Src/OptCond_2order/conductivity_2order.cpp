@@ -13,16 +13,16 @@
 #include <vector>
 #include <omp.h>
 
-#include "../Tools/ComplexTraits.hpp"
+#include "Tools/ComplexTraits.hpp"
 #include "H5Cpp.h"
-#include "../Tools/myHDF5.hpp"
+#include "Tools/myHDF5.hpp"
 
-#include "../Tools/parse_input.hpp"
-#include "../Tools/systemInfo.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/systemInfo.hpp"
 #include "conductivity_2order.hpp"
-#include "../Tools/functions.hpp"
+#include "Tools/functions.hpp"
 
-#include "../macros.hpp"
+#include "macros.hpp"
 
 
 template <typename T, unsigned DIM>
@@ -277,7 +277,7 @@ bool conductivity_nonlinear<T, DIM>::fetch_parameters(){
   
   // Fetch the direction of the conductivity and convert it to a string
   get_hdf5(&direction, &file, (char*)(dirName+"Direction").c_str());
-  dirString = num2str3(direction);
+  dirString = num2str3f(direction);
 
   // Fetch the number of Chebyshev Moments, temperature and number of points
   get_hdf5(&NumMoments, &file, (char*)(dirName+"NumMoments").c_str());	

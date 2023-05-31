@@ -13,7 +13,7 @@
 #include "ComplexTraits.hpp"
 #include "H5Cpp.h"
 #include "myHDF5.hpp"
-#include "../macros.hpp"
+#include "macros.hpp"
 #include "parse_input.hpp"
 //#include "compiletime_info.h"
 

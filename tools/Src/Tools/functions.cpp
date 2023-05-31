@@ -37,7 +37,7 @@ template float fermi_function(float, float, float);
 template double fermi_function(double, double, double);
 template long double fermi_function(long double, long double, long double);
 
-std::string num2str3(int dir_num){
+std::string num2str3f(int dir_num){
   std::string dir;
  
   switch(dir_num){
@@ -101,7 +101,7 @@ std::string num2str3(int dir_num){
   return dir;
 }
 
-std::string num2str2(int dir_num){
+std::string num2str2f(int dir_num){
   std::string dir;
  
   switch(dir_num){

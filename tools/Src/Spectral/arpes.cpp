@@ -14,15 +14,15 @@
 #include <omp.h>
 
 #include "H5Cpp.h"
-#include "../Tools/ComplexTraits.hpp"
-#include "../Tools/myHDF5.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
 
-#include "../Tools/parse_input.hpp"
-#include "../Tools/systemInfo.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/systemInfo.hpp"
 #include "arpes.hpp"
 
-#include "../Tools/functions.hpp"
-#include "../macros.hpp"
+#include "Tools/functions.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 arpes<T, DIM>::arpes(system_info<T, DIM>& sysinfo, shell_input & vari){

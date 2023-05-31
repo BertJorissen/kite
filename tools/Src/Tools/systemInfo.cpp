@@ -15,7 +15,7 @@
 #include <complex>
 #include <string>
 #include "systemInfo.hpp"
-#include "../macros.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 system_info<T, DIM>::system_info(){

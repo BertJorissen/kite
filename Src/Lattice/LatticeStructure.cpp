@@ -9,8 +9,8 @@
 
 
 #include "Generic.hpp"
-#include "ComplexTraits.hpp"
-#include "myHDF5.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
 #include "Coordinates.hpp"
 #include "LatticeStructure.hpp"
 

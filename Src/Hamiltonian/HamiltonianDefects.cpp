@@ -7,12 +7,12 @@
 
 
 #include "Generic.hpp"
-#include "Global.hpp"
-#include "ComplexTraits.hpp"
-#include "Random.hpp"
-#include "myHDF5.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
+#include "Simulation/Global.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/Random.hpp"
+#include "Tools/myHDF5.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
 #include "Hamiltonian.hpp"
 
 
@@ -428,7 +428,7 @@ void Defect_Operator<T,D>::build_velocity(std::vector<unsigned> & components, un
 }
 
 #define instantiate(type, dim)  template struct Defect_Operator<type,dim>;
-#include "instantiate.hpp"
+#include "Tools/instantiate.hpp"
 
 
 

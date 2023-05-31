@@ -9,8 +9,8 @@
 #include <string>
 #include <vector>
 #include "H5Cpp.h"
-#include "../Tools/parse_input.hpp"
-#include "../Tools/systemInfo.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/systemInfo.hpp"
 #include "conductivity_2order.hpp"
 
 template <typename U, unsigned DIM>

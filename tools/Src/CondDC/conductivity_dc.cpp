@@ -14,15 +14,15 @@
 #include <omp.h>
 
 #include "H5Cpp.h"
-#include "../Tools/ComplexTraits.hpp"
-#include "../Tools/myHDF5.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
 
-#include "../Tools/parse_input.hpp"
-#include "../Tools/systemInfo.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/systemInfo.hpp"
 #include "conductivity_dc.hpp"
-#include "../Tools/functions.hpp"
+#include "Tools/functions.hpp"
 
-#include "../macros.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 conductivity_dc<T, DIM>::conductivity_dc(system_info<T, DIM>& info, shell_input & vari){
@@ -169,7 +169,7 @@ bool conductivity_dc<T, DIM>::fetch_parameters(){
 
   // Fetch the direction of the conductivity and convert it to a string
   get_hdf5(&direction, &file, (char*)(dirName+"Direction").c_str());
-  std::string dirString = num2str2(direction);
+  std::string dirString = num2str2f(direction);
 
   // Fetch the number of Chebyshev Moments
 	get_hdf5(&MaxMoments, &file, (char*)(dirName+"NumMoments").c_str());	

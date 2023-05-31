@@ -92,7 +92,7 @@ std::string num2str2(int dir_num) {
   case 5:
     dir = "yx"; break;
   case 6:
-    dir = "yx"; break;
+    dir = "yz"; break;
   case 7:
     dir = "zx"; break;
   case 8:

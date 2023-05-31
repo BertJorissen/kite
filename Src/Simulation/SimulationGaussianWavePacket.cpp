@@ -7,21 +7,21 @@
 
 
 #include "Generic.hpp"
-#include "ComplexTraits.hpp"
-#include "myHDF5.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
 #include "Global.hpp"
-#include "Random.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
+#include "Tools/Random.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
-#include "queue.hpp"
+#include "Tools/queue.hpp"
 #include "Simulation.hpp"
-#include "Hamiltonian.hpp"
-#include "KPM_VectorBasis.hpp"
-#include "KPM_Vector.hpp"
+#include "Hamiltonian/Hamiltonian.hpp"
+#include "Vector/KPM_VectorBasis.hpp"
+#include "Vector/KPM_Vector.hpp"
 
 #if !(COMPILE_WAVEPACKET)
 #warning "Cannot compile SimulationGaussianWavepacket.cpp. This error is not fatal, but KITE will not be able to run GaussianWavepacket(). A more recent version of gcc (8.0) is required."
@@ -254,4 +254,4 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
 }
 
 #define instantiate(type,dim) template class Simulation<type,dim>;
-#include "instantiate.hpp"
+#include "Tools/instantiate.hpp"

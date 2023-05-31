@@ -1,6 +1,11 @@
 import numpy as np
 import warnings
+import h5py as hp
+import pybinding as pb
 from .utils.warnings import LoudDeprecationWarning
+from .modification import Modification
+from .utils.model import make_pybinding_model
+from scipy.sparse import coo_matrix
 
 __all__ = ['Configuration']
 

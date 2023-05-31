@@ -14,15 +14,15 @@
 #include <omp.h>
 
 #include "H5Cpp.h"
-#include "../Tools/ComplexTraits.hpp"
-#include "../Tools/myHDF5.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
 
-#include "../Tools/parse_input.hpp"
-#include "../Tools/systemInfo.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/systemInfo.hpp"
 #include "conductivity_optical.hpp"
-#include "../Tools/functions.hpp"
+#include "Tools/functions.hpp"
 
-#include "../macros.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 conductivity_optical<T, DIM>::conductivity_optical(system_info<T, DIM>& info, shell_input & vari){
@@ -171,7 +171,7 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
   // Fetch the direction of the conductivity and convert it to a string
   std::string dirName = "/Calculation/conductivity_optical/";
   get_hdf5(&direction, &file, (char*)(dirName+"Direction").c_str());									
-  std::string dirString = num2str2(direction);
+  std::string dirString = num2str2f(direction);
 
 	debug_message("Fetching NumMoments, Temperature and NumPoints.\n");
   // Fetch the number of Chebyshev Moments, temperature and number of points

@@ -19,12 +19,12 @@
 
 #include "parse_input.hpp"
 #include "systemInfo.hpp"
-#include "../Spectral/dos.hpp"
-#include "../Spectral/ldos.hpp"
-#include "../Spectral/arpes.hpp"
-#include "../CondDC/conductivity_dc.hpp"
-#include "../OptCond_1order/conductivity_optical.hpp"
-#include "../OptCond_2order/conductivity_2order.hpp"
+#include "Spectral/dos.hpp"
+#include "Spectral/ldos.hpp"
+#include "Spectral/arpes.hpp"
+#include "CondDC/conductivity_dc.hpp"
+#include "OptCond_1order/conductivity_optical.hpp"
+#include "OptCond_2order/conductivity_2order.hpp"
 #include "calculate.hpp"
 
 #include "../macros.hpp"

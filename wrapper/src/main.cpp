@@ -5,19 +5,19 @@
 
 template<typename T, unsigned D>
 class Simulation;
-#include "Global.hpp"
-#include "ComplexTraits.hpp"
-#include "myHDF5.hpp"
-#include "Random.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
-#include "Hamiltonian.hpp"
-#include "KPM_VectorBasis.hpp"
-#include "KPM_Vector.hpp"
-#include "queue.hpp"
-#include "Simulation.hpp"
-#include "SimulationGlobal.hpp"
-#include "messages.hpp"
+#include "Simulation/Global.hpp"
+#include "Tools/ComplexTraits.hpp"
+#include "Tools/myHDF5.hpp"
+#include "Tools/Random.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
+#include "Hamiltonian/Hamiltonian.hpp"
+#include "Vector/KPM_VectorBasis.hpp"
+#include "Vector/KPM_Vector.hpp"
+#include "Tools/queue.hpp"
+#include "Simulation/Simulation.hpp"
+#include "Simulation/SimulationGlobal.hpp"
+#include "Tools/messages.hpp"
 
 
 #include <vector>
@@ -29,11 +29,11 @@ class Simulation;
 #include "H5Cpp.h"
 
 //#include "myHDF5.hpp"
-#include "parse_input.hpp"
-#include "calculate.hpp"
+#include "Tools/parse_input.hpp"
+#include "Tools/calculate.hpp"
 #include "macros.hpp"
 //#include "messages.hpp"
-#include "compiletime_info.hpp"
+#include "compiletime_info.h.in"
 
 typedef int indextype;
 
@@ -218,6 +218,5 @@ PYBIND11_MODULE(_kite, m) {
 m.doc() = "pybind11 kite plugin"; // optional module docstring
 
 m.def("kitex", &parse_main_kitex, "A function that computes the moments from a HDF5 configuration file ");
-m.def("kite_tools", &parse_main_kite_tools, "A function that reconstructs a function from a HDF5 "
-"configuration file ");
+m.def("kite_tools", &parse_main_kite_tools, "A function that reconstructs a function from a HDF5  configuration file ");
 }

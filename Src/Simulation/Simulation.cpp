@@ -8,20 +8,20 @@
 
 
 #include "Generic.hpp"
-#include "ComplexTraits.hpp"
+#include "Tools/ComplexTraits.hpp"
 #include "Global.hpp"
-#include "Random.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
+#include "Tools/Random.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
-#include "queue.hpp"
+#include "Tools/queue.hpp"
 #include "Simulation.hpp"
-#include "Hamiltonian.hpp"
-#include "KPM_VectorBasis.hpp"
-#include "KPM_Vector.hpp"
+#include "Hamiltonian/Hamiltonian.hpp"
+#include "Vector/KPM_VectorBasis.hpp"
+#include "Vector/KPM_Vector.hpp"
 
 template<typename T,unsigned D>
 Simulation<T,D>::Simulation(char *filename, GLOBAL_VARIABLES <T> & Global1): r(filename),  Global(Global1), name(filename), h(name, r, Global1)  {

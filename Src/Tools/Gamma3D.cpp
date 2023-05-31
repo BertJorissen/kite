@@ -10,18 +10,18 @@
 #include "Generic.hpp"
 #include "ComplexTraits.hpp"
 #include "myHDF5.hpp"
-#include "Global.hpp"
+#include "Simulation/Global.hpp"
 #include "Random.hpp"
-#include "Coordinates.hpp"
-#include "LatticeStructure.hpp"
+#include "Lattice/Coordinates.hpp"
+#include "Lattice/LatticeStructure.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
-#include "Simulation.hpp"
-#include "Hamiltonian.hpp"
-#include "KPM_VectorBasis.hpp"
-#include "KPM_Vector.hpp"
+#include "Simulation/Simulation.hpp"
+#include "Hamiltonian/Hamiltonian.hpp"
+#include "Vector/KPM_VectorBasis.hpp"
+#include "Vector/KPM_Vector.hpp"
 
 template <typename T,unsigned D>
 void Simulation<T,D>::Gamma3D(int NRandomV, int NDisorder, std::vector<int> N_moments, 
@@ -299,4 +299,4 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
 #define instantiate(type,dim) template void Simulation<type,dim>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string); \
   template void Simulation<type,dim>::store_gamma3D(Eigen::Array<type, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
 
-#include "instantiate.hpp"
+#include "Tools/instantiate.hpp"

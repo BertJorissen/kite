@@ -9,7 +9,7 @@
 #include <iostream>
 #include <complex>
 #include <string>
-#include "../macros.hpp"
+#include "macros.hpp"
 
 template <typename T>	
 std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::complex<T>, -1, 1> integrand);
@@ -19,8 +19,8 @@ template <typename T>
 T fermi_function(T energy, T mu, T beta);
 
 
-std::string num2str3(int dir_num);
-std::string num2str2(int dir_num);
+std::string num2str3f(int dir_num);
+std::string num2str2f(int dir_num);
 template <typename T>
 std::complex<T> contract1(
     std::function<T(int, T)> f0, int N_moments, 

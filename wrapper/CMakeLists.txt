@@ -14,7 +14,6 @@ if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_target_properties(_kite PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
     foreach(config ${CMAKE_CONFIGURATION_TYPES})
         string(TOUPPER ${config} config)
-        set_target_properties(_kite PROPERTIES
-                LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR})
+        set_target_properties(_kite PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR})
     endforeach()
 endif()
