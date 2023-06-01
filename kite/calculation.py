@@ -252,7 +252,8 @@ class Calculation:
                  'num_moments': num_moments, 'num_random': num_random, 'num_disorder': num_disorder,
                  'temperature': temperature, 'special': special})
 
-    def singleshot_conductivity_dc(self, energy, direction, eta, num_moments, num_random, num_disorder=1, **kwargs):
+    def singleshot_conductivity_dc(self, energy, direction, eta, num_moments, num_random, num_disorder=1,
+                                   preserve_disorder=False):
         """Calculate the DC conductivity using KITEx for a fiven direction and energy
 
         Parameters
@@ -270,11 +271,10 @@ class Calculation:
             Number of random vectors to use for the stochastic evaluation of trace.
         num_disorder : int
             Number of different disorder realisations.
-        **kwargs: Optional arguments preserve_disorder.
-
+        preserve_disorder : bool
+            If True, preverse the disorder configuration for calculations with different random vectors. Default False.
         """
 
-        preserve_disorder = kwargs.get('preserve_disorder', False)
         if direction not in self._avail_dir_sngl:
             print('The desired direction is not available. Choose from a following set: \n',
                   self._avail_dir_sngl.keys())

@@ -1,20 +1,13 @@
-import re
 import os
 import sys
 import shutil
 import platform
 
-from subprocess import check_call, check_output, CalledProcessError
-from distutils.version import LooseVersion
+from subprocess import check_call, CalledProcessError
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.egg_info import manifest_maker
-
-
-if sys.version_info[:2] < (3, 6):
-    print("Python >= 3.6 is required.")
-    sys.exit(-1)
 
 
 class CMakeExtension(Extension):
@@ -25,15 +18,6 @@ class CMakeExtension(Extension):
 
 class CMakeBuild(build_ext):
     def run(self):
-        try:
-            out = check_output(["cmake", "--version"])
-        except OSError:
-            raise RuntimeError("CMake not found. Version 3.9 or newer is required")
-
-        cmake_version = LooseVersion(re.search(r'version\s*([\d.]+)', out.decode()).group(1))
-        if cmake_version < "3.9.0":
-            raise RuntimeError("CMake 3.9 or newer is required")
-
         for ext in self.extensions:
             self.build_extension(ext)
 
@@ -43,14 +27,14 @@ class CMakeBuild(build_ext):
             extdir += os.path.sep
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir,
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
-        cmake_args += ["-DPB_WERROR=" + os.environ.get("PB_WERROR", "OFF"),
-                       "-DPB_TESTS=" + os.environ.get("PB_TESTS", "OFF"),
-                       "-DPB_NATIVE_SIMD=" + os.environ.get("PB_NATIVE_SIMD", "ON"),
-                       "-DPB_MKL=" + os.environ.get("PB_MKL", "OFF"),
-                       "-DPB_CUDA=" + os.environ.get("PB_CUDA", "OFF"),
-                       "-DPB_CARTESIAN_FLOAT=" + os.environ.get("PB_CARTESIAN_FLOAT", "OFF")]
+        #cmake_args += ["-DPB_WERROR=" + os.environ.get("PB_WERROR", "OFF"),
+        #               "-DPB_TESTS=" + os.environ.get("PB_TESTS", "OFF"),
+        #               "-DPB_NATIVE_SIMD=" + os.environ.get("PB_NATIVE_SIMD", "ON"),
+        #               "-DPB_MKL=" + os.environ.get("PB_MKL", "OFF"),
+        #               "-DPB_CUDA=" + os.environ.get("PB_CUDA", "OFF"),
+        #               "-DPB_CARTESIAN_FLOAT=" + os.environ.get("PB_CARTESIAN_FLOAT", "OFF")]
 
-        cfg = os.environ.get("PB_BUILD_TYPE", "Release")
+        cfg = "Release" #os.environ.get("KITE_BUILD_TYPE", "Release")
         build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
@@ -79,56 +63,10 @@ class CMakeBuild(build_ext):
             build()
 
 
-def about(package):
-    ret = {}
-    filename = os.path.join(os.path.dirname(__file__), package, "__about__.py")
-    with open(filename, 'rb') as file:
-        exec(compile(file.read(), filename, 'exec'), ret)
-    return ret
-
-
-def changelog():
-    """Return the changes for the latest version only"""
-    if not os.path.exists("changelog.md"):
-        return ""
-
-    with open("changelog.md", encoding="utf-8") as file:
-        log = file.read()
-    match = re.search(r"## ([\s\S]*?)\n##\s", log)
-    return match.group(1) if match else ""
-
-
-info = about("quantum-kite")
 manifest_maker.template = "setup.manifest"
 setup(
-    name=info['__title__'],
-    version=info['__version__'],
-    description=info['__summary__'],
-    long_description="Documentation: https://quantum-kite.com/\n\n" + changelog(),
-    url=info['__url__'],
-    license=info['__license__'],
-    keywords="pybinding tight-binding solid-state physics cmt",
-    author=info['__author__'],
-    author_email=info['__email__'],
-    platforms=['Unix', 'Windows'],
-    classifiers=[
-        'Development Status :: 5 - Stable',
-        'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Physics',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: C++',
-        'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: Implementation :: CPython',
-    ],
     packages=find_packages(),
     include_package_data=True,
     ext_modules=[CMakeExtension('_kite')],
-    install_requires=['numpy>=1.12', 'scipy>=0.19', 'matplotlib>=2.0', 'h5py>=2.9', 'pytest>=5.0'],
-    zip_safe=False,
     cmdclass=dict(build_ext=CMakeBuild)
 )

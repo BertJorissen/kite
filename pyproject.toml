@@ -1,0 +1,68 @@
+[project]
+name = "quantum-kite"
+version = "1.1.0"
+authors = [
+    {name="Simão M. João"},
+    {name="João M.V.P Lopes"},
+    {name="Tatiana G. Rappoport"},
+    {name="Misa Andelkovic"},
+    {name="Lucian Covaci"},
+    {name="Aires Ferreira"},
+    {name="João P.S. Pires"},
+    {name="Bert Jorissen"},
+    {name="Emile Aerts"},
+    {name="Robin Smeyers"},
+    {name="David T.S. Perkins"}
+]
+description = "KITE: Real-space quantum transport simulator. (c) 2018-2023, Quantum-Kite team"
+readme = "README.md"
+dependencies = [
+    "numpy>=1.12",
+    "scipy>=0.19",
+    "matplotlib>=2.0",
+    "h5py>=2.9",
+    "pytest>=5.0"
+]
+requires-python = ">=3.6"
+license = {file = "LICENSE.md"}
+classifiers = [
+    'Development Status :: 5 - Stable',
+    'Intended Audience :: Science/Research',
+    'Topic :: Scientific/Engineering :: Physics',
+    'License :: OSI Approved :: BSD License',
+    'Programming Language :: C++',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: Implementation :: CPython',
+]
+keywords = [
+    "pybinding",
+    "tight-binding",
+    "solid-state physics",
+    "physics",
+    "cmt",
+    "quantum",
+    "transport",
+    "graphene",
+    "TMD",
+    "KPM",
+    "CPGF"
+]
+[project.urls]
+"repository" = "https://github.com/quantum-kite/kite"
+"homepage" = "https://quantum-kite.com/"
+"documentation" = "https://quantum-kite.com/"
+"changelog" = "https://github.com/quantum-kite/kite/blob/master/changelog.md"
+
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "cmake>=3.9.0"
+]
+build-backend = "setuptools.build_meta"
