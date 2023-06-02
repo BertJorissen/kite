@@ -5,6 +5,8 @@ set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_STANDARD 17)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 add_library(kitetoolscpp
         Src/CondDC/conductivity_dc.hpp
         Src/OptCond_1order/conductivity_optical.hpp
@@ -65,12 +67,45 @@ add_executable(KITE-tools Src/main.cpp)
 target_include_directories(KITE-tools PUBLIC .)
 
 find_package(HDF5 COMPONENTS CXX C HL)
+
+include(download)
+
+include(ExternalProject)
+set(ExternalProjectCMakeArgs
+        -DHDF5_BUILD_CPP_LIB=ON
+        )
+set(_hdf5_version "1.8.21")
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_localx/src)
+ExternalProject_Add(hdf5_localx
+        DOWNLOAD_COMMAND curl https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${_hdf5_version}.tar.gz | tar xvz -C ${PROJECT_BINARY_DIR}/hdf5_localx/src
+        CMAKE_ARGS ${ExternalProjectCMakeArgs}
+        SOURCE_DIR ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}
+        BINARY_DIR ${PROJECT_BINARY_DIR}/hdf5_localx/build
+        STAMP_DIR  ${PROJECT_BINARY_DIR}/hdf5_localx/stamp
+        TMP_DIR    ${PROJECT_BINARY_DIR}/hdf5_localx/tmp
+        INSTALL_COMMAND ""
+        )
+include_directories(
+        ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}/src
+        ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}/c++/src
+        ${PROJECT_BINARY_DIR}/hdf5_localx/build
+)
+set(_hdf5_libsx
+        ${PROJECT_BINARY_DIR}/hdf5_localx/build/bin/libhdf5_cpp.a
+        ${PROJECT_BINARY_DIR}/hdf5_localx/build/bin/libhdf5.a
+        -ldl
+        )
+add_dependencies(KITE-tools hdf5_localx)
+add_dependencies(kitetoolscpp hdf5_localx)
+target_link_libraries(KITE-tools PUBLIC ${_hdf5_libsx})
+target_link_libraries(kitetoolscpp PUBLIC ${_hdf5_libsx})
+
 if(${HDF5_FOUND})
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-    target_include_directories(kitetoolscpp PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(kitetoolscpp PUBLIC ${HDF5_CXX_LIBRARIES})
-    target_include_directories(KITE-tools PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(KITE-tools PUBLIC ${HDF5_CXX_LIBRARIES})
+#    set(HDF5_USE_STATIC_LIBRARIES ON)
+#    target_include_directories(kitetoolscpp PUBLIC ${HDF5_INCLUDE_DIR})
+#    target_link_libraries(kitetoolscpp PUBLIC ${HDF5_CXX_LIBRARIES})
+#    target_include_directories(KITE-tools PUBLIC ${HDF5_INCLUDE_DIR})
+#    target_link_libraries(KITE-tools PUBLIC ${HDF5_CXX_LIBRARIES})
 
     MESSAGE(STATUS "Hdf5 Library:  ${HDF5_CXX_HL_LIBRARIES}")
     MESSAGE(STATUS "Hdf5Hl Library:  ${HDF5_CXX_LIBRARIES}")

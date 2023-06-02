@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
-project(KITEx CXX)
+project(KITEx CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_COMPILER "gcc")
 set(CMAKE_CXX_COMPILER "g++")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_library(kitecpp
         Generic.hpp
@@ -80,15 +82,44 @@ add_executable(KITEx main.cpp)
 target_include_directories(KITEx PUBLIC .)
 
 find_package(HDF5 COMPONENTS CXX C HL)
-download_dependency(hdf5 1.8.21
-        https://www.hdfgroup.org/ftp/HDF5/current18/src/hdf5-v\${VERSION}.tar.gz
-        */hdf5*)
+include(download)
+
+include(ExternalProject)
+set(ExternalProjectCMakeArgs
+        -DHDF5_BUILD_CPP_LIB=ON
+        )
+set(_hdf5_version "1.8.21")
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_local/src)
+ExternalProject_Add(hdf5_local
+        DOWNLOAD_COMMAND curl https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${_hdf5_version}.tar.gz | tar xvz -C ${PROJECT_BINARY_DIR}/hdf5_local/src
+        CMAKE_ARGS ${ExternalProjectCMakeArgs}
+        SOURCE_DIR ${PROJECT_BINARY_DIR}/hdf5_local/src/hdf5-${_hdf5_version}
+        BINARY_DIR ${PROJECT_BINARY_DIR}/hdf5_local/build
+        STAMP_DIR  ${PROJECT_BINARY_DIR}/hdf5_local/stamp
+        TMP_DIR    ${PROJECT_BINARY_DIR}/hdf5_local/tmp
+        INSTALL_COMMAND ""
+        )
+include_directories(
+        ${PROJECT_BINARY_DIR}/hdf5_local/src/hdf5-${_hdf5_version}/src
+        ${PROJECT_BINARY_DIR}/hdf5_local/src/hdf5-${_hdf5_version}/c++/src
+        ${PROJECT_BINARY_DIR}/hdf5_local/build
+)
+set(_hdf5_libs
+        ${PROJECT_BINARY_DIR}/hdf5_local/build/bin/libhdf5_cpp.a
+        ${PROJECT_BINARY_DIR}/hdf5_local/build/bin/libhdf5.a
+        -ldl
+        )
+add_dependencies(KITEx hdf5_local)
+add_dependencies(kitecpp hdf5_local)
+target_link_libraries(KITEx PUBLIC ${_hdf5_libs})
+target_link_libraries(kitecpp PUBLIC ${_hdf5_libs})
+
 if(${HDF5_FOUND})
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-    target_include_directories(kitecpp PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(kitecpp PUBLIC ${HDF5_CXX_LIBRARIES})
-    target_include_directories(KITEx PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(KITEx PUBLIC ${HDF5_CXX_LIBRARIES})
+#    set(HDF5_USE_STATIC_LIBRARIES ON)
+#    target_include_directories(kitecpp PUBLIC ${HDF5_INCLUDE_DIR})
+#    target_link_libraries(kitecpp PUBLIC ${HDF5_CXX_LIBRARIES})
+#    target_include_directories(KITEx PUBLIC ${HDF5_INCLUDE_DIR})
+#    target_link_libraries(KITEx PUBLIC ${HDF5_CXX_LIBRARIES})
 
     MESSAGE(STATUS "Hdf5 Library:  ${HDF5_CXX_HL_LIBRARIES}")
     MESSAGE(STATUS "Hdf5Hl Library:  ${HDF5_CXX_LIBRARIES}")
@@ -111,6 +142,7 @@ else()
         target_include_directories(kitecpp SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
         target_include_directories(KITEx SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
     else()
+        MESSAGE(STATUS "Eigen3 still not found, using ~include/eigen3 instead.")
         target_include_directories(kitecpp PUBLIC ~/include/eigen3)
         target_include_directories(KITEx PUBLIC ~/include/eigen3)
     endif()
