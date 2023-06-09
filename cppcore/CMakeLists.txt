@@ -47,6 +47,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/build
             STAMP_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/stamp
             TMP_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/tmp
+            INSTALL_COMMAND ""
             )
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5)
     include_directories(
