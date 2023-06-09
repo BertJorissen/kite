@@ -5,19 +5,19 @@
 
 template<typename T, unsigned D>
 class Simulation;
-#include "Simulation/Global.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
-#include "Tools/Random.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
-#include "Vector/KPM_VectorBasis.hpp"
-#include "Vector/KPM_Vector.hpp"
-#include "Tools/queue.hpp"
-#include "Simulation/Simulation.hpp"
-#include "Simulation/SimulationGlobal.hpp"
-#include "Tools/messages.hpp"
+#include "simulation/Global.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
+#include "tools/queue.hpp"
+#include "simulation/Simulation.hpp"
+#include "simulation/SimulationGlobal.hpp"
+#include "tools/messages.hpp"
 
 
 #include <vector>
@@ -29,11 +29,11 @@ class Simulation;
 #include "H5Cpp.h"
 
 //#include "myHDF5.hpp"
-#include "Tools/parse_input.hpp"
-#include "Tools/calculate.hpp"
-#include "../../cppcore/kitetools/include/macros.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/calculate.hpp"
+#include "macros.hpp"
 //#include "messages.hpp"
-#include "../../cppcore/kitetools/src/compiletime_info.h.in"
+#include "compiletime_info.h.in"
 
 typedef int indextype;
 

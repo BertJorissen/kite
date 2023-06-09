@@ -9,11 +9,11 @@
 
 
 #include "Generic.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/Random.hpp"
-#include "../../include/hamiltonian/HamiltonianVacancies.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/Random.hpp"
+#include "hamiltonian/HamiltonianVacancies.hpp"
 template <typename T,unsigned D>
 Vacancy_Operator<T,D>::Vacancy_Operator(char * filename, LatticeStructure <D> & rr, KPMRandom <T> & rndB) : r(rr), rnd(rndB), name(filename), position(r.NStr)
 {
@@ -132,4 +132,4 @@ void Vacancy_Operator<T,D>::test_field( T * phi0 )
 
 
 #define instantiate(type, dim)  template struct Vacancy_Operator<type,dim>;
-#include "Tools/instantiate.hpp"
+#include "tools/instantiate.hpp"

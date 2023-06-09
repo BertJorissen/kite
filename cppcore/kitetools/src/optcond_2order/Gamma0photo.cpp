@@ -9,9 +9,9 @@
 #include <string>
 #include <vector>
 #include "H5Cpp.h"
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "OptCond_2order/conductivity_2order.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "optcond_2order/conductivity_2order.hpp"
 
 template <typename U, unsigned DIM>
 Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma0contract(){

@@ -10,10 +10,10 @@
 #include <vector>
 #include <iostream>
 #include "H5Cpp.h"
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "Tools/functions.hpp"
-#include "OptCond_2order/conductivity_2order.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "tools/functions.hpp"
+#include "optcond_2order/conductivity_2order.hpp"
 #include <omp.h>
 
 

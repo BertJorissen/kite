@@ -11,10 +11,10 @@
 #include <string>
 #include <complex>
 #include "H5Cpp.h"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
-#include "../../include/macros.hpp"
-#include "Tools/parse_input.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "macros.hpp"
+#include "tools/parse_input.hpp"
 
 
 void shell_input::printDC(){

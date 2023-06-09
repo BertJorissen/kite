@@ -5,21 +5,21 @@
 /*                                                         */
 /***********************************************************/
 
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
 #include "Generic.hpp"
-#include "Simulation/Global.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/Random.hpp"
+#include "simulation/Global.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/Random.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
 //#include "queue.hpp"
-#include "Simulation/Simulation.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
-#include "../../include/vector/KPM_VectorBasis.hpp"
-#include "../../include/vector/KPM_Vector.hpp"
+#include "simulation/Simulation.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
 
 
 template<typename T, unsigned D>
@@ -152,4 +152,4 @@ void KPM_VectorBasis<T,D>::build_defect_planewave(Eigen::Matrix<double,-1,1> & k
   template void KPM_VectorBasis<type,dim>::template multiply_defect<0u,true>(std::size_t , type* & , type * & , unsigned ); \
   template void KPM_VectorBasis<type,dim>::template Multiply<0u>(); \
   template void KPM_VectorBasis<type,dim>::template Multiply<1u>();
-#include "Tools/instantiate.hpp"
+#include "tools/instantiate.hpp"

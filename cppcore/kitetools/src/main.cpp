@@ -12,12 +12,12 @@
 #include <Eigen/Dense>
 #include "H5Cpp.h"
 
-#include "../../Src/Tools/ComplexTraits.hpp"
-#include "../../Src/Tools/myHDF5.hpp"
-#include "Tools/parse_input.hpp"
-#include "Tools/calculate.hpp"
-#include "../include/macros.hpp"
-#include "Tools/messages.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/calculate.hpp"
+#include "macros.hpp"
+#include "tools/messages.hpp"
 //#include "compiletime_info.h"
 
 int main(int argc, char *argv[]){

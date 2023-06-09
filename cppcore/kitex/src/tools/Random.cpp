@@ -7,8 +7,8 @@
 
 
 #include "Generic.hpp"
-#include "../../include/tools/ComplexTraits.hpp"
-#include "../../include/tools/Random.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/Random.hpp"
 
 template <typename T>
 KPMRandom<T>::KPMRandom() {

@@ -8,20 +8,20 @@
 
 
 #include "Generic.hpp"
-#include "../../include/tools/ComplexTraits.hpp"
-#include "../../include/tools/myHDF5.hpp"
-#include "Simulation/Global.hpp"
-#include "../../include/tools/Random.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "simulation/Global.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
-#include "Simulation/Simulation.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
-#include "Vector/KPM_VectorBasis.hpp"
-#include "Vector/KPM_Vector.hpp"
+#include "simulation/Simulation.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
 
 
 template <typename T,unsigned D>
@@ -213,4 +213,4 @@ void Simulation<T,D>::store_gamma(Eigen::Array<T, -1, -1> *gamma, std::vector<in
 
 #define instantiate(type, dim)  template void Simulation<type,dim>::Gamma2D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string); \
   template void Simulation<type,dim>::store_gamma(Eigen::Array<type, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
-#include "Tools/instantiate.hpp"
+#include "tools/instantiate.hpp"

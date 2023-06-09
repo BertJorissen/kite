@@ -8,10 +8,10 @@
 #define EIGEN_DONT_PARALLELIZE
 #define EIGEN_STACK_ALLOCATION_LIMIT 0
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <omp.h>
-#include <time.h>
+#include <ctime>
 #include <Eigen/Dense>
 #include "H5Cpp.h"
 #include <H5Group.h>
@@ -28,7 +28,7 @@
 #include <chrono>
 #include <thread>
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <initializer_list>
 
   
@@ -71,8 +71,11 @@
 #define outcol "\033[1;31m"
 #define outres "\033[0m"
 
+#ifndef VERBOSE_MESSAGES
+#define VERBOSE_MESSAGES 1
 #ifdef VERBOSE
 #if VERBOSE==1
+
 #define verbose_message(VAR)              \
   _Pragma("omp master")                   \
   {                                       \
@@ -85,7 +88,7 @@
 #else
 #define verbose_message(VAR) 
 #endif
-
+#endif
 
 #ifdef VVERBOSE
 #if VVERBOSE==1

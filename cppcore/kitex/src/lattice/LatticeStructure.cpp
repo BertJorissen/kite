@@ -9,10 +9,10 @@
 
 
 #include "Generic.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
-#include "../../include/lattice/Coordinates.hpp"
-#include "../../include/lattice/LatticeStructure.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
 
 template <unsigned D>
 LatticeStructure<D>::LatticeStructure(char *name )

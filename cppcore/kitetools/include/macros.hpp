@@ -22,14 +22,17 @@
 #define scale2 0.25
 #define unit_scale 0.159154943
 
-#ifdef VERBOSE
-	#if VERBOSE==1
-		#define verbose_message(VAR) std::cout<<VAR<<std::flush
-	#else
-		#define verbose_message(VAR) 
-	#endif
-#else
-	#define verbose_message(VAR) 
+#ifndef VERBOSE_MESSAGES
+    #define VERBOSE_MESSAGES 1
+    #ifdef VERBOSE
+        #if VERBOSE==1
+                #define verbose_message(VAR) std::cout<<VAR<<std::flush
+        #else
+            #define verbose_message(VAR)
+        #endif
+    #else
+        #define verbose_message(VAR)
+    #endif
 #endif
 
 #ifdef DEBUG

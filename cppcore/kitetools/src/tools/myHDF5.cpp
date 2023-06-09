@@ -7,9 +7,9 @@
 
 #include <complex>
 #include <Eigen/Dense>
-#include "Tools/ComplexTraits.hpp"
+#include "tools/ComplexTraits.hpp"
 #include "H5Cpp.h"
-#include "Tools/myHDF5.hpp"
+#include "tools/myHDF5.hpp"
 
 template<>
 H5::DataType DataTypeFor<int>::value = H5::PredType::NATIVE_INT;

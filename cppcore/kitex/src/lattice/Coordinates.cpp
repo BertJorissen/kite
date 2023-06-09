@@ -6,7 +6,7 @@
 /***********************************************************/
 
 
-#include "../../include/lattice/Coordinates.hpp"
+#include "lattice/Coordinates.hpp"
 
 template <typename T, unsigned D>
 Coordinates<T,D>::Coordinates(T x, unsigned (&b)[D] ) : L(b) {

@@ -13,16 +13,16 @@
 #include <vector>
 #include <omp.h>
 
-#include "Tools/ComplexTraits.hpp"
+#include "tools/ComplexTraits.hpp"
 #include "H5Cpp.h"
-#include "Tools/myHDF5.hpp"
+#include "tools/myHDF5.hpp"
 
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "OptCond_2order/conductivity_2order.hpp"
-#include "Tools/functions.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "optcond_2order/conductivity_2order.hpp"
+#include "tools/functions.hpp"
 
-#include "../../include/macros.hpp"
+#include "macros.hpp"
 
 
 template <typename T, unsigned DIM>

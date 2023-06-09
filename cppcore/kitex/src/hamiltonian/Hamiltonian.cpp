@@ -8,14 +8,14 @@
 
 
 #include "Generic.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/Random.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "Tools/myHDF5.hpp"
-#include "Simulation/Global.hpp"
-#include "../../include/hamiltonian/Hamiltonian.hpp"
-#include "../../include/hamiltonian/aux.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "tools/myHDF5.hpp"
+#include "simulation/Global.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "hamiltonian/aux.hpp"
 
 
 
@@ -194,9 +194,9 @@ void Hamiltonian<T,D>::build_Anderson_disorder() {
       mu.resize(dim[1]);
       sigma.resize(dim[1]);   
       get_hdf5<int>(orb_num.data(), file, (char *) "/Hamiltonian/Disorder/OrbitalNum");               // read the orbitals that have local disorder
-      get_hdf5<int> (model.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderModelType");   // read the the type  of local disorder
-      get_hdf5<double> (mu.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderMeanValue");   // read the the mean value
-      get_hdf5<double> (sigma.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderMeanStdv"); // read the the variance
+      get_hdf5<int> (model.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderModelType");   // read the type  of local disorder
+      get_hdf5<double> (mu.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderMeanValue");   // read the mean value
+      get_hdf5<double> (sigma.data(), file, (char *) "/Hamiltonian/Disorder/OnsiteDisorderMeanStdv"); // read the variance
 
     }
     catch (...){}
@@ -427,11 +427,11 @@ herr_t getMembers(hid_t loc_id, const char *name, void *opdata)
     v->push_back(group);
   }
   catch(H5::Exception& e) {
-    // Don't do nothing 
+    // Don't do anything
   }
   return 0;
 }
 
 #define instantiate(type, dim)               template class Hamiltonian<type,dim>;
-#include "Tools/instantiate.hpp"
+#include "tools/instantiate.hpp"
 

@@ -8,16 +8,16 @@
 template<typename T, unsigned D>
 class Simulation;
 #include "Generic.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Simulation/Global.hpp"
-#include "Tools/Random.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
-#include "../../include/vector/KPM_VectorBasis.hpp"
-#include "../../include/vector/KPM_Vector.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "simulation/Global.hpp"
+#include "tools/Random.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
 //#include "queue.hpp"
-#include "Simulation/Simulation.hpp"
+#include "simulation/Simulation.hpp"
 
 template <typename T, unsigned D>
 KPM_Vector<T,D>::KPM_Vector(int mem, Simulation<T,D> & sim) : KPM_VectorBasis<T,D>(mem, sim), std(x.basis[1]), r(sim.r),h(sim.h),x(sim.r.Ld)  {

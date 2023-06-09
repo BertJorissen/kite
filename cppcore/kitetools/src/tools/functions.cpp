@@ -5,7 +5,7 @@
 /*                                                         */
 /***********************************************************/
 
-#include "Tools/functions.hpp"
+#include "tools/functions.hpp"
 
 template <typename T>	
 std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::complex<T>, -1, 1> integrand){

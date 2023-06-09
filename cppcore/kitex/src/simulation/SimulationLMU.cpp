@@ -6,21 +6,21 @@
 /***********************************************************/
 
 #include "Generic.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
-#include "../../include/simulation/Global.hpp"
-#include "Tools/Random.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "simulation/Global.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
-#include "Tools/queue.hpp"
-#include "../../include/simulation/Simulation.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
-#include "Vector/KPM_VectorBasis.hpp"
-#include "Vector/KPM_Vector.hpp"
+#include "tools/queue.hpp"
+#include "simulation/Simulation.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
 
 
 template <typename T,unsigned D>

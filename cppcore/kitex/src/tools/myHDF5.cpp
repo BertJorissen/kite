@@ -7,8 +7,8 @@
 
 
 #include "Generic.hpp"
-#include "../../include/tools/ComplexTraits.hpp"
-#include "../../include/tools/myHDF5.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
 
 template<>
 H5::DataType DataTypeFor<int>::value = H5::PredType::NATIVE_INT;

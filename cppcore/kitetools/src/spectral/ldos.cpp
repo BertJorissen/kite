@@ -14,15 +14,15 @@
 #include <omp.h>
 
 #include "H5Cpp.h"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
 
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "Spectral/ldos.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "spectral/ldos.hpp"
 
-#include "Tools/functions.hpp"
-#include "../../include/macros.hpp"
+#include "tools/functions.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 ldos<T, DIM>::ldos(system_info<T, DIM>& sysinfo, shell_input & vari){

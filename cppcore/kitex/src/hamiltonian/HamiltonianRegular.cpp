@@ -7,13 +7,13 @@
 
 
 #include "Generic.hpp"
-#include "Simulation/Global.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/Random.hpp"
-#include "Tools/myHDF5.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "../../include/hamiltonian/HamiltonianRegular.hpp"
+#include "simulation/Global.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/Random.hpp"
+#include "tools/myHDF5.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "hamiltonian/HamiltonianRegular.hpp"
 
 
 template <typename T, unsigned D>
@@ -138,5 +138,5 @@ void Periodic_Operator<T,D>::build_velocity(std::vector<unsigned> & components, 
 }
 
 #define instantiate(type, dim)               template struct Periodic_Operator<type, dim>;
-#include "Tools/instantiate.hpp"
+#include "tools/instantiate.hpp"
 

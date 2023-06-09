@@ -12,15 +12,15 @@
 #include <vector>
 #include <string>
 #include "H5Cpp.h"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
 
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "Spectral/dos.hpp"
-#include "Tools/functions.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "spectral/dos.hpp"
+#include "tools/functions.hpp"
 
-#include "../../include/macros.hpp"
+#include "macros.hpp"
 
 template <typename T, unsigned DIM>
 dos<T, DIM>::dos(system_info<T, DIM>& sysinfo, shell_input & vari){

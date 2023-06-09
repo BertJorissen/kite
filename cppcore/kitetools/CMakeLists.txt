@@ -1,136 +1,78 @@
 cmake_minimum_required(VERSION 3.9)
-project(KITEtoolscxx)
+project(kite_cppcore_kitetools CXX C)
 
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_CXX_STANDARD 17)
-
-list(APPEND CMAKE_MODULE_PATH "../../tools/cmake")
-
-add_library(kitetoolscpp
-        include/CondDC/conductivity_dc.hpp
-        include/OptCond_1order/conductivity_optical.hpp
-        include/OptCond_2order/conductivity_2order.hpp
-        include/OptCond_2order/Gamma0.hpp
-        include/OptCond_2order/Gamma0photo.hpp
-        include/OptCond_2order/Gamma1.hpp
-        include/OptCond_2order/Gamma1photo.hpp
-        include/OptCond_2order/Gamma2.hpp
-        include/OptCond_2order/Gamma2photo.hpp
-        include/OptCond_2order/Gamma3.hpp
-        include/OptCond_2order/Gamma3photo.hpp
-        include/Spectral/arpes.hpp
-        include/Spectral/dos.hpp
-        include/Spectral/ldos.hpp
-        include/Tools/calculate.hpp
-        include/Tools/ComplexTraits.hpp
-        include/Tools/functions.hpp
-        include/Tools/messages.hpp
-        include/Tools/myHDF5.hpp
-        include/Tools/parse_input.hpp
-        include/Tools/systemInfo.hpp
+add_library(cppcore_kitetools
+        include/conddc/conductivity_dc.hpp
+        include/optcond_1order/conductivity_optical.hpp
+        include/optcond_2order/conductivity_2order.hpp
+        include/optcond_2order/Gamma0.hpp
+        include/optcond_2order/Gamma0photo.hpp
+        include/optcond_2order/Gamma1.hpp
+        include/optcond_2order/Gamma1photo.hpp
+        include/optcond_2order/Gamma2.hpp
+        include/optcond_2order/Gamma2photo.hpp
+        include/optcond_2order/Gamma3.hpp
+        include/optcond_2order/Gamma3photo.hpp
+        include/spectral/arpes.hpp
+        include/spectral/dos.hpp
+        include/spectral/ldos.hpp
+        include/tools/calculate.hpp
+        include/tools/ComplexTraits.hpp
+        include/tools/functions.hpp
+        include/tools/messages.hpp
+        include/tools/myHDF5.hpp
+        include/tools/parse_input.hpp
+        include/tools/systemInfo.hpp
         include/macros.hpp
-
-        src/CondDC/conductivity_dc.cpp
-        src/CondDC/fill.cpp
-        src/OptCond_1order/conductivity_optical.cpp
-        src/OptCond_2order/conductivity_2order.cpp
-        src/OptCond_2order/Gamma0.cpp
-        src/OptCond_2order/Gamma0photo.cpp
-        src/OptCond_2order/Gamma1.cpp
-        src/OptCond_2order/Gamma1photo.cpp
-        src/OptCond_2order/Gamma2.cpp
-        src/OptCond_2order/Gamma2photo.cpp
-        src/OptCond_2order/Gamma3.cpp
-        src/OptCond_2order/Gamma3photo.cpp
-        src/Spectral/arpes.cpp
-        src/Spectral/dos.cpp
-        src/Spectral/ldos.cpp
-        src/Tools/calculate.cpp
-        src/Tools/functions.cpp
-        src/Tools/myHDF5.cpp
-        src/Tools/parse_input.cpp
-        src/Tools/systemInfo.cpp
+        src/conddc/conductivity_dc.cpp
+        src/conddc/fill.cpp
+        src/optcond_1order/conductivity_optical.cpp
+        src/optcond_2order/conductivity_2order.cpp
+        src/optcond_2order/Gamma0.cpp
+        src/optcond_2order/Gamma0photo.cpp
+        src/optcond_2order/Gamma1.cpp
+        src/optcond_2order/Gamma1photo.cpp
+        src/optcond_2order/Gamma2.cpp
+        src/optcond_2order/Gamma2photo.cpp
+        src/optcond_2order/Gamma3.cpp
+        src/optcond_2order/Gamma3photo.cpp
+        src/spectral/arpes.cpp
+        src/spectral/dos.cpp
+        src/spectral/ldos.cpp
+        src/tools/calculate.cpp
+        src/tools/functions.cpp
+        src/tools/myHDF5.cpp
+        src/tools/parse_input.cpp
+        src/tools/systemInfo.cpp
         )
 
-target_include_directories(kitetoolscpp PUBLIC ../../tools/Src)
-
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
-
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-  add_definitions(-DDEBUG=1)
-endif()
+add_library(kite::cppcore_kitetools ALIAS cppcore_kitetools)
+target_include_directories(cppcore_kitetools PUBLIC include)
 
 add_executable(KITE-tools src/main.cpp)
-target_include_directories(KITE-tools PUBLIC ../../tools)
+target_include_directories(KITE-tools PUBLIC include)
 
-find_package(HDF5 COMPONENTS CXX C HL)
 
-include(download)
-if(False)
-    include(ExternalProject)
-    set(ExternalProjectCMakeArgs
-            -DHDF5_BUILD_CPP_LIB=ON
-            )
-    set(_hdf5_version "1.8.21")
-    file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_localx/src)
-    ExternalProject_Add(hdf5_localx
-            DOWNLOAD_COMMAND curl https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${_hdf5_version}.tar.gz | tar xvz -C ${PROJECT_BINARY_DIR}/hdf5_localx/src
-            CMAKE_ARGS ${ExternalProjectCMakeArgs}
-            SOURCE_DIR ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}
-            BINARY_DIR ${PROJECT_BINARY_DIR}/hdf5_localx/build
-            STAMP_DIR  ${PROJECT_BINARY_DIR}/hdf5_localx/stamp
-            TMP_DIR    ${PROJECT_BINARY_DIR}/hdf5_localx/tmp
-            INSTALL_COMMAND ""
-            )
-    include_directories(
-            ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}/src
-            ${PROJECT_BINARY_DIR}/hdf5_localx/src/hdf5-${_hdf5_version}/c++/src
-            ${PROJECT_BINARY_DIR}/hdf5_localx/build
-    )
-    set(_hdf5_libsx
-            ${PROJECT_BINARY_DIR}/hdf5_localx/build/bin/libhdf5_cpp.a
-            ${PROJECT_BINARY_DIR}/hdf5_localx/build/bin/libhdf5.a
-            -ldl
-            )
-    add_dependencies(KITE-tools hdf5_localx)
-    add_dependencies(kitetoolscpp hdf5_localx)
-    target_link_libraries(KITE-tools PUBLIC ${_hdf5_libsx})
-    target_link_libraries(kitetoolscpp PUBLIC ${_hdf5_libsx})
-endif ()
-if(${HDF5_FOUND})
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-    target_include_directories(kitetoolscpp PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(kitetoolscpp PUBLIC ${HDF5_CXX_LIBRARIES})
-    target_include_directories(KITE-tools PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(KITE-tools PUBLIC ${HDF5_CXX_LIBRARIES})
+target_include_directories(cppcore_kitetools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-    MESSAGE(STATUS "Hdf5 Library:  ${HDF5_CXX_HL_LIBRARIES}")
-    MESSAGE(STATUS "Hdf5Hl Library:  ${HDF5_CXX_LIBRARIES}")
+if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
+    add_dependencies(KITE-tools  hdf5_local)
+    add_dependencies(cppcore_kitetools hdf5_local)
+    target_link_libraries(KITE-tools  PUBLIC ${_hdf5_libs})
+    target_link_libraries(cppcore_kitetools PUBLIC ${_hdf5_libs})
 else()
-  MESSAGE(FATAL_ERROR  "Couldn't find hdf5")
-endif()
-MESSAGE(STATUS "Compiler:  ${CMAKE_CXX_COMPILER}")
-include_directories(~/include/)
-
-
-find_package(Eigen3)
-if(${EIGEN3_FOUND})
-    target_include_directories(kitetoolscpp PUBLIC ${EIGEN3_INCLUDE_DIR})
-    target_include_directories(KITE-tools PUBLIC ${EIGEN3_INCLUDE_DIR})
-else()
-  MESSAGE(STATUS "Couldn't find Eigen3. Looking in ~/include")
-  target_include_directories(kitetoolscpp PUBLIC ~/include/eigen3)
-  target_include_directories(KITE-tools PUBLIC ~/include/eigen3)
+    target_include_directories(cppcore_kitetools PUBLIC ${HDF5_INCLUDE_DIR})
+    target_include_directories(KITE-tools  PUBLIC ${HDF5_INCLUDE_DIR})
+    target_link_libraries(cppcore_kitetools PUBLIC ${HDF5_CXX_LIBRARIES})
+    target_link_libraries(KITE-tools  PUBLIC ${HDF5_CXX_LIBRARIES})
 endif()
 
+target_include_directories(cppcore_kitetools PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_include_directories(KITE-tools  PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-find_package(OpenMP)
-MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")      
+
 if (OPENMP_FOUND)
-    target_link_libraries(kitetoolscpp PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(cppcore_kitetools PUBLIC OpenMP::OpenMP_CXX)
     target_link_libraries(KITE-tools PUBLIC OpenMP::OpenMP_CXX)
     set (CORRECT_CODING_FLAGS "-Wall ")
     set (CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -140,9 +82,10 @@ if (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
-set_target_properties(kitetoolscpp PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-target_link_libraries(KITE-tools PRIVATE kitetoolscpp)
+set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+target_link_libraries(KITE-tools PRIVATE cppcore_kitetools)
 set(CMAKE_MODULE_PATH ../..)
 
 set(SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
@@ -165,7 +108,7 @@ string(TIMESTAMP TODAY "(yymmdd) %Y-%m-%d %H:%M:%S")
 #  "Src/compiletime_info.h"
 #  )
 
-link_directories(../../tools)
+#link_directories(../../tools)
 #include_directories(${Src})
 #target_link_libraries(KITE-tools ${HDF5_CXX_LIBRARIES} )
 #install (TARGETS KITE-tools DESTINATION bin)

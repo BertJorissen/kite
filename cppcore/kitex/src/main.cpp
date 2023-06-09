@@ -10,19 +10,19 @@
 
 template<typename T, unsigned D>
 class Simulation;
-#include "include/simulation/Global.hpp"
-#include "include/tools/ComplexTraits.hpp"
-#include "include/tools/myHDF5.hpp"
-#include "include/tools/Random.hpp"
-#include "include/lattice/Coordinates.hpp"
-#include "include/lattice/LatticeStructure.hpp"
-#include "include/hamiltonian/Hamiltonian.hpp"
-#include "include/vector/KPM_VectorBasis.hpp"
-#include "include/vector/KPM_Vector.hpp"
-#include "include/tools/queue.hpp"
-#include "include/simulation/Simulation.hpp"
-#include "include/simulation/SimulationGlobal.hpp"
-#include "include/tools/messages.hpp"
+#include "simulation/Global.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
+#include "tools/queue.hpp"
+#include "simulation/Simulation.hpp"
+#include "simulation/SimulationGlobal.hpp"
+#include "tools/messages.hpp"
 
 typedef int indextype;
 

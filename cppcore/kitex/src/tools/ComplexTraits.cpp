@@ -6,7 +6,7 @@
 /***********************************************************/
 
 
-#include "../../include/tools/ComplexTraits.hpp"
+#include "tools/ComplexTraits.hpp"
 
 /****** assign *************/
 template <typename T>

@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <Eigen/Dense>
-#include "../../include/simulation/Global.hpp"
+#include "simulation/Global.hpp"
 
 template <typename T>
 GLOBAL_VARIABLES<T>::GLOBAL_VARIABLES() { }

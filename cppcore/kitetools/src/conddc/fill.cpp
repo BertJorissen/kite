@@ -10,10 +10,10 @@
 #include <complex>
 #include "H5Cpp.h"
 #include <vector>
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "CondDC/conductivity_dc.hpp"
-#include "Tools/functions.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "conddc/conductivity_dc.hpp"
+#include "tools/functions.hpp"
 #include <fstream>
 
 

@@ -5,20 +5,20 @@
 /*                                                         */
 /***********************************************************/
 #include "Generic.hpp"
-#include "Tools/ComplexTraits.hpp"
-#include "../../include/simulation/Global.hpp"
-#include "Lattice/Coordinates.hpp"
-#include "Lattice/LatticeStructure.hpp"
-#include "Tools/myHDF5.hpp"
-#include "Tools/Random.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "simulation/Global.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "tools/myHDF5.hpp"
+#include "tools/Random.hpp"
 template <typename T, unsigned D>
 class Hamiltonian;
 template <typename T, unsigned D>
 class KPM_Vector;
 //#include "queue.hpp"
-#include "../../include/simulation/Simulation.hpp"
-#include "../../include/simulation/SimulationGlobal.hpp"
-#include "Hamiltonian/Hamiltonian.hpp"
+#include "simulation/Simulation.hpp"
+#include "simulation/SimulationGlobal.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
 template <typename T,unsigned D>
 GlobalSimulation<T,D>::GlobalSimulation( char *name ) : rglobal(name){
   debug_message("Entered global_simulation\n");

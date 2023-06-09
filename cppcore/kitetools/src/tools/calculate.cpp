@@ -14,20 +14,20 @@
 #include <omp.h>
 
 #include "H5Cpp.h"
-#include "Tools/ComplexTraits.hpp"
-#include "Tools/myHDF5.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
 
-#include "Tools/parse_input.hpp"
-#include "Tools/systemInfo.hpp"
-#include "../../include/Spectral/dos.hpp"
-#include "../../include/Spectral/ldos.hpp"
-#include "../../include/Spectral/arpes.hpp"
-#include "CondDC/conductivity_dc.hpp"
-#include "OptCond_1order/conductivity_optical.hpp"
-#include "OptCond_2order/conductivity_2order.hpp"
-#include "Tools/calculate.hpp"
+#include "tools/parse_input.hpp"
+#include "tools/systemInfo.hpp"
+#include "spectral/dos.hpp"
+#include "spectral/ldos.hpp"
+#include "spectral/arpes.hpp"
+#include "conddc/conductivity_dc.hpp"
+#include "optcond_1order/conductivity_optical.hpp"
+#include "optcond_2order/conductivity_2order.hpp"
+#include "tools/calculate.hpp"
 
-#include "../../include/macros.hpp"
+#include "macros.hpp"
 
 template <typename U, unsigned DIM>
 void calculate(char *name, shell_input & variables){

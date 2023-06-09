@@ -6,10 +6,10 @@
 /***********************************************************/
 
 #include "Generic.hpp"
-#include "../../include/tools/ComplexTraits.hpp"
-#include "../../include/tools/myHDF5.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
 #include <algorithm>
-#include "../../include/tools/queue.hpp"
+#include "tools/queue.hpp"
 
 std::string num2str3(int dir_num){
   std::string dir;
