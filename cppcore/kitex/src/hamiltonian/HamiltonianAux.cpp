@@ -5,7 +5,7 @@
 /*                                                         */
 /***********************************************************/
 
-#include "hamiltonian/aux.hpp"
+#include "hamiltonian/HamiltonianAux.hpp"
 double uncorrelated_wrapper(double *vec, unsigned orb){ 
     return 0; 
 };

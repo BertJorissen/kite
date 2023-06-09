@@ -3,7 +3,7 @@ project(kite_cppcore_kitex CXX C)
 
 add_library(cppcore_kitex
         include/Generic.hpp
-        include/hamiltonian/aux.hpp
+        include/hamiltonian/HamiltonianAux.hpp
         include/hamiltonian/Hamiltonian.hpp
         include/hamiltonian/HamiltonianDefects.hpp
         include/hamiltonian/HamiltonianRegular.hpp
@@ -23,7 +23,7 @@ add_library(cppcore_kitex
         include/vector/KPM_Vector2D.hpp
         include/vector/KPM_Vector3D.hpp
         include/vector/KPM_VectorBasis.hpp
-        src/hamiltonian/aux.cpp
+        src/hamiltonian/HamiltonianAux.cpp
         src/hamiltonian/Hamiltonian.cpp
         src/hamiltonian/HamiltonianDefects.cpp
         src/hamiltonian/HamiltonianRegular.cpp

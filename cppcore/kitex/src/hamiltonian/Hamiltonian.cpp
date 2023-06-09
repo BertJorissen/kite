@@ -15,7 +15,7 @@
 #include "tools/myHDF5.hpp"
 #include "simulation/Global.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
-#include "hamiltonian/aux.hpp"
+#include "hamiltonian/HamiltonianAux.hpp"
 
 
 
