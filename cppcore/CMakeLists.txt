@@ -38,16 +38,15 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             )
-    set(_hdf5_version "1.8.21")
+    set(_hdf5_version "1.12.0")
     file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_local/src)
     ExternalProject_Add(hdf5_local
-            DOWNLOAD_COMMAND curl https://support.hdfgroup.org/ftp/HDF5/current18/src/hdf5-${_hdf5_version}.tar.gz | tar xvz -C ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/src
+            URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
             CMAKE_ARGS ${ExternalProjectCMakeArgs}
             SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/src/hdf5-${_hdf5_version}
             BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/build
             STAMP_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/stamp
             TMP_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5/tmp
-            INSTALL_COMMAND ""
             )
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/hdf5)
     include_directories(
