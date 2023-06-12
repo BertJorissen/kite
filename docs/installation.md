@@ -1,7 +1,16 @@
 !!! warning
 
     Currently, KITE has only be tested on UNIX-based systems, such as GNU/Linux and Mac OS X.
-    There is **no** Windows support.
+    There is limited Windows support though a new development version that wraps KITE in Python.
+    To install this version, look at the [advanced installation][advanced_install] from [Pybinding][pybinding]
+    and install KITE with the command
+    ``` bash
+    pip install git+https://BertJorissen/kite
+    ```
+    The [KITEx][kitex] and [KITE-tools][kitetools] executables can be reached by
+    ```python kite.execute.kitex("hdf5_file")``` and ```python kite.execute.kitetools("hdf5_file")``` respectively.
+    The precoess will take more than half an hour, and will automatically compile [Eigen3][eigen3] and [HDF5][hdf5].
+  
 
 KITE is written in C++ with code optimisation, including multithreading performance. 
 The Python package [Pybinding][pybinding] is used during pre- and post-processing steps.
@@ -265,5 +274,6 @@ that generates the appropriata data file. For more details refer to the [tutoria
 [kitepython]: api/kite.md
 [kitex]: api/kitex.md
 [kitetools]: api/kite-tools.md
+[advanced_install]: https://docs.pybinding.site/en/stable/install/advanced.html#compiling-from-source
 
 

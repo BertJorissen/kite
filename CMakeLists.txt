@@ -20,7 +20,7 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/docs)
     add_subdirectory(docs EXCLUDE_FROM_ALL)
 endif()
 
-if(TARGET catch)
-    add_custom_target(tests COMMAND $<TARGET_FILE:catch> COMMAND ${PYTHON_EXECUTABLE} -m pytest
-            DEPENDS _pybinding WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-endif()
+#if(TARGET catch)
+#    add_custom_target(tests COMMAND $<TARGET_FILE:catch> COMMAND ${PYTHON_EXECUTABLE} -m pytest
+#            DEPENDS _pybinding WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+#endif()

@@ -1,1 +1,1 @@
-../kite/tools/process_new.py
+../../kite/tools/process_new.py

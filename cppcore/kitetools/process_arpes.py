@@ -1,1 +1,1 @@
-../kite/tools/process_arpes.py
+../../kite/tools/process_arpes.py

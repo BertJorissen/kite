@@ -1,8 +1,7 @@
-import numpy as np
+from ..compare import compare, compare_txt
 import subprocess
 import sys
 sys.path.insert(1, '..')
-import compare
 
 # Parameters
 file1 = "config.h5"
@@ -26,7 +25,7 @@ for command in commands:
 
 # Perform the first comparison
 argv = [file1,dset1,file2,dset2]
-res = compare.compare(argv)
+res = compare(argv)
 
 if res[0] > tol:
     print("Problem", end=" ")
@@ -36,7 +35,7 @@ else:
 
 # Perform the second comparison
 argv = [file3,file4]
-res = compare.compare_txt(argv)
+res = compare_txt(argv)
 
 if res[0] > tol:
     print("Problem")

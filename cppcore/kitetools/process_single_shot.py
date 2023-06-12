@@ -1,1 +1,1 @@
-../kite/tools/process_single_shot.py
+../../kite/tools/process_single_shot.py

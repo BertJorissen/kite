@@ -11,6 +11,8 @@ def compare(argv):
 
     npset1 = np.array(dset1[:])
     npset2 = np.array(dset2[:])
+    print(npset1)
+    print(npset2)
     set_dif = np.absolute(npset2 - npset1)
 
     # sum of the differences
