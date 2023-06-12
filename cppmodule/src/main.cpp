@@ -5,35 +5,34 @@
 
 template<typename T, unsigned D>
 class Simulation;
-#include "simulation/Global.hpp"
-#include "tools/ComplexTraits.hpp"
-#include "tools/myHDF5.hpp"
-#include "tools/Random.hpp"
-#include "lattice/Coordinates.hpp"
-#include "lattice/LatticeStructure.hpp"
-#include "hamiltonian/Hamiltonian.hpp"
-#include "vector/KPM_VectorBasis.hpp"
-#include "vector/KPM_Vector.hpp"
-#include "tools/queue.hpp"
-#include "simulation/Simulation.hpp"
-#include "simulation/SimulationGlobal.hpp"
+//#include "simulation/Global.hpp"
+//#include "tools/ComplexTraits.hpp"
+//#include "tools/myHDF5.hpp"
+//#include "tools/Random.hpp"
+//#include "lattice/Coordinates.hpp"
+//#include "lattice/LatticeStructure.hpp"
+//#include "hamiltonian/Hamiltonian.hpp"
+//#include "vector/KPM_VectorBasis.hpp"
+//#include "vector/KPM_Vector.hpp"
+//#include "tools/queue.hpp"
+//#include "simulation/Simulation.hpp"
+//#include "simulation/SimulationGlobal.hpp"
 #include "tools/messages.hpp"
 
 
-#include <vector>
-#include <iostream>
-#include <complex>
-#include <string>
-#include <Eigen/Dense>
-//#include "ComplexTraits.hpp"
-//#include "H5Cpp.h"
+//#include <vector>
+//#include <iostream>
+//#include <complex>
+//#include <string>
+//#include <Eigen/Dense>
+#include "H5Cpp.h"
 
 //#include "myHDF5.hpp"
-#include "tools/parse_input.hpp"
-#include "tools/calculate.hpp"
-#include "macros.hpp"
+//#include "tools/parse_input.hpp"
+//#include "tools/calculate.hpp"
+//#include "macros.hpp"
 //#include "messages.hpp"
-#include "compiletime_info.h.in"
+//#include "compiletime_info.h.in"
 
 typedef int indextype;
 
@@ -48,8 +47,8 @@ int parse_main_kitex(char* path){
 
 
 
-    verbose_message("\nStarting program...\n\n");
-    debug_message("Starting program. The messages in red are debug messages. They may be turned off by setting DEBUG 0 in main.cpp\n");
+    //verbose_message("\nStarting program...\n\n");
+    //debug_message("Starting program. The messages in red are debug messages. They may be turned off by setting DEBUG 0 in main.cpp\n");
 //  if(argc < 2){
 //    std::cout << "No configuration file found. Exiting.\n";
 //    exit(1);
@@ -58,13 +57,15 @@ int parse_main_kitex(char* path){
     /* Define General characteristics of the data */
     int precision = 1, dim, is_complex;
 
-    H5::H5File *file = new H5::H5File(path, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(path, H5F_ACC_RDONLY);
+    /*
     get_hdf5(&is_complex, file, (char *) "/IS_COMPLEX");
     get_hdf5(&precision,  file, (char *) "/PRECISION");
     get_hdf5(&dim,        file, (char *) "/DIM");
-
+    */
 
     file->close();
+    /*
 
     // Verify if the values passed to the program are valid. If they aren't
     // the program should notify the user and exit with error 1.
@@ -183,11 +184,12 @@ int parse_main_kitex(char* path){
             exit(1);
         }
     }
-
-    verbose_message("Done.\n");
-    return 0;
+    */
+    //verbose_message("Done.\n");
+    return 2;
 }
 
+/*
 int original_main_kite_tools(int argc, char *argv[]){
     if(argc < 2){
         std::cout << "No configuration file found. Exiting.\n";
@@ -213,10 +215,10 @@ int parse_main_kite_tools(const std::vector<std::string>& args) {
     for (auto &s : args) argv.push_back(const_cast<char *>(s.c_str()));
     return original_main_kite_tools(static_cast<int>(argv.size()), argv.data());
 }
-
+*/
 PYBIND11_MODULE(_kite, m) {
-m.doc() = "pybind11 kite plugin"; // optional module docstring
+    m.doc() = "pybind11 kite plugin"; // optional module docstring
 
-m.def("kitex", &parse_main_kitex, "A function that computes the moments from a HDF5 configuration file ");
-m.def("kite_tools", &parse_main_kite_tools, "A function that reconstructs a function from a HDF5  configuration file ");
+    m.def("kitex", &parse_main_kitex, "A function that computes the moments from a HDF5 configuration file ");
+    //m.def("kite_tools", &parse_main_kite_tools, "A function that reconstructs a function from a HDF5  configuration file ");
 }

@@ -9,8 +9,8 @@ endif()
 
 find_program(ccache_found ccache)
 if(ccache_found)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    #set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    #set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif()
 
 add_subdirectory(cppcore)

@@ -27,7 +27,8 @@ def compare(argv):
     # relative error
     # pct = sumall/np.sqrt(norm1*norm2)*0
     pct = 0
-
+    f1.close()
+    f2.close()
     return sumall, maxim, norm1, norm2, pct
     # print("{:<11f} {:<11f} {:<11f} {:<11f} {:<11f}".format(sumall, maxim, norm1, norm2, pct))
 
