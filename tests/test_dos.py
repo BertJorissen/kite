@@ -51,7 +51,10 @@ def block_output():
 os.environ["SEED"] = "3"
 def test_square(tmp_path: pathlib.Path):
     """Do the tests for the square lattice."""
-
+    if isinstance(tmp_path, str):
+        file = tmp_path
+    else:
+        file = str((tmp_path / "config").with_suffix(".h5"))
     # construct the lattice
     lattice = square()
 
@@ -76,18 +79,12 @@ def test_square(tmp_path: pathlib.Path):
 
     # make the input file
 
-    file = str((tmp_path / "config").with_suffix(".h5"))
     if os.path.exists(file):
         os.remove(file)
     kite.config_system(lattice, configuration, calculation, filename=file)
     # do the calculation, with the right random values
-    # os.system("./cmake-build-debug/cppcore/kitex/KITEx {0}".format(file2))
-    try:
-        with block_output():
-            import _kite
-            _kite.kitex(file)
-    except ValueError or Exception:
-        raise ValueError("KITE is wrong lol")
+    # os.system("./cmake-build-debug/cppcore/kitex/KITEx {0}".format(file))
+    kite.execute.kitex(file)
     # check the contents for the file
     from tests.kitex.compare import compare
     hdf5_internal_dest = "/Calculation/dos/MU"

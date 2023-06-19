@@ -20,7 +20,7 @@ dependencies = [
     "numpy>=1.12",
     "scipy>=0.19",
     "matplotlib>=2.0",
-    "h5py>=2.9",
+    "h5py==3.8.0",
     "pytest>=5.0",
     "pybinding>=0.9.5"
 ]

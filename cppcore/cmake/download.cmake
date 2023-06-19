@@ -38,6 +38,16 @@ function(download_tar_gz URL DIR)
     file(REMOVE_RECURSE ${tmp_dir})
 endfunction()
 
+function(major_minor_version VERSION OUTVAR)
+    string(REPLACE "." ";" version_list ${VERSION})
+    # Extract the first two numbers
+    list(GET version_list 0 major)
+    list(GET version_list 1 minor)
+
+    # Create the resulting version string
+    set(${OUTVAR} "${major}.${minor}" PARENT_SCOPE)
+endfunction()
+
 # Download a dependency from the given URL. The files to download
 # are given by ARGN. If the first file is *.tar.gz, the following
 # argument must be a glob pattern specifying the files to extract.

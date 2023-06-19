@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
-project(kite_cppcore_kitex)
+project(kite_cppcore_kitex CXX C)
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(cppcore_kitex
+add_library(cppcore_kitex STATIC
         include/Generic.hpp
         include/hamiltonian/HamiltonianAux.hpp
         include/hamiltonian/Hamiltonian.hpp
@@ -56,38 +56,35 @@ add_library(cppcore_kitex
         src/vector/KPM_VectorBasis.cpp
         )
 
-target_include_directories(cppcore_kitex PUBLIC include)
+add_library(kite::cppcore_kitex ALIAS cppcore_kitex)
+target_include_directories(cppcore_kitex SYSTEM PRIVATE include)
 
+add_executable(KITEx src/main.cpp)
+target_include_directories(KITEx SYSTEM PRIVATE include)
 
-#add_executable(KITEx src/main.cpp)
-#target_include_directories(KITEx PUBLIC include)
+if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
+	#add_dependencies(KITEx hdf5_local)
+    MESSAGE("aazzeerrttyy")
+    MESSAGE("KITEx " ${_hdf5_includes} ${_hdf5_libs})
+	add_dependencies(cppcore_kitex hdf5_local)
+    target_include_directories(KITEx SYSTEM PRIVATE ${_hdf5_includes})
+    target_include_directories(cppcore_kitex SYSTEM PRIVATE ${_hdf5_includes})
+    target_link_libraries(KITEx PRIVATE ${_hdf5_libs})
+    target_link_libraries(cppcore_kitex PRIVATE ${_hdf5_libs})
+    MESSAGE(STATUS "Using downloaded HDF5")
+else()
+    target_include_directories(cppcore_kitex SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
+    target_include_directories(KITEx SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
+    target_link_libraries(cppcore_kitex PRIVATE ${HDF5_CXX_LIBRARIES})
+    target_link_libraries(KITEx PRIVATE ${HDF5_CXX_LIBRARIES})
+endif()
 
-
-#if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
-#    add_dependencies(KITEx hdf5_local)
-#    add_dependencies(cppcore_kitex hdf5_local)
-#    target_link_libraries(KITEx PUBLIC ${_hdf5_libs})
-#    target_link_libraries(cppcore_kitex PUBLIC ${_hdf5_libs})
-#    MESSAGE(STATUS "Using downloaded Eigen3")
-#else()
-    find_package(HDF5 COMPONENTS CXX C HL)
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-    target_include_directories(cppcore_kitex PUBLIC ${HDF5_INCLUDE_DIR})
-#    target_include_directories(KITEx PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(cppcore_kitex PUBLIC ${HDF5_CXX_LIBRARIES})
-#    target_link_libraries(KITEx PUBLIC ${HDF5_CXX_LIBRARIES})
-    MESSAGE(STATUS "Using machine version HDF5")
-#endif()
-find_package(Eigen3)
-target_include_directories(cppcore_kitex PUBLIC ${EIGEN3_INCLUDE_DIR})
-#target_include_directories(KITEx PUBLIC ${EIGEN3_INCLUDE_DIR})
-
-MESSAGE(STATUS "Eigen3 Library used: ${EIGEN3_INCLUDE_DIR}")
-
+target_include_directories(cppcore_kitex SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
+#target_include_directories(KITEx SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if(${OPENMP_FOUND})
-    target_link_libraries(cppcore_kitex PUBLIC OpenMP::OpenMP_CXX)
-    # target_link_libraries(KITEx PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
+    #target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
     set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
@@ -98,14 +95,14 @@ else()
 endif()
 
 
-#set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-#target_link_libraries(KITEx PRIVATE cppcore_kitex)
+target_link_libraries(KITEx PRIVATE cppcore_kitex)
 
 set(compile_wp 1)
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0.0)
     MESSAGE( STATUS "Cannot compile gaussian wavepacket")
     set(compile_wp 0)
 endif()
-target_compile_options(cppcore_kitex PUBLIC -fvisibility=hidden)
+target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
 add_definitions(-DCOMPILE_WAVEPACKET=${compile_wp})

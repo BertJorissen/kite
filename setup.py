@@ -44,7 +44,7 @@ class CMakeBuild(build_ext):
         else:
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
             if "-j" not in os.environ.get("MAKEFLAGS", ""):
-                parallel_jobs = 2 if not os.environ.get("READTHEDOCS") else 1
+                parallel_jobs = 2 if not os.environ.get("READTHEDOCS") else int(os.cpu_count() - 1)
                 build_args += ["--", "-j{}".format(parallel_jobs)]
 
         env = os.environ.copy()
@@ -63,10 +63,16 @@ class CMakeBuild(build_ext):
             build()
 
 
-manifest_maker.template = "setup.manifest"
+# manifest_maker.template = "MANIFEST.in"
 setup(
-    packages=find_packages(),
+    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) + ['kite.tests', ''],
+    package_dir={'kite.tests': 'tests', "": "."},
     include_package_data=True,
     ext_modules=[CMakeExtension('_kite')],
+    package_data={'': [
+        'libhdf5.', 'libhdf5_cpp.so'
+        'libhdf5.so.200', 'libhdf5_cpp.so.200'
+        'libhdf5.so.200.2.0', 'libhdf5_cpp.so.200.2.0'
+    ]},
     cmdclass=dict(build_ext=CMakeBuild)
 )

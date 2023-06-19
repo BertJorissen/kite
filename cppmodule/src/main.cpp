@@ -1,91 +1,51 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
-
+#include "H5Cpp.h"
+#include <H5Group.h>
 #include "Generic.hpp"
 
 template<typename T, unsigned D>
 class Simulation;
-//#include "simulation/Global.hpp"
-//#include "tools/ComplexTraits.hpp"
-//#include "tools/myHDF5.hpp"
-//#include "tools/Random.hpp"
-//#include "lattice/Coordinates.hpp"
-//#include "lattice/LatticeStructure.hpp"
-//#include "hamiltonian/Hamiltonian.hpp"
-//#include "vector/KPM_VectorBasis.hpp"
-//#include "vector/KPM_Vector.hpp"
-//#include "tools/queue.hpp"
-//#include "simulation/Simulation.hpp"
-//#include "simulation/SimulationGlobal.hpp"
+#include "simulation/Global.hpp"
+#include "tools/ComplexTraits.hpp"
+#include "tools/myHDF5.hpp"
+#include "tools/Random.hpp"
+#include "lattice/Coordinates.hpp"
+#include "lattice/LatticeStructure.hpp"
+#include "hamiltonian/Hamiltonian.hpp"
+#include "vector/KPM_VectorBasis.hpp"
+#include "vector/KPM_Vector.hpp"
+#include "tools/queue.hpp"
+#include "simulation/Simulation.hpp"
+#include "simulation/SimulationGlobal.hpp"
 #include "tools/messages.hpp"
 
 
-//#include <vector>
-//#include <iostream>
-//#include <complex>
-//#include <string>
-//#include <Eigen/Dense>
-#include "H5Cpp.h"
+#include <vector>
+#include <iostream>
+#include <complex>
+#include <string>
+#include <Eigen/Dense>
 
-//#include "myHDF5.hpp"
-//#include "tools/parse_input.hpp"
-//#include "tools/calculate.hpp"
-//#include "macros.hpp"
-//#include "messages.hpp"
-//#include "compiletime_info.h.in"
+#include "tools/parse_input.hpp"
+#include "tools/calculate.hpp"
+#include "macros.hpp"
+#include "compiletime_info.h.in"
 
 typedef int indextype;
 
 
 
-int parse_main_kitex(char* path){
-    //(void) argc;
-
+int parse_main_kitex(char* path, int index){
     print_header_message();
     print_info_message();
     print_flags_message();
 
-
-
-    //verbose_message("\nStarting program...\n\n");
-    //debug_message("Starting program. The messages in red are debug messages. They may be turned off by setting DEBUG 0 in main.cpp\n");
-//  if(argc < 2){
-//    std::cout << "No configuration file found. Exiting.\n";
-//    exit(1);
-//  }
-
-    /* Define General characteristics of the data */
-    int precision = 1, dim, is_complex;
-
-    auto *file = new H5::H5File(path, H5F_ACC_RDONLY);
-    /*
-    get_hdf5(&is_complex, file, (char *) "/IS_COMPLEX");
-    get_hdf5(&precision,  file, (char *) "/PRECISION");
-    get_hdf5(&dim,        file, (char *) "/DIM");
-    */
-
-    file->close();
-    /*
-
-    // Verify if the values passed to the program are valid. If they aren't
-    // the program should notify the user and exit with error 1.
-    if(dim < 1 || dim > 3){
-        std::cout << "Invalid number of dimensions. The code is only valid for 2D or 3D. Exiting.\n";
-        exit(1);
-    }
-    if(precision < 0 || precision > 2){
-        std::cout << "Please use a valid value for the numerical precision. Accepted values: 0, 1, 2. Exiting.\n";
-        exit(1);
-    }
-    if(is_complex != 0 && is_complex != 1){
-        std::cout << "Bad complex flag. It has to be either 0 or 1. Exiting.\n";
-        exit(1);
-    }
-
+    verbose_message("\nStarting program...\n\n");
+    debug_message("Starting program. The messages in red are debug messages. They may be turned off by setting DEBUG 0 in main.cpp\n");
 
     // Decide which version of the program should run. This depends on the
     // precision, the dimension and whether or not we want complex functions.
-    int index =   dim - 1 + 3 * precision + is_complex * 3 * 3;
     switch (index ) {
         case 0:
         {
@@ -184,12 +144,12 @@ int parse_main_kitex(char* path){
             exit(1);
         }
     }
-    */
-    //verbose_message("Done.\n");
-    return 2;
+
+    verbose_message("Done.\n");
+    return 0;
 }
 
-/*
+
 int original_main_kite_tools(int argc, char *argv[]){
     if(argc < 2){
         std::cout << "No configuration file found. Exiting.\n";
@@ -215,10 +175,11 @@ int parse_main_kite_tools(const std::vector<std::string>& args) {
     for (auto &s : args) argv.push_back(const_cast<char *>(s.c_str()));
     return original_main_kite_tools(static_cast<int>(argv.size()), argv.data());
 }
-*/
+
+
 PYBIND11_MODULE(_kite, m) {
     m.doc() = "pybind11 kite plugin"; // optional module docstring
 
-    m.def("kitex", &parse_main_kitex, "A function that computes the moments from a HDF5 configuration file ");
-    //m.def("kite_tools", &parse_main_kite_tools, "A function that reconstructs a function from a HDF5  configuration file ");
+    m.def("kitex", &parse_main_kitex, "Function that computes the moments from a HDF5 configuration file ");
+    m.def("kite_tools", &parse_main_kite_tools, "Function that reconstructs a function from HDF5 configuration file");
 }

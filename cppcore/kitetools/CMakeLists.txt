@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 project(kite_cppcore_kitetools CXX C)
 
-add_library(cppcore_kitetools
+add_library(cppcore_kitetools STATIC
         include/conddc/conductivity_dc.hpp
         include/optcond_1order/conductivity_optical.hpp
         include/optcond_2order/conductivity_2order.hpp
@@ -47,33 +47,33 @@ add_library(cppcore_kitetools
         )
 
 add_library(kite::cppcore_kitetools ALIAS cppcore_kitetools)
-target_include_directories(cppcore_kitetools PUBLIC include)
+target_include_directories(cppcore_kitetools PRIVATE include)
 
 add_executable(KITE-tools src/main.cpp)
-target_include_directories(KITE-tools PUBLIC include)
+target_include_directories(KITE-tools PRIVATE include)
 
 
-target_include_directories(cppcore_kitetools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_include_directories(cppcore_kitetools PRIVATE ${EIGEN3_INCLUDE_DIR})
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
-    add_dependencies(KITE-tools  hdf5_local)
-    add_dependencies(cppcore_kitetools hdf5_local)
-    target_link_libraries(KITE-tools  PUBLIC ${_hdf5_libs})
-    target_link_libraries(cppcore_kitetools PUBLIC ${_hdf5_libs})
+	add_dependencies(KITE-tools hdf5_local)
+	add_dependencies(cppcore_kitetools hdf5_local)
+    target_link_libraries(KITE-tools PRIVATE ${_hdf5_libs})
+    target_link_libraries(cppcore_kitetools PRIVATE ${_hdf5_libs})
 else()
-    target_include_directories(cppcore_kitetools PUBLIC ${HDF5_INCLUDE_DIR})
-    target_include_directories(KITE-tools  PUBLIC ${HDF5_INCLUDE_DIR})
-    target_link_libraries(cppcore_kitetools PUBLIC ${HDF5_CXX_LIBRARIES})
-    target_link_libraries(KITE-tools  PUBLIC ${HDF5_CXX_LIBRARIES})
+    target_include_directories(cppcore_kitetools SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
+    target_include_directories(KITE-tools SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
+    target_link_libraries(cppcore_kitetools PRIVATE ${HDF5_CXX_LIBRARIES})
+    target_link_libraries(KITE-tools PRIVATE ${HDF5_CXX_LIBRARIES})
 endif()
 
-target_include_directories(cppcore_kitetools PUBLIC ${EIGEN3_INCLUDE_DIR})
-target_include_directories(KITE-tools  PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_include_directories(cppcore_kitetools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_include_directories(KITE-tools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 
 if (OPENMP_FOUND)
-    target_link_libraries(cppcore_kitetools PUBLIC OpenMP::OpenMP_CXX)
-    target_link_libraries(KITE-tools PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
     set (CORRECT_CODING_FLAGS "-Wall ")
     set (CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set (CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
