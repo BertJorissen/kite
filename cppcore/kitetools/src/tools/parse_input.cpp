@@ -205,11 +205,11 @@ shell_input::shell_input(int argc, char *argv[]){
 
         // Iterate over the allowed keys to check which one matches the command line
         for(int j = 0; j < len; j++){
-            if(arguments == "--help" or arguments == "-h"){
+            if(arguments == "--help" || arguments == "-h"){
                 printHelp();
                 exit(0);
             }
-            if(arguments == "--info" or arguments == "-i"){
+            if(arguments == "--info" || arguments == "-i"){
                 printInfo();
                 exit(0);
             }
@@ -321,7 +321,7 @@ void shell_input::parse_CondDC(int argc, char *argv[]){
                 CondDC_nthreads = atoi(n1.c_str());
             if(name == "-N")
                 CondDC_Name = n1;
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 CondDC_Exclusive = true;
             if(name == "-F"){
                 if(k == keys_len.at(j) - 1){
@@ -329,7 +329,7 @@ void shell_input::parse_CondDC(int argc, char *argv[]){
                     continue;
                 } else {
                     std::string n2 = argv[k + pos + 2];
-                    if(n2 == "-T" or n2 == "-E" or n2 == "-F" or n2 == "-S" or n2 == "-N" or n2 == "-X"){
+                    if(n2 == "-T" || n2 == "-E" || n2 == "-F" || n2 == "-S" || n2 == "-N" || n2 == "-X"){
                         CondDC_NumFermi = atoi(n1.c_str());
                     } else {
                         std::string n3 = argv[k + pos + 3];

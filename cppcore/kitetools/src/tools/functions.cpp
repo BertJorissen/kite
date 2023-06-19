@@ -13,7 +13,7 @@ std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::c
 
 
     // Check that the x and y arrays have the same ammount of elements
-	if(energies.rows() != integrand.rows() or energies.cols() != integrand.cols()){
+	if(energies.rows() != integrand.rows() || energies.cols() != integrand.cols()){
 		std::cout << "x and y arrays in the integrator must have the same number of elements. Exiting.\n";
 		exit(1);
 	}
