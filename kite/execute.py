@@ -1,4 +1,4 @@
-from . import _kite
+from .lib import kitecore
 import h5py as hp
 import numpy as np
 from typing import Union
@@ -57,7 +57,7 @@ def kitex(input: Union[Path, str]):
         )
         return 1
     index: int = dim - 1 + 3 * precision + is_complex * 3 * 3
-    return _kite.kitex(str(input), index)
+    return kitecore.kitex(str(input), index)
 
 
 def kitetools(input):
@@ -80,4 +80,4 @@ def kitetools(input):
         0 if the function exited correctly
     """
     filename = input if isinstance(input, str) else str(input)
-    return _kite.kitetools(filename.split())
+    return kitecore.kite_tools(filename.split())

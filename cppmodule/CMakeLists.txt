@@ -3,22 +3,21 @@ add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
 set(CMAKE_CXX_STANDARD 17)
 
-pybind11_add_module(_kite src/main.cpp)
+pybind11_add_module(kitecore src/main.cpp)
 
 if(${DOWNLOAD_HDF5})
-    MESSAGE("qqssddffgg")
-    MESSAGE("_kite " ${_hdf5_includes} ${_hdf5_libs})
-    add_dependencies(_kite hdf5_local)
-    target_include_directories(_kite SYSTEM PRIVATE ${_hdf5_includes})
-    target_link_libraries(_kite PRIVATE ${_hdf5_libs})
+    MESSAGE("kitecore " ${hdf5_includes} ${hdf5_libs})
+    add_dependencies(kitecore hdf5_local)
+    target_include_directories(kitecore SYSTEM PRIVATE ${hdf5_includes})
+    target_link_libraries(kitecore PRIVATE ${hdf5_libs})
 endif()
-target_include_directories(_kite SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
+target_include_directories(kitecore SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-target_include_directories(_kite SYSTEM PRIVATE ../cppcore/kitex/include)
-target_include_directories(_kite SYSTEM PRIVATE ../cppcore/kitetools/include)
+target_include_directories(kitecore SYSTEM PRIVATE ../cppcore/kitex/include)
+target_include_directories(kitecore SYSTEM PRIVATE ../cppcore/kitetools/include)
 
-target_link_libraries(_kite PRIVATE cppcore_kitex)
-target_link_libraries(_kite PRIVATE cppcore_kitetools)
+target_link_libraries(kitecore PRIVATE cppcore_kitex)
+target_link_libraries(kitecore PRIVATE cppcore_kitetools)
 
 if(NOT MSVC)  # match default visibility of core library and extension module
     target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
@@ -34,10 +33,10 @@ set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRU
 
 # output to the ${CMAKE_SOURCE_DIR}
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set_target_properties(_kite PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+    set_target_properties(kitecore PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/kite/lib)
     foreach(config ${CMAKE_CONFIGURATION_TYPES})
         string(TOUPPER ${config} config)
-        set_target_properties(_kite PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR})
+        set_target_properties(kitecore PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR}/kite/lib)
     endforeach()
 endif()
 

@@ -1,5 +1,5 @@
 try:
-    import _kite
+    from .lib import kitecore
 except ImportError as e:
     import warnings
     warnings.warn("The KITE-executables for KITEx and KITE-tools were not found.", UserWarning)

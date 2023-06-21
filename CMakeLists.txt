@@ -55,6 +55,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     major_minor_version(${_hdf5_version} _hdf5_mm_version)
     file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_local/src)
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
+    set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib/)
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${_hdf5_version}/src/hdf5-${_hdf5_version}.tar.gz"
             CMAKE_ARGS ${ExternalProjectCMakeArgs}
@@ -63,20 +64,25 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             STAMP_DIR  ${HDF5_DIR}/stamp
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so ${hdf5_libs_folder}/libhdf5.so
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so.200 ${hdf5_libs_folder}/libhdf5.so.200
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so.200.2.0 ${hdf5_libs_folder}/libhdf5.so.200.2.0
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5_cpp.so
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so.200 ${hdf5_libs_folder}/libhdf5_cpp.so.200
+            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so.200.2.0 ${hdf5_libs_folder}/libhdf5_cpp.so.200.2.0
             )
-    set(_hdf5_includes
+    set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${_hdf5_version}/src
             ${HDF5_DIR}/src/hdf5-${_hdf5_version}/c++/src
             ${HDF5_DIR}/build/src
             ${HDF5_DIR}/build
             )
-    include_directories(${_hdf5_includes})
-    set(_hdf5_libs
-            ${CMAKE_CURRENT_SOURCE_DIR}/libhdf5_cpp.so
-            ${CMAKE_CURRENT_SOURCE_DIR}/libhdf5.so
-            )
+    include_directories(${hdf5_includes})
 
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5.so.200)
 endif()
 
 add_subdirectory(cppcore)

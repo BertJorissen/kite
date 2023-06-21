@@ -25,7 +25,7 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
-        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir,
+        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "/kite/lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
         #cmake_args += ["-DPB_WERROR=" + os.environ.get("PB_WERROR", "OFF"),
         #               "-DPB_TESTS=" + os.environ.get("PB_TESTS", "OFF"),
@@ -38,7 +38,7 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)]
+            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir  + "/kite/lib")]
             cmake_args += ["-A", "x64" if sys.maxsize > 2**32 else "Win32"]
             build_args += ["--", "/v:m", "/m"]
         else:
@@ -65,14 +65,13 @@ class CMakeBuild(build_ext):
 
 # manifest_maker.template = "MANIFEST.in"
 setup(
-    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) + ['kite.tests', ''],
-    package_dir={'kite.tests': 'tests', "": "."},
+    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) + ['kite.tests', 'kite.lib'],
+    package_dir={'kite.tests': 'tests', 'kite.lib': 'kite/lib'},
     include_package_data=True,
-    ext_modules=[CMakeExtension('_kite')],
-    package_data={'': [
-        'libhdf5.', 'libhdf5_cpp.so'
-        'libhdf5.so.200', 'libhdf5_cpp.so.200'
-        'libhdf5.so.200.2.0', 'libhdf5_cpp.so.200.2.0'
+    ext_modules=[CMakeExtension('kitecore')],
+    package_data={'kite.lib': [
+        'libhdf5.so', 'libhdf5_cpp.so', 'libhdf5.so.200',
+        'libhdf5_cpp.so.200', 'libhdf5.so.200.2.0', 'libhdf5_cpp.so.200.2.0'
     ]},
     cmdclass=dict(build_ext=CMakeBuild)
 )

@@ -177,7 +177,7 @@ int parse_main_kite_tools(const std::vector<std::string>& args) {
 }
 
 
-PYBIND11_MODULE(_kite, m) {
+PYBIND11_MODULE(kitecore, m) {
     m.doc() = "pybind11 kite plugin"; // optional module docstring
 
     m.def("kitex", &parse_main_kitex, "Function that computes the moments from a HDF5 configuration file ");
