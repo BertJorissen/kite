@@ -27,12 +27,8 @@ class CMakeBuild(build_ext):
             extdir += os.path.sep
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "/kite/lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
-        #cmake_args += ["-DPB_WERROR=" + os.environ.get("PB_WERROR", "OFF"),
-        #               "-DPB_TESTS=" + os.environ.get("PB_TESTS", "OFF"),
-        #               "-DPB_NATIVE_SIMD=" + os.environ.get("PB_NATIVE_SIMD", "ON"),
-        #               "-DPB_MKL=" + os.environ.get("PB_MKL", "OFF"),
-        #               "-DPB_CUDA=" + os.environ.get("PB_CUDA", "OFF"),
-        #               "-DPB_CARTESIAN_FLOAT=" + os.environ.get("PB_CARTESIAN_FLOAT", "OFF")]
+        cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
+                       "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF")]
 
         cfg = "Release" #os.environ.get("KITE_BUILD_TYPE", "Release")
         build_args = ["--config", cfg]

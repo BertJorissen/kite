@@ -10,6 +10,10 @@ if(${DOWNLOAD_HDF5})
     add_dependencies(kitecore hdf5_local)
     target_include_directories(kitecore SYSTEM PRIVATE ${hdf5_includes})
     target_link_libraries(kitecore PRIVATE ${hdf5_libs})
+else()
+    target_include_directories(kitecore SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
+    target_link_libraries(kitecore PRIVATE ${HDF5_CXX_LIBRARIES})
+
 endif()
 target_include_directories(kitecore SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 

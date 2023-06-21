@@ -63,9 +63,6 @@ add_executable(KITEx src/main.cpp)
 target_include_directories(KITEx SYSTEM PRIVATE include)
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
-	#add_dependencies(KITEx hdf5_local)
-    MESSAGE("aazzeerrttyy")
-    MESSAGE("KITEx " ${hdf5_includes} ${hdf5_libs})
 	add_dependencies(cppcore_kitex hdf5_local)
     target_include_directories(KITEx SYSTEM PRIVATE ${hdf5_includes})
     target_include_directories(cppcore_kitex SYSTEM PRIVATE ${hdf5_includes})
@@ -98,6 +95,7 @@ endif()
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(KITEx PRIVATE cppcore_kitex)
+set_target_properties(KITEx PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 set(compile_wp 1)
 if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0.0)

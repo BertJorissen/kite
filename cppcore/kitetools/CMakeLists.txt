@@ -86,6 +86,7 @@ endif()
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(KITE-tools PRIVATE cppcore_kitetools)
+set_target_properties(KITE-tools PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_MODULE_PATH ../..)
 
 set(SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
