@@ -38,7 +38,7 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir  + "/kite/lib")]
+            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir + "/kite/lib")]
             cmake_args += ["-A", "x64" if sys.maxsize > 2**32 else "Win32"]
             build_args += ["--", "/v:m", "/m"]
         else:

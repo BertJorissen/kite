@@ -55,7 +55,11 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     major_minor_version(${_hdf5_version} _hdf5_mm_version)
     file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_local/src)
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
-    set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib/)
+    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib/)
+    else()
+        set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    endif()
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${_hdf5_version}/src/hdf5-${_hdf5_version}.tar.gz"
             CMAKE_ARGS ${ExternalProjectCMakeArgs}
