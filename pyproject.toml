@@ -27,7 +27,7 @@ dependencies = [
 requires-python = ">=3.6"
 license = {file = "LICENSE.md"}
 classifiers = [
-    'Development Status :: 5 - Stable',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics',
     'License :: OSI Approved :: BSD License',
