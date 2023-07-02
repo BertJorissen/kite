@@ -2,7 +2,7 @@ import h5py
 import sys
 import numpy as np
 
-def compare(argv):
+def compare(argv, set_abs=False):
 
     f1 = h5py.File(argv[0], 'r')
     f2 = h5py.File(argv[2], 'r')
@@ -13,7 +13,10 @@ def compare(argv):
     npset2 = np.array(dset2[:])
     print(npset1)
     print(npset2)
-    set_dif = np.absolute(npset2 - npset1)
+    if set_abs:
+        set_dif = np.absolute(np.abs(npset2) - np.abs(npset1))
+    else:
+        set_dif = np.absolute(npset2 - npset1)
 
     # sum of the differences
     sumall = np.sqrt((set_dif**2).sum())
@@ -32,7 +35,7 @@ def compare(argv):
     return sumall, maxim, norm1, norm2, pct
     # print("{:<11f} {:<11f} {:<11f} {:<11f} {:<11f}".format(sumall, maxim, norm1, norm2, pct))
 
-def compare_txt(argv):
+def compare_txt(argv, set_abs=False):
     # Compare text files
 
     f1 = argv[0]
@@ -44,8 +47,12 @@ def compare_txt(argv):
 
 
     # sum of the differences
-    set_dif = np.absolute(d1 - d2)
-    sumall = np.sqrt((set_dif**2).sum())
+    if set_abs:
+        set_dif = np.absolute(np.abs(d1) - np.abs(d2))
+        sumall = np.sqrt((set_dif**2).sum())
+    else:
+        set_dif = np.absolute(d1 - d2)
+        sumall = np.sqrt((set_dif**2).sum())
 
     # maximum difference between the same elements of both arrays
     maxim  = np.amax(set_dif)

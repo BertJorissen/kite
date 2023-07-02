@@ -14,6 +14,9 @@ authors = [
     {name="Robin Smeyers"},
     {name="David T.S. Perkins"}
 ]
+maintainers = [
+    { name="Bert Jorissen", email="info@bertjorissen.be"}
+]
 description = "KITE: Real-space quantum transport simulator. (c) 2018-2023, Quantum-Kite team"
 readme = "README.md"
 dependencies = [
@@ -24,7 +27,7 @@ dependencies = [
     "pytest>=5.0",
     "pybinding>=0.9.5"
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 license = {file = "LICENSE.md"}
 classifiers = [
     'Development Status :: 5 - Stable',
@@ -33,8 +36,6 @@ classifiers = [
     'License :: OSI Approved :: BSD License',
     'Programming Language :: C++',
     'Programming Language :: Python :: 3 :: Only',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',

@@ -50,35 +50,32 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             )
-    set(_hdf5_version "1.12.2")
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-    major_minor_version(${_hdf5_version} _hdf5_mm_version)
-    file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/hdf5_local/src)
+    if(NOT HDF5_DOWNLOAD_VERSION)
+        set(HDF5_DOWNLOAD_VERSION "1.12.2")
+    endif()
+    set(HDF5_USE_STATIC_LIBRARIES OFF)
+    major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
+    MESSAGE(HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version})
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-        set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib/)
+        set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
     else()
         set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     endif()
     ExternalProject_Add(hdf5_local
-            URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${_hdf5_version}/src/hdf5-${_hdf5_version}.tar.gz"
+            URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
             CMAKE_ARGS ${ExternalProjectCMakeArgs}
-            SOURCE_DIR ${HDF5_DIR}/src/hdf5-${_hdf5_version}
+            SOURCE_DIR ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}
             BINARY_DIR ${HDF5_DIR}/build
             STAMP_DIR  ${HDF5_DIR}/stamp
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so ${hdf5_libs_folder}/libhdf5.so
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so.200 ${hdf5_libs_folder}/libhdf5.so.200
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5.so.200.2.0 ${hdf5_libs_folder}/libhdf5.so.200.2.0
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5_cpp.so
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so.200 ${hdf5_libs_folder}/libhdf5_cpp.so.200
-            COMMAND ${CMAKE_COMMAND} -E copy ${HDF5_DIR}/build/bin/libhdf5_cpp.so.200.2.0 ${hdf5_libs_folder}/libhdf5_cpp.so.200.2.0
+            COMMAND ${CMAKE_COMMAND} -DHDF5_MOVE_FILES=TRUE -DHDF5_DIR=${HDF5_DIR} -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes
-            ${HDF5_DIR}/src/hdf5-${_hdf5_version}/src
-            ${HDF5_DIR}/src/hdf5-${_hdf5_version}/c++/src
+            ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
+            ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/c++/src
             ${HDF5_DIR}/build/src
             ${HDF5_DIR}/build
             )
@@ -86,7 +83,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
 
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5.so.200)
+    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5.so)
 endif()
 
 add_subdirectory(cppcore)

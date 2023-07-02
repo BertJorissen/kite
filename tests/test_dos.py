@@ -2,11 +2,14 @@
 import numpy as np
 import pybinding as pb
 import kite
-import os
 import pathlib
+import os
+import sys
+from contextlib import contextmanager
+os.environ["SEED"] = "3"
 
 
-def square(a: float=1., t: float=1.) -> pb.Lattice:
+def square(a: float = 1., t: float = 1.) -> pb.Lattice:
     """Make a square lattice to test the DOS.
 
     Parameters
@@ -32,11 +35,6 @@ def square(a: float=1., t: float=1.) -> pb.Lattice:
     return lat
 
 
-from contextlib import contextmanager
-import os
-import sys
-
-
 @contextmanager
 def block_output():
     with open(os.devnull, 'w') as output:
@@ -48,7 +46,6 @@ def block_output():
             os.dup2(init_output, sys.stdout.fileno())
 
 
-os.environ["SEED"] = "3"
 def test_square(tmp_path: pathlib.Path):
     """Do the tests for the square lattice."""
     if isinstance(tmp_path, str):
@@ -78,12 +75,9 @@ def test_square(tmp_path: pathlib.Path):
         num_disorder=1)
 
     # make the input file
-
     if os.path.exists(file):
         os.remove(file)
     kite.config_system(lattice, configuration, calculation, filename=file)
-    # do the calculation, with the right random values
-    # os.system("./cmake-build-debug/cppcore/kitex/KITEx {0}".format(file))
     kite.execute.kitex(file)
     # check the contents for the file
     from tests.kitex.compare import compare
@@ -91,3 +85,48 @@ def test_square(tmp_path: pathlib.Path):
     ref_file = "tests/kitex/large000_KITEx_sq_dos/configREF.h5"
     assert compare([file, hdf5_internal_dest, ref_file, hdf5_internal_dest])[0] < 1e-8,\
         "The desired accuracy wasn't achieved."
+
+
+def test_magnetic(tmp_path: pathlib.Path):
+    """Do the tests for the square lattice."""
+    if isinstance(tmp_path, str):
+        file = tmp_path
+    else:
+        file = str((tmp_path / "config").with_suffix(".h5"))
+    # construct the lattice
+    lattice = square()
+
+    # set the parameters for the calculation with KITEx
+    nx = ny = 2
+    lx = ly = 512
+    m = 4192
+    configuration = kite.Configuration(
+        divisions=[nx, ny],
+        length=[lx, ly],
+        boundaries=["periodic", "periodic"],
+        is_complex=True,
+        precision=1,
+        spectrum_range=[-4.1, 4.1]
+    )
+    calculation = kite.Calculation(configuration)
+    mod = kite.Modification(magnetic_field=9)
+    calculation.dos(
+        num_points=4096,
+        num_moments=m,
+        num_random=1,
+        num_disorder=1)
+
+    # make the input file
+    if os.path.exists(file):
+        os.remove(file)
+    kite.config_system(lattice, configuration, calculation,  modification=mod, filename=file)
+    kite.execute.kitex(file)
+    # check the contents for the file
+    from tests.kitex.compare import compare, compare_txt
+    hdf5_internal_dest = "/Calculation/dos/MU"
+    ref_file = "tests/kitex/large001_magdos2d/configREF.h5"
+    assert compare([file, hdf5_internal_dest, ref_file, hdf5_internal_dest], set_abs=True)[0] < 1e-8, \
+        "The desired accuracy wasn't achieved."
+    kite.execute.kitetools(file)
+    file3, file4 = "tests/kitex/large001_magdos2d/dos.dat", "tests/kitex/large001_magdos2d/dosREF.dat"
+    assert compare_txt([file3, file4], set_abs=True)[0] < 1e-8, "The desired accuracy wasn't achieved, {0}".format(compare_txt([file3, file4], set_abs=True)[0])

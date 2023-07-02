@@ -25,22 +25,27 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
-        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "/kite/lib",
+        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite/lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
+
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF")]
-
-        cfg = "Release" #os.environ.get("KITE_BUILD_TYPE", "Release")
+        try:
+            import h5py
+            cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]
+        except ImportError:
+            cmake_args += []
+        cfg = os.environ.get("QK_BUILD_TYPE", "Release")
         build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir + "/kite/lib")]
+            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir + "kite/lib")]
             cmake_args += ["-A", "x64" if sys.maxsize > 2**32 else "Win32"]
             build_args += ["--", "/v:m", "/m"]
         else:
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
             if "-j" not in os.environ.get("MAKEFLAGS", ""):
-                parallel_jobs = 2 if not os.environ.get("READTHEDOCS") else int(os.cpu_count() - 1)
+                parallel_jobs = int(os.cpu_count() - 1) if not os.environ.get("READTHEDOCS") else 1
                 build_args += ["--", "-j{}".format(parallel_jobs)]
 
         env = os.environ.copy()
@@ -59,7 +64,6 @@ class CMakeBuild(build_ext):
             build()
 
 
-# manifest_maker.template = "MANIFEST.in"
 setup(
     packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) + ['kite.tests', 'kite.lib'],
     package_dir={'kite.tests': 'tests', 'kite.lib': 'kite/lib'},
