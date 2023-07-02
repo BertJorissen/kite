@@ -17,7 +17,7 @@ jobs:
   #    - run: mkdocs gh-deploy --force
   build-wheels:
     name: Build wheels on ${{ matrix.os }}
-    environment: actions
+    environment: ci
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -42,7 +42,7 @@ jobs:
 
   build-sdist:
     name: Create sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    environment: actions
+    environment: ci
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     strategy:
