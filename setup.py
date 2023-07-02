@@ -25,7 +25,7 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
-        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite/lib",
+        cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite" + os.path.sep + "lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
