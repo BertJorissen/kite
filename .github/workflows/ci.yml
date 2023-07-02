@@ -21,9 +21,8 @@ jobs:
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -66,3 +65,39 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: dist/*.tar.gz
+   
+  testpypi: 
+    name: Test upload on PyPi 
+    environment: ci
+    if: github.ref == 'refs/heads/master' 
+    permissions: 
+      id-token: write 
+    needs: [ build-wheels, build-sdist ] 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Download artefacts 
+        uses: actions/download-artifact@v3 
+         with: 
+          name: artifact 
+          path: dist 
+      - name: Publish distribution 📦 to Test PyPI 
+        uses: pypa/gh-action-pypi-publish@release/v1 
+        with: 
+          repository-url: https://test.pypi.org/legacy/ 
+  
+  pypi: 
+    name: Publish to PyPi 
+    environment: ci
+    if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'BertJorissen') 
+    permissions: 
+      id-token: write 
+    needs: [ testpypi ] 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Download artefacts 
+        uses: actions/download-artifact@v3 
+        with: 
+          name: artifact 
+          path: dist 
+      - name: Publish distribution 📦 to PyPI 
+        uses: pypa/gh-action-pypi-publish@release/v1
