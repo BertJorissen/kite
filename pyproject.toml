@@ -1,6 +1,6 @@
 [project]
 name = "quantum-kite"
-version = "1.1.0"
+version = "0.0.0"
 authors = [
     {name="Simão M. João"},
     {name="João M.V.P Lopes"},
@@ -30,7 +30,7 @@ dependencies = [
 requires-python = ">=3.8"
 license = {file = "LICENSE.md"}
 classifiers = [
-    'Development Status :: 5 - Stable',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Science/Research',
     'Topic :: Scientific/Engineering :: Physics',
     'License :: OSI Approved :: BSD License',
