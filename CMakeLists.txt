@@ -3,8 +3,8 @@ project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 if(APPLE) # set compiler, don't use AppleClang
-    set(CMAKE_C_COMPILER "gcc-13")
-    set(CMAKE_CXX_COMPILER "g++-13")
+    set(CMAKE_C_COMPILER "/usr/local/bin/gcc-13")
+    set(CMAKE_CXX_COMPILER "/usr/local/bin/g++-13")
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
