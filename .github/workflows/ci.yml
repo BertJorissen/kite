@@ -36,7 +36,7 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: |
             if [[ ${{ matrix.os }} == 'macos-latest' ]]; then
-              brew install libomp
+              brew install libomp gcc
             fi
             pip install scipy contourpy --prefer-binary
           CIBW_BEFORE_TEST: pip install scipy contourpy --prefer-binary

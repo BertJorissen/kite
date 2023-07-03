@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.9)
 project(kite CXX)
 
 if(APPLE) # set compiler, don't use AppleClang
-    set(CMAKE_C_COMPILER "gcc")
-    set(CMAKE_CXX_COMPILER "g++")
+    set(CMAKE_C_COMPILER "gcc-17")
+    set(CMAKE_CXX_COMPILER "g++-17")
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
