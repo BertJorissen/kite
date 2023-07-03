@@ -83,7 +83,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
 
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.so ${hdf5_libs_folder}/libhdf5.so)
+    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp ${hdf5_libs_folder}/libhdf5)
 endif()
 
 add_subdirectory(cppcore)
