@@ -37,7 +37,7 @@ jobs:
           CIBW_BEFORE_BUILD: |
             rm -rf build/
             pip install scipy contourpy --prefer-binary
-          CIBW_ENVIRONMENT: APPLE_GC="/usr/local/bin/gcc-13" APPLE_GCXX="/usr/local/bin/g++-13" CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13"
+          CIBW_ENVIRONMENT: CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13"
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *aarch64 *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
