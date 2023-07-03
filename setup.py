@@ -69,9 +69,9 @@ setup(
     package_dir={'kite.tests': 'tests', 'kite.lib': 'kite/lib'},
     include_package_data=True,
     ext_modules=[CMakeExtension('kitecore')],
-    package_data={'kite.lib': [
-        'libhdf5.so', 'libhdf5_cpp.so', 'libhdf5.so.200',
-        'libhdf5_cpp.so.200', 'libhdf5.so.200.2.0', 'libhdf5_cpp.so.200.2.0'
-    ]},
+    package_data={
+        'kite.lib': ['*'],
+        'kite.tests': ["*"]
+    },
     cmdclass=dict(build_ext=CMakeBuild)
 )
