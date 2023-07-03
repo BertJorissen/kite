@@ -71,14 +71,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "Directory Contents:"
-            COMMAND ${CMAKE_COMMAND} -E echo "-------------------"
-            COMMAND ${CMAKE_COMMAND} -E echo ""
-            COMMAND ${CMAKE_COMMAND} -E ls ${HDF5_DIR}
-            COMMAND ${CMAKE_COMMAND} -E ls ${hdf5_libs_folder}
-            COMMAND ${CMAKE_COMMAND} -E ls ${HDF5_DIR}/build
-            COMMAND ${CMAKE_COMMAND} -E ls ${HDF5_DIR}/build/bin
-            COMMAND ${CMAKE_COMMAND} -E echo ""
             COMMAND ${CMAKE_COMMAND} -DHDF5_MOVE_FILES=TRUE -DHDF5_DIR=${HDF5_DIR} -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes
