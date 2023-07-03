@@ -11,6 +11,7 @@ if(APPLE) # set compiler, don't use AppleClang
     if(NOT APPLE_GCXX)
         set(APPLE_GCXX "g++")
     endif()
+    MESSAGE(config: ${APPLE_GC} ${APPLE_GCXX})
     set(CMAKE_CXX_COMPILER ${APPLE_GCXX})
 endif()
 
