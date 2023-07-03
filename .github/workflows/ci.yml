@@ -34,18 +34,10 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BEFORE_BUILD: |
-            if [[ ${{ matrix.os }} == 'macos-latest' ]]; then
-              brew install libomp gcc
-              brew info gcc
-              ls /usr/local
-              ls /usr/local/bin
-              ls /usr/local/Cellar/gcc/13.1.0
-              ls /usr/local/Cellar/gcc
-            fi
-            pip install scipy contourpy --prefer-binary
-          CIBW_BEFORE_TEST: pip install scipy contourpy --prefer-binary
+          CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
+          CIBW_ENVIRONMENT: CMAKE_GC_COMPILER="/usr/local/bin/gcc-13" CMAKE_GCXX_COMPILER="/usr/local/bin/g++-13"
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *aarch64 *ppc64le *s390x
+          CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
