@@ -3,7 +3,7 @@ if(${HDF5_MOVE_FILES} STREQUAL "TRUE")
     file(GLOB HDF5_LIBRARY_FILES "${HDF5_DIR}/build/bin/libhdf5.*")
 
     # Find files matching the pattern "libhdf5_cpp.so*"
-    file(GLOB HDF5_CPP_LIBRARY_FILES "${HDF5_DIR}/build/bin/libhdf5_cpp.*")
+    file(GLOB HDF5_CPP_LIBRARY_FILES "${HDF5_DIR}/build/bin/libhdf5_cpp${HDF_SL_EXT}*")
 
     # Concatenate the file lists
     set(ALL_LIBRARY_FILES ${HDF5_LIBRARY_FILES} ${HDF5_CPP_LIBRARY_FILES})
