@@ -3,6 +3,7 @@ project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 if(APPLE) # set compiler, don't use AppleClang
+    MESSAGE(${CMAKE_GC_COMPILER} ${CMAKE_GCXX_COMPILER})
     if(NOT CMAKE_GC_COMPILER)
         set(CMAKE_GC_COMPILER "gcc")
     endif()
