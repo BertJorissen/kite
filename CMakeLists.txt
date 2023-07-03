@@ -63,9 +63,9 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
         set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     endif()
     if(APPLE)
-        set(HDF_SL_EXT ".dylib")
+        set(HDF_SL_EXT "dylib")
     else()
-        set(HDF_SL_EXT ".so")
+        set(HDF_SL_EXT "so")
     endif()
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
