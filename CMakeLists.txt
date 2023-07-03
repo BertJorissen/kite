@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
 project(kite CXX)
 
+if(APPLE) # set compiler, don't use AppleClang
+    set(CMAKE_C_COMPILER "gcc")
+    set(CMAKE_CXX_COMPILER "g++")
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
