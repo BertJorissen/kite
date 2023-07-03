@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 project(kite_cppcore_kitetools CXX C)
+set(CMAKE_CXX_STANDARD 17)
 
 add_library(cppcore_kitetools STATIC
         include/conddc/conductivity_dc.hpp

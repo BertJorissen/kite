@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
 project(kite CXX)
 
+set(CMAKE_CXX_STANDARD 17)
 if(APPLE) # set compiler, don't use AppleClang
     set(CMAKE_C_COMPILER "gcc-17")
     set(CMAKE_CXX_COMPILER "g++-17")
 endif()
-
-set(CMAKE_CXX_STANDARD 17)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
 option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON)
