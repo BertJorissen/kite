@@ -44,5 +44,5 @@ if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     endforeach()
 endif()
 
-add_custom_target(pytest COMMAND ${PYTHON_EXECUTABLE} -m pytest tests DEPENDS _kite
+add_custom_target(pytest COMMAND ${PYTHON_EXECUTABLE} -m pytest tests DEPENDS kitecore
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
