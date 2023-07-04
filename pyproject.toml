@@ -1,6 +1,6 @@
 [project]
 name = "quantum-kite"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     {name="Simão M. João"},
     {name="João M.V.P Lopes"},
@@ -11,8 +11,7 @@ authors = [
     {name="João P.S. Pires"},
     {name="Bert Jorissen"},
     {name="Emile Aerts"},
-    {name="Robin Smeyers"},
-    {name="David T.S. Perkins"}
+    {name="Robin Smeyers"}
 ]
 maintainers = [
     { name="Bert Jorissen", email="info@bertjorissen.be"}

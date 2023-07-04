@@ -33,9 +33,10 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
+          CIBW_ARCHS_MACOS: x86_64 universal2 arm64
           CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
           CIBW_ENVIRONMENT: CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13"  # set compiler, don't use AppleClang
-          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *aarch64 *ppc64le *s390x
+          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
@@ -59,8 +60,9 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
+          CIBW_ARCHS_LINUX: x86_64 aarch64
           CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
-          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *aarch64 *ppc64le *s390x
+          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
@@ -111,19 +113,19 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
 
-#  pypi:
-#    name: Publish to PyPi
-#    environment: ci
-#    if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'BertJorissen')
-#    permissions:
-#      id-token: write
-#    needs: [ testpypi ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Download artefacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: artifact
-#          path: dist
-#      - name: Publish distribution 📦 to PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
+  pypi:
+    name: Publish to PyPi
+    environment: ci
+    if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'BertJorissen')
+    permissions:
+      id-token: write
+    needs: [ testpypi ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
