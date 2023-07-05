@@ -1,4 +1,9 @@
 cmake_minimum_required(VERSION 3.9)
+if(APPLE)
+    if(${OSX_ARCH})
+        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
+    endif()
+endif()
 project(kite_cppcore_kitex CXX C)
 set(CMAKE_CXX_STANDARD 17)
 
@@ -90,7 +95,12 @@ else()
     set(CMAKE_CXX_FLAGS_DEBUG "${CORRECT_CODING_FLAGS} -g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
-
+if(APPLE)
+    if(${OSX_FLAGS})
+        string(APPEND CMAKE_CXX_FLAGS ${OSX_FLAGS})
+        string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
+    endif()
+endif()
 
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 

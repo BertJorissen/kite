@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
+
+if(APPLE)
+    if(${OSX_ARCH})
+        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
+    endif()
+endif()
 project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -35,7 +41,12 @@ if(QK_NATIVE_HDF5)
         MESSAGE(STATUS "Couldn't find HDF5, installing it instead.")
     endif()
 endif()
-
+if(APPLE)
+    if(${OSX_FLAGS})
+        string(APPEND CMAKE_CXX_FLAGS ${OSX_FLAGS})
+        string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
+    endif()
+endif()
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     set(ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"

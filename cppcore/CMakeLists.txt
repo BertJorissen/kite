@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.9)
+if(APPLE)
+    if(${OSX_ARCH})
+        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
+    endif()
+endif()
+
 project(kite_cppcore CXX C)
 
 set(CMAKE_CXX_STANDARD 17)

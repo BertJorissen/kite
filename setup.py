@@ -29,7 +29,9 @@ class CMakeBuild(build_ext):
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
-                       "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF")]
+                       "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
+                       "-DOSX_FLAGS=" + os.environ.get("OSX_FLAGS", " -arch x86_64 -O3"),
+                       "-DOSX_ARCH=" + os.environ.get("OSX_ARCH", "x86_64")]
         try:
             import h5py
             cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]
