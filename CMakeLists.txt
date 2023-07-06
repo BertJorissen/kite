@@ -67,6 +67,11 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             )
+    if(APPLE)
+        set(ExternalProjectCMakeArgs
+                ${ExternalProjectCMakeArgs}
+                "-DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}")
+    endif()
     if(NOT HDF5_DOWNLOAD_VERSION)
         set(HDF5_DOWNLOAD_VERSION "1.12.2")
     endif()
