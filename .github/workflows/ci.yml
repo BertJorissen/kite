@@ -13,7 +13,7 @@ jobs:
   #    - uses: actions/setup-python@v2
   #      with:
   #        python-version: 3.x
-  #    - run: pip install mkdocs-material
+  #    - run: pip install mkdocs-material mkdocstrings[python]
   #    - run: mkdocs gh-deploy --force
   build-wheel-macos:
     name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
@@ -36,7 +36,7 @@ jobs:
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
           CIBW_BEFORE_BUILD: |
             pip install scipy contourpy --prefer-binary
-            brew install libomp
+            brew info libomp
           #CIBW_ENVIRONMENT: CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -arch ${{ matrix.cibw_archs }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT: OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -Xpreprocessor -fopenmp -arch ${{ matrix.cibw_archs }} -O3 -L/usr/local/opt/libomp/lib' # set compiler, don't use AppleClang
           CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x

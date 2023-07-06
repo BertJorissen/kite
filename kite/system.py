@@ -12,19 +12,18 @@ __all__ = ['config_system']
 def config_system(lattice, config, calculation, modification=None, **kwargs):
     """Export the lattice and related parameters to the *.h5 file
 
-    Parameters
-    ----------
-    lattice : pb.Lattice
-        Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
-        onsite energies.
-    config : Configuration
-        Configuration object, basic parameters defining size, precision, energy scale and number of decomposition parts
-        in the calculation.
-    calculation : Calculation
-        Calculation object that defines the requested functions for the calculation.
-    modification : Modification = None
-        If specified modification object, has the magnetic field selection, either in terms of field, or in the number
-        of flux quantum through the selected system.
+    Args:
+        lattice (pb.Lattice):
+            Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
+            onsite energies.
+        config (Configuration):
+            Configuration object, basic parameters defining size, precision, energy scale and number of decomposition parts
+            in the calculation.
+        calculation (Calculation):
+            Calculation object that defines the requested functions for the calculation.
+        modification (Modification):
+            If specified modification object, has the magnetic field selection, either in terms of field, or in the number
+            of flux quantum through the selected system.
     **kwargs: Optional arguments like filename, Disorder or Disorder_structural.
 
     """
