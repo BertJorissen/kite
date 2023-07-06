@@ -898,9 +898,9 @@ void KPM_Vector <T, 3>::build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::M
 
 
 #define instantiateTYPE(type)               template class KPM_Vector <type,3u>; \
-  template void KPM_Vector<type,3u>::template KPM_MOTOR<0u,false>(KPM_Vector<type,3u> * kpm_final, unsigned axis); \
-  template void KPM_Vector<type,3u>::template KPM_MOTOR<1u,false>(KPM_Vector<type,3u> * kpm_final, unsigned axis); \
-  template void KPM_Vector<type,3u>::template KPM_MOTOR<0u,true>(KPM_Vector<type,3u> * kpm_final, unsigned axis);
+  template void KPM_Vector<type,3u>:: KPM_MOTOR<0u,false>(KPM_Vector<type,3u> * kpm_final, unsigned axis); \
+  template void KPM_Vector<type,3u>:: KPM_MOTOR<1u,false>(KPM_Vector<type,3u> * kpm_final, unsigned axis); \
+  template void KPM_Vector<type,3u>:: KPM_MOTOR<0u,true>(KPM_Vector<type,3u> * kpm_final, unsigned axis);
 
 instantiateTYPE(float)
 instantiateTYPE(double)

@@ -770,9 +770,9 @@ void KPM_Vector <T, 2>::empty_ghosts(int mem_index) {
 
 
 #define instantiateTYPE(type)               template class KPM_Vector <type,2u>; \
-  template void KPM_Vector<type,2u>::template KPM_MOTOR<0u,false>(KPM_Vector<type,2u> * kpm_final, unsigned axis); \
-  template void KPM_Vector<type,2u>::template KPM_MOTOR<1u,false>(KPM_Vector<type,2u> * kpm_final, unsigned axis); \
-  template void KPM_Vector<type,2u>::template KPM_MOTOR<0u,true>(KPM_Vector<type,2u> * kpm_final,  unsigned axis);
+  template void KPM_Vector<type,2u>:: KPM_MOTOR<0u,false>(KPM_Vector<type,2u> * kpm_final, unsigned axis); \
+  template void KPM_Vector<type,2u>:: KPM_MOTOR<1u,false>(KPM_Vector<type,2u> * kpm_final, unsigned axis); \
+  template void KPM_Vector<type,2u>:: KPM_MOTOR<0u,true>(KPM_Vector<type,2u> * kpm_final,  unsigned axis);
 
 instantiateTYPE(float)
 instantiateTYPE(double)
