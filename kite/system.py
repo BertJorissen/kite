@@ -3,21 +3,26 @@
 import numpy as np
 import h5py as hp
 import pybinding as pb
+import pybinding
 from scipy.sparse import coo_matrix
+
+import kite
+from typing import Optional
 from .modification import Modification
 from .utils.model import estimate_bounds
 __all__ = ['config_system']
 
 
-def config_system(lattice, config, calculation, modification=None, **kwargs):
+def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calculation: kite.Calculation,
+                  modification: Optional[kite.modification] = None, **kwargs):
     """Export the lattice and related parameters to the *.h5 file
 
     Parameters
     ----------
-    lattice : pb.Lattice
-        Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
-        onsite energies.
-    config : Configuration
+    lattice
+        pb.Lattice: Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
+        onsite energies. :class:`pybinding.Lattice`
+    config
         Configuration object, basic parameters defining size, precision, energy scale and number of decomposition parts
         in the calculation.
     calculation : Calculation

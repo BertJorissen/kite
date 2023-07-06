@@ -18,6 +18,7 @@ plugins:
         python:
           options:
             docstring_style: numpy
+  - autorefs
 
 # Navigation
 nav:
