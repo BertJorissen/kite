@@ -98,7 +98,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DHDF5_MOVE_FILES=TRUE -DHDF5_DIR=${HDF5_DIR} -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${hdf5_libs_folder} -DHDF_SL_EXT=${HDF_SL_EXT} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -E env CMAKE_OSX_ARCHITECTURES=${OSX_ARCH} ${CMAKE_COMMAND} -DHDF5_MOVE_FILES=TRUE -DHDF5_DIR=${HDF5_DIR} -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${hdf5_libs_folder} -DHDF_SL_EXT=${HDF_SL_EXT} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
