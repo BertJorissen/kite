@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.9)
 if(APPLE)
-    if(${OSX_ARCH})
+    if(DEFINED OSX_ARCH)
         set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
+        MESSAGE(OSX_ARCH-${OSX_ARCH})
     endif()
 endif()
 
