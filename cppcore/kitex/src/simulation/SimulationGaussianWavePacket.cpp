@@ -22,7 +22,9 @@ class KPM_Vector;
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
 #include "vector/KPM_Vector.hpp"
-#include <cmath>
+#ifdef __clang__
+#include <boost/math/special_functions.hpp>  // Example Boost.Math header
+#endif
 
 #if !(COMPILE_WAVEPACKET)
 #warning "Cannot compile SimulationGaussianWavepacket.cpp. This error is not fatal, but KITE will not be able to run GaussianWavepacket(). A more recent version of gcc (8.0) is required."
@@ -152,8 +154,11 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
   NumMoments = (NumMoments/2)*2;
   Eigen::Matrix<T,-1,1> m(NumMoments);
   for(unsigned n = 0; n < unsigned(NumMoments); n++)
+    #ifdef __clang__
+    m(n) = value_type((n == 0 ? 1 : 2 )*boost::math::cyl_bessel_j(n, timestep )) * T(pow(-II,n));
+    #else
     m(n) = value_type((n == 0 ? 1 : 2 )*std::cyl_bessel_j(n, timestep )) * T(pow(-II,n));
-    
+    #endif
   for(int id = 0; id < NumDisorder; id++)
     {
       sum_ket.set_index(0);
