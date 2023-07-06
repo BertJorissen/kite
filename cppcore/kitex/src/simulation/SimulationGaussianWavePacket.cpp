@@ -22,6 +22,7 @@ class KPM_Vector;
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
 #include "vector/KPM_Vector.hpp"
+#include <cmath>
 
 #if !(COMPILE_WAVEPACKET)
 #warning "Cannot compile SimulationGaussianWavepacket.cpp. This error is not fatal, but KITE will not be able to run GaussianWavepacket(). A more recent version of gcc (8.0) is required."
