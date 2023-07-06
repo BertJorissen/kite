@@ -147,9 +147,9 @@ void KPM_VectorBasis<T,D>::build_defect_planewave(Eigen::Matrix<double,-1,1> & k
 
 // Instantiate KPM_VectorBasis
 #define instantiate(type, dim)               template class KPM_VectorBasis <type,dim>; \
-  template void KPM_VectorBasis<type,dim>::template multiply_defect<0u,false>(std::size_t , type* & , type * & , unsigned ); \
-  template void KPM_VectorBasis<type,dim>::template multiply_defect<1u,false>(std::size_t , type* & , type * & , unsigned ); \
-  template void KPM_VectorBasis<type,dim>::template multiply_defect<0u,true>(std::size_t , type* & , type * & , unsigned ); \
-  template void KPM_VectorBasis<type,dim>::template Multiply<0u>(); \
-  template void KPM_VectorBasis<type,dim>::template Multiply<1u>();
+  template void KPM_VectorBasis<type,dim>:: multiply_defect<0u,false>(std::size_t , type* & , type * & , unsigned ); \
+  template void KPM_VectorBasis<type,dim>:: multiply_defect<1u,false>(std::size_t , type* & , type * & , unsigned ); \
+  template void KPM_VectorBasis<type,dim>:: multiply_defect<0u,true>(std::size_t , type* & , type * & , unsigned ); \
+  template void KPM_VectorBasis<type,dim>:: Multiply<0u>(); \
+  template void KPM_VectorBasis<type,dim>:: Multiply<1u>();
 #include "tools/instantiate.hpp"
