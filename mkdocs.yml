@@ -12,8 +12,10 @@ copyright:  "KITE is a free software: you can redistribute it and/or modify it u
               General Public License as published by the Free Software Foundation - version 3. Copyright ©
               2023 KITE"
 
-# Navigation
+plugins:
+  - mkdocstrings
 
+# Navigation
 nav:
   - Home: 'index.md'
   - Installation: 'installation.md'
