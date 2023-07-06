@@ -42,7 +42,7 @@ jobs:
             brew info boost
             clang --version
           #CIBW_ENVIRONMENT: CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -arch ${{ matrix.cibw_archs }} -O3' # set compiler, don't use AppleClang
-          CIBW_ENVIRONMENT: LDFLAGS="-L/usr/local/opt/libomp/lib" CPPFLAGS="-I/usr/local/opt/libomp/include" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -Xpreprocessor -fopenmp -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include -L/usr/local/Cellar/boost/1.82.0_1/lib -I/usr/local/Cellar/boost/1.82.0_1/include -arch ${{ matrix.cibw_archs }} -O3 -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include' OSX_CPP_FLAGS=' -std=c++17' # set compiler, don't use AppleClang
+          CIBW_ENVIRONMENT: LDFLAGS="-L/usr/local/opt/libomp/lib -L/usr/local/Cellar/boost/1.82.0_1/lib" CPPFLAGS="-I/usr/local/opt/libomp/include -I/usr/local/Cellar/boost/1.82.0_1/include" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -Xpreprocessor -fopenmp -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include -L/usr/local/Cellar/boost/1.82.0_1/lib -I/usr/local/Cellar/boost/1.82.0_1/include -arch ${{ matrix.cibw_archs }} -O3 -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include' OSX_CPP_FLAGS=' -std=c++17' # set compiler, don't use AppleClang
           CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
