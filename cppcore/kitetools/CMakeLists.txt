@@ -91,7 +91,7 @@ endif()
 
 if(APPLE)
     if(DEFINED OSX_FLAGS)
-        string(APPEND CMAKE_CXX_FLAGS ${OSX_FLAGS})
+        string(APPEND CMAKE_CXX_FLAGS ${OSX_CPP_FLAGS} ${OSX_FLAGS})
         string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
     endif()
 endif()

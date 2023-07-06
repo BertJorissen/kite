@@ -11,8 +11,7 @@
     ```python kite.execute.kitex("hdf5_file")``` and ```python kite.execute.kitetools("hdf5_file")``` respectively.
     The precoess will take more than half an hour, and will automatically compile [Eigen3][eigen3] and [HDF5][hdf5].
   
-::: kite.system 
- 
+
 KITE is written in C++ with code optimisation, including multithreading performance. 
 The Python package [Pybinding][pybinding] is used during pre- and post-processing steps.
 
