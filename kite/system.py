@@ -14,7 +14,7 @@ __all__ = ['config_system']
 
 
 def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calculation: kite.Calculation,
-                  modification: Optional[kite.modification] = None, **kwargs):
+                  modification: Optional[kite.Modification] = None, **kwargs):
     """Export the lattice and related parameters to the *.h5 file
 
     Parameters
