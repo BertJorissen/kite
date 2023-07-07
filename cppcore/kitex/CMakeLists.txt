@@ -80,6 +80,8 @@ target_include_directories(cppcore_kitex SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 if(${OPENMP_FOUND})
     target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
+    target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
+    set(CORRECT_CODING_FLAGS "-Wall ")
     set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
