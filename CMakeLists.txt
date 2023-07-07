@@ -1,11 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
 
-if(APPLE)
-    if(DEFINED OSX_ARCH)
-        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
-        MESSAGE(OSX_ARCH-${OSX_ARCH})
-    endif()
-endif()
 project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -13,28 +7,35 @@ set(CMAKE_CXX_STANDARD 17)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
 option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON)
 option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON)
+option(QK_CCACHE "Use CCache" ON)
 
-MESSAGE(HDF5-${QK_NATIVE_HDF5})
-MESSAGE(EIGEN3-${QK_NATIVE_EIGEN})
+MESSAGE(-- QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5})
+MESSAGE(-- QK_NATIVE_EIGEN: ${QK_NATIVE_EIGEN})
+MESSAGE(-- QK_CCACHE:       ${QK_CCACHE})
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
 endif()
 
-#find_program(ccache_found ccache)
-#if(ccache_found)
-#    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-#    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-#endif()
+if(QK_CCACHE)
+    find_program(ccache_found ccache)
+    if(ccache_found)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+    endif()
+endif()
 
 include(download)
 include(ExternalProject)
+
+MESSAGE(CMAKE_CXX_COMPILER_ID)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     MESSAGE(CLANG)
 else()
     set(CMAKE_BUILD_RPATH "$ORIGIN")
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
+
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
     find_package(HDF5 COMPONENTS CXX)
@@ -103,7 +104,9 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E env CMAKE_OSX_ARCHITECTURES=${OSX_ARCH} ${CMAKE_COMMAND} -DHDF5_MOVE_FILES=TRUE -DHDF5_DIR=${HDF5_DIR} -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=${hdf5_libs_folder} -DHDF_SL_EXT=${HDF_SL_EXT} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/libhdf5.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/libhdf5_cpp.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
@@ -124,8 +127,3 @@ add_subdirectory(cppmodule)
 if(EXISTS ${CMAKE_SOURCE_DIR}/docs)
     add_subdirectory(docs EXCLUDE_FROM_ALL)
 endif()
-
-#if(TARGET catch)
-#    add_custom_target(tests COMMAND $<TARGET_FILE:catch> COMMAND ${PYTHON_EXECUTABLE} -m pytest
-#            DEPENDS _pybinding WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-#endif()

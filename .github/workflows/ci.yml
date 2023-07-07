@@ -16,15 +16,15 @@ jobs:
   #    - run: pip install mkdocs-material mkdocstrings[python]
   #    - run: mkdocs gh-deploy --force
   build-wheel-macos:
-    name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
+    name: Build wheels on ${{ matrix.os }} ${{ matrix.arch }}
     environment: ci
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-11 ]
-        cibw_archs: [ x86_64, arm64 ]
+        os: [ macos-latest ]
+        arch: [ x86_64 ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -33,7 +33,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.13.1
         env:
-          CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs }}
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_BEFORE_BUILD: |
             pip install scipy contourpy --prefer-binary
             brew install libomp
@@ -41,9 +41,15 @@ jobs:
             brew install boost
             brew info boost
             clang --version
-          #CIBW_ENVIRONMENT: CC="/usr/local/bin/gcc-13" CXX="/usr/local/bin/g++-13" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -arch ${{ matrix.cibw_archs }} -O3' # set compiler, don't use AppleClang
-          CIBW_ENVIRONMENT: LDFLAGS="-L/usr/local/opt/libomp/lib -L/usr/local/Cellar/boost/1.82.0_1/lib" CPPFLAGS="-I/usr/local/opt/libomp/include -I/usr/local/Cellar/boost/1.82.0_1/include" OSX_ARCH=${{ matrix.cibw_archs }} OSX_FLAGS=' -Xpreprocessor -fopenmp -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include -L/usr/local/Cellar/boost/1.82.0_1/lib -I/usr/local/Cellar/boost/1.82.0_1/include -arch ${{ matrix.cibw_archs }} -O3 -L/usr/local/opt/libomp/lib -I/usr/local/opt/libomp/include' OSX_CPP_FLAGS=' -std=c++17' QK_NATIVE_HDF5="ON" # set compiler, don't use AppleClang
-          CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
+          #CIBW_ENVIRONMENT:
+          #  CC="/usr/local/bin/gcc-13"
+          #  CXX="/usr/local/bin/g++-13"
+          #  OSX_ARCH=${{ matrix.cibw_archs }}
+          #  OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
+          CIBW_ENVIRONMENT:
+            LDFLAGS="-L/usr/local/opt/libomp/lib -L/usr/local/Cellar/boost/1.82.0_1/lib"
+            CPPFLAGS="-I/usr/local/opt/libomp/include -I/usr/local/Cellar/boost/1.82.0_1/include"
+          CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
