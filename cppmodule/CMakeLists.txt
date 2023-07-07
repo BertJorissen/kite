@@ -1,13 +1,15 @@
 set(PYBIND11_PYTHON_VERSION 3.8 CACHE STRING "Minimum required Python version")
 add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
-set(CMAKE_CXX_STANDARD 17)
-if(APPLE)
-    if(DEFINED OSX_ARCH)
-        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
-    endif()
-endif()
 pybind11_add_module(kitecore src/main.cpp)
+
+MESSAGE(${CMAKE_CXX_COMPILER_ID})
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+    MESSAGE(-- CLANG USED, NO RPATH SET)
+else()
+    set(CMAKE_BUILD_RPATH "$ORIGIN")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
 
 if(${DOWNLOAD_HDF5})
     MESSAGE("kitecore " ${hdf5_includes} ${hdf5_libs})
@@ -34,20 +36,10 @@ endif()
 set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-if(APPLE)
-    if(DEFINED OSX_FLAGS)
-        find_package(Boost)
-        get_target_property(Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES)
-        get_target_property(Boost_LIBRARIES Boost::headers IMPORTED_LOCATION_RELEASE)
-        MESSAGE(------------- BOOST---------------- ${Boost_LIBRARIES} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_CXX_FLAGS ${OSX_CPP_FLAGS} ${OSX_FLAGS} ${Boost_INCLUDE_DIRS} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
-    endif()
-endif()
+
 
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-#set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 # output to the ${CMAKE_SOURCE_DIR}
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)

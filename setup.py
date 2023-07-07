@@ -27,10 +27,13 @@ class CMakeBuild(build_ext):
             extdir += os.path.sep
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite" + os.path.sep + "lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
+        if "OMP_ROOT_DIR" in os.environ:
+            cmake_args += ["-DOpenMP_ROOT_DIR=" + + os.environ.get("OMP_ROOT_DIR", "")]
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
-                       "-DQK_CCACHE=" + os.environ.get("QK_CCACHE", "OFF")]
+                       "-DQK_CCACHE=" + os.environ.get("QK_CCACHE", "OFF"),
+                       "-DQK_CMAKE_PREFIX_PATH=" + os.environ.get("QK_CMAKE_PREFIX_PATH", "OFF")]
         try:
             import h5py
             cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
+set(CMAKE_PREFIX_PATH ${QK_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
+
 project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -28,13 +30,7 @@ endif()
 include(download)
 include(ExternalProject)
 
-MESSAGE(${CMAKE_CXX_COMPILER_ID})
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    MESSAGE(CLANG)
-else()
-    set(CMAKE_BUILD_RPATH "$ORIGIN")
-    set(CMAKE_INSTALL_RPATH "$ORIGIN")
-endif()
+
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
@@ -48,6 +44,7 @@ if(QK_NATIVE_HDF5)
         MESSAGE(STATUS "Couldn't find HDF5, installing it instead.")
     endif()
 endif()
+
 if(APPLE)
     if(DEFINED OSX_FLAGS)
         find_package(Boost)
@@ -59,6 +56,7 @@ if(APPLE)
         MESSAGE(OSX_FLAGS-${OSX_FLAGS})
     endif()
 endif()
+
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     set(ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"

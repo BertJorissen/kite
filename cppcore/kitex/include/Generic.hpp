@@ -59,6 +59,10 @@
 #ifndef COMPILE_WAVEPACKET
 #define COMPILE_WAVEPACKET 1
 #endif
+#ifndef USE_BOOST
+#define USE_BOOST 0
+#endif
+
 
 // other compilation parameters not set in the Makefile
 // NGHOSTS is the extra length in each direction, to be used with the blocks of size TILE

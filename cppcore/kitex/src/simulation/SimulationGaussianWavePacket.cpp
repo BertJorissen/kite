@@ -22,7 +22,7 @@ class KPM_Vector;
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
 #include "vector/KPM_Vector.hpp"
-#ifdef __clang__
+#if (USE_BOOST)
 #include <boost/math/special_functions.hpp>  // Example Boost.Math header
 #endif
 
@@ -154,7 +154,7 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
   NumMoments = (NumMoments/2)*2;
   Eigen::Matrix<T,-1,1> m(NumMoments);
   for(unsigned n = 0; n < unsigned(NumMoments); n++)
-    #ifdef __clang__
+    #if USE_BOOST
     m(n) = value_type((n == 0 ? 1 : 2 )*boost::math::cyl_bessel_j(n, timestep )) * T(pow(-II,n));
     #else
     m(n) = value_type((n == 0 ? 1 : 2 )*std::cyl_bessel_j(n, timestep )) * T(pow(-II,n));

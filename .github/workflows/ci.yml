@@ -47,8 +47,8 @@ jobs:
           #  OSX_ARCH=${{ matrix.cibw_archs }}
           #  OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT:
-            LDFLAGS="-L/usr/local/opt/libomp/lib -L/usr/local/Cellar/boost/1.82.0_1/lib"
-            CPPFLAGS="-I/usr/local/opt/libomp/include -I/usr/local/Cellar/boost/1.82.0_1/include"
+            OMP_ROOT_DIR=/usr/local/opt/libomp
+            QK_CMAKE_PREFIX_PATH=/usr/local/Cellar/boost/1.82.0_1
           CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3

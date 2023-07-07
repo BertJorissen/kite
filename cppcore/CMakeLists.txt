@@ -1,10 +1,4 @@
 cmake_minimum_required(VERSION 3.9)
-if(APPLE)
-    if(DEFINED OSX_ARCH)
-        set(CMAKE_OSX_ARCHITECTURES ${OSX_ARCH})
-        MESSAGE(OSX_ARCH-${OSX_ARCH})
-    endif()
-endif()
 
 project(kite_cppcore CXX C)
 
@@ -53,9 +47,3 @@ MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
 
 add_subdirectory(kitex)
 add_subdirectory(kitetools)
-
-#if(QK_TESTS)
-#    set(catch_url https://raw.githubusercontent.com/catchorg/Catch2/v\${VERSION}/single_include/catch2)
-#    download_dependency(catch 2.13.10 ${catch_url} catch.hpp)
-#    add_subdirectory(tests)
-#endif()

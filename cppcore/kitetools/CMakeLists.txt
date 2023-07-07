@@ -89,16 +89,7 @@ if (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
 
-if(APPLE)
-    if(DEFINED OSX_FLAGS)
-        find_package(Boost)
-        get_target_property(Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES)
-        get_target_property(Boost_LIBRARIES Boost::headers IMPORTED_LOCATION_RELEASE)
-        MESSAGE(------------- BOOST---------------- ${Boost_LIBRARIES} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_CXX_FLAGS ${OSX_CPP_FLAGS} ${OSX_FLAGS} ${Boost_INCLUDE_DIRS} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
-    endif()
-endif()
+
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(KITE-tools PRIVATE cppcore_kitetools)
@@ -108,24 +99,4 @@ set(CMAKE_MODULE_PATH ../..)
 set(SYSTEM_NAME ${CMAKE_HOST_SYSTEM_NAME})
 cmake_host_system_information(RESULT _host_name QUERY HOSTNAME)
 set(MACHINE_NAME ${_host_name})
-#MESSAGE(STATUS "DIR" ${PROJECT_BINARY_DIR})
-#include_directories(${PROJECT_BINARY_DIR}/Src)
-
-#FILE(GLOB_RECURSE SRCFILES Src/*.cpp)
-#FILE(GLOB SRCFILES Src/*.cpp)
-#FILE(GLOB SRCFILES2 Src/Spectral/*.cpp)
-#FILE(GLOB SRCFILES3 Src/Tools/*.cpp)
-#FILE(GLOB SRCFILES4 Src/CondDC/*.cpp)
-#FILE(GLOB SRCFILES5 Src/OptCond_1order/*.cpp)
-#FILE(GLOB SRCFILES6 Src/OptCond_2order/*.cpp)
-#add_executable(KITE-tools ${SRCFILES})# ${SRCFILES2} ${SRCFILES3} ${SRCFILES4} ${SRCFILES5} ${SRCFILES6})
 string(TIMESTAMP TODAY "(yymmdd) %Y-%m-%d %H:%M:%S")
-#configure_file (
-#  "Src/compiletime_info.h.in"
-#  "Src/compiletime_info.h"
-#  )
-
-#link_directories(../../tools)
-#include_directories(${Src})
-#target_link_libraries(KITE-tools ${HDF5_CXX_LIBRARIES} )
-#install (TARGETS KITE-tools DESTINATION bin)
