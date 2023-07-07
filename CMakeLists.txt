@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
 
-set(CMAKE_PREFIX_PATH ${QK_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
-
 project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -11,10 +9,13 @@ option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON)
 option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON)
 option(QK_CCACHE "Use CCache" ON)
 
+
 MESSAGE(-- QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5})
 MESSAGE(-- QK_NATIVE_EIGEN: ${QK_NATIVE_EIGEN})
 MESSAGE(-- QK_CCACHE:       ${QK_CCACHE})
 
+set(CMAKE_PREFIX_PATH ${QK_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
+MESSAGE(-- CMAKE PREFIX PATH ${CMAKE_PREFIX_PATH})
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
 endif()
@@ -45,17 +46,6 @@ if(QK_NATIVE_HDF5)
     endif()
 endif()
 
-if(APPLE)
-    if(DEFINED OSX_FLAGS)
-        find_package(Boost)
-        get_target_property(Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES)
-        get_target_property(Boost_LIBRARIES Boost::headers IMPORTED_LOCATION_RELEASE)
-        MESSAGE(------------- BOOST---------------- ${Boost_LIBRARIES} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_CXX_FLAGS ${OSX_CPP_FLAGS} ${OSX_FLAGS} ${Boost_INCLUDE_DIRS} ${Boost_LIBRARIES})
-        string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
-        MESSAGE(OSX_FLAGS-${OSX_FLAGS})
-    endif()
-endif()
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     set(ExternalProjectCMakeArgs
@@ -71,11 +61,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             )
-    if(APPLE)
-        set(ExternalProjectCMakeArgs
-                ${ExternalProjectCMakeArgs}
-                "-DCMAKE_OSX_ARCHITECTURES=${OSX_ARCH}")
-    endif()
+
     if(NOT HDF5_DOWNLOAD_VERSION)
         set(HDF5_DOWNLOAD_VERSION "1.12.2")
     endif()
