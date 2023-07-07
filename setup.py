@@ -25,6 +25,7 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
+        print("--- from setup.py")
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite" + os.path.sep + "lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
         if "OMP_ROOT_DIR" in os.environ:
@@ -55,11 +56,15 @@ class CMakeBuild(build_ext):
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DCPB_VERSION=\\"{}\\"'.format(env.get("CXXFLAGS", ""),
                                                              self.distribution.get_version())
+        print("--- from setup.py 2")
 
         def build():
             os.makedirs(self.build_temp, exist_ok=True)
+            print("--- from setup.py 3")
             check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
+            print("--- from setup.py 4")
             check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
+            print("--- from setup.py 5")
 
         try:
             build()
