@@ -25,28 +25,22 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
-        print("--- from setup.py")
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite" + os.path.sep + "lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
-        print("--- from setup.py 0")
-        if "OMP_ROOT_DIR" in os.environ:
-            cmake_args += ["-DOpenMP_ROOT_DIR=" + os.environ.get("OMP_ROOT_DIR", "")]
-        print("--- from setup.py 00")
+        if "CORRECT_CODING_FLAGS" in os.environ:
+            cmake_args += ["-DCORRECT_CODING_FLAGS=" + os.environ.get("CORRECT_CODING_FLAGS", "")]
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
                        "-DQK_CCACHE=" + os.environ.get("QK_CCACHE", "OFF"),
                        "-DQK_CMAKE_PREFIX_PATH=" + os.environ.get("QK_CMAKE_PREFIX_PATH", "OFF")]
-        print("--- from setup.py 000")
         try:
             import h5py
             cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]
         except ImportError:
             cmake_args += []
-        print("--- from setup.py 0000")
         cfg = os.environ.get("QK_BUILD_TYPE", "Release")
         build_args = ["--config", cfg]
-        print("--- from setup.py 00000")
 
         if platform.system() == "Windows":
             cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir + "kite/lib")]
@@ -58,19 +52,14 @@ class CMakeBuild(build_ext):
                 parallel_jobs = int(os.cpu_count() - 1) if not os.environ.get("READTHEDOCS") else 1
                 build_args += ["--", "-j{}".format(parallel_jobs)]
 
-        print("--- from setup.py 000000")
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DCPB_VERSION=\\"{}\\"'.format(env.get("CXXFLAGS", ""),
                                                              self.distribution.get_version())
-        print("--- from setup.py 2")
 
         def build():
             os.makedirs(self.build_temp, exist_ok=True)
-            print("--- from setup.py 3")
             check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
-            print("--- from setup.py 4")
             check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
-            print("--- from setup.py 5")
 
         try:
             build()

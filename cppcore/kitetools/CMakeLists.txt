@@ -73,14 +73,16 @@ target_include_directories(cppcore_kitetools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR}
 target_include_directories(KITE-tools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 
-if (OPENMP_FOUND)
+if(${OPENMP_FOUND})
     target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
     target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
     set(CORRECT_CODING_FLAGS "-Wall ")
     set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-  else()
+else()
+    set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
