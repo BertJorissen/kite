@@ -28,20 +28,25 @@ class CMakeBuild(build_ext):
         print("--- from setup.py")
         cmake_args = ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + extdir + "kite" + os.path.sep + "lib",
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
+        print("--- from setup.py 0")
         if "OMP_ROOT_DIR" in os.environ:
-            cmake_args += ["-DOpenMP_ROOT_DIR=" + + os.environ.get("OMP_ROOT_DIR", "")]
+            cmake_args += ["-DOpenMP_ROOT_DIR=" + os.environ.get("OMP_ROOT_DIR", "")]
+        print("--- from setup.py 00")
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
                        "-DQK_CCACHE=" + os.environ.get("QK_CCACHE", "OFF"),
                        "-DQK_CMAKE_PREFIX_PATH=" + os.environ.get("QK_CMAKE_PREFIX_PATH", "OFF")]
+        print("--- from setup.py 000")
         try:
             import h5py
             cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]
         except ImportError:
             cmake_args += []
+        print("--- from setup.py 0000")
         cfg = os.environ.get("QK_BUILD_TYPE", "Release")
         build_args = ["--config", cfg]
+        print("--- from setup.py 00000")
 
         if platform.system() == "Windows":
             cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir + "kite/lib")]
@@ -53,6 +58,7 @@ class CMakeBuild(build_ext):
                 parallel_jobs = int(os.cpu_count() - 1) if not os.environ.get("READTHEDOCS") else 1
                 build_args += ["--", "-j{}".format(parallel_jobs)]
 
+        print("--- from setup.py 000000")
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DCPB_VERSION=\\"{}\\"'.format(env.get("CXXFLAGS", ""),
                                                              self.distribution.get_version())
