@@ -44,7 +44,7 @@ if(APPLE)
         string(APPEND CMAKE_C_FLAGS ${OSX_FLAGS})
     endif()
 endif()
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@loader_path")
+
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 #set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
