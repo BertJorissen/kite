@@ -29,6 +29,10 @@ class CMakeBuild(build_ext):
                       "-DPYTHON_EXECUTABLE=" + sys.executable]
         if "CORRECT_CODING_FLAGS" in os.environ:
             cmake_args += ["-DCORRECT_CODING_FLAGS=" + os.environ.get("CORRECT_CODING_FLAGS", "")]
+        if "OMP_LIBS" in os.environ:
+            cmake_args += ["-DOMP_LIBS=" + os.environ.get("OMP_LIBS", "")]
+        if "OMP_INCL" in os.environ:
+            cmake_args += ["-DOMP_INCL=" + os.environ.get("OMP_INCL", "")]
 
         cmake_args += ["-DQK_NATIVE_HDF5=" + os.environ.get("QK_NATIVE_HDF5", "OFF"),
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
