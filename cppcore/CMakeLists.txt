@@ -39,11 +39,7 @@ if(${DOWNLOAD_EIGEN}) # failed to find Eigen, so install it
             https://gitlab.com/libeigen/eigen/-/archive/\${VERSION}
             eigen-\${VERSION}.tar.gz */Eigen)
 endif()
-
 MESSAGE(STATUS "Eigen3 Library used: ${EIGEN3_INCLUDE_DIR}")
-find_package(OpenMP)
-MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
-
 
 add_subdirectory(kitex)
 add_subdirectory(kitetools)

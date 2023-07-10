@@ -106,6 +106,9 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.${HDF_SL_EXT} ${hdf5_libs_folder}/libhdf5.${HDF_SL_EXT})
 endif()
 
+find_package(OpenMP)
+MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
+
 add_subdirectory(cppcore)
 add_subdirectory(cppmodule)
 
