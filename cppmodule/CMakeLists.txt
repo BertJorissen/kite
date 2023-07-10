@@ -35,8 +35,6 @@ if(NOT MSVC)  # match default visibility of core library and extension module
 endif()
 
 if(${OPENMP_FOUND})
-    target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
     set(CORRECT_CODING_FLAGS "-Wall ")
     set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
