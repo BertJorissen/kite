@@ -43,10 +43,12 @@ endif()
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-add_custom_command(TARGET kitecore
-        POST_BUILD COMMAND
-        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@loader_path"
-        $<TARGET_FILE:kitecore>)
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")  # similar as in the first parts; don't ask me why this works lol
+    add_custom_command(TARGET kitecore
+            POST_BUILD COMMAND
+            ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@loader_path"
+            $<TARGET_FILE:kitecore>)
+endif()
 
 # output to the ${CMAKE_SOURCE_DIR}
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)

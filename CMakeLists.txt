@@ -4,14 +4,14 @@ project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-MESSAGE(${CMAKE_CXX_COMPILER_ID})
+MESSAGE("-- compiler is ${CMAKE_CXX_COMPILER_ID}")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
     MESSAGE("-- CLANG USED, other RPATH")
-    set(CMAKE_MACOSX_RPATH TRUE)
+    set(CMAKE_MACOSX_RPATH TRUE) # next 8 lines, I really don't know why this works lol
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
     set(CMAKE_INSTALL_NAME_DIR "")
-    set(CMAKE_INSTALL_RPATH "@loader_path")  # self relative LIBDIR
+    set(CMAKE_INSTALL_RPATH "")
     set(CMAKE_SKIP_INSTALL_RPATH FALSE)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)

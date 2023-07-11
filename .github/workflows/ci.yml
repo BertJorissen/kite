@@ -15,7 +15,8 @@ jobs:
   #        python-version: 3.x
   #    - run: pip install mkdocs-material mkdocstrings[python]
   #    - run: mkdocs gh-deploy --force
-  build-wheel-macos:
+
+  build-wheel-macos-x86:
     name: Build wheels on ${{ matrix.os }} ${{ matrix.arch }}
     environment: ci
     if: github.ref == 'refs/heads/master'
@@ -48,13 +49,12 @@ jobs:
           #  OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT: >
             QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
-            LDFLAGS= -rpath='../lib/'
           CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
-
+#
 #  build-wheel-linux:
 #    name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
 #    environment: ci
@@ -84,7 +84,7 @@ jobs:
 #      - uses: actions/upload-artifact@v3
 #        with:
 #          path: ./wheelhouse/*.whl
-
+#
 #  build-sdist:
 #    name: Create sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
 #    environment: ci
@@ -117,7 +117,7 @@ jobs:
 #    if: github.ref == 'refs/heads/master'
 #    permissions:
 #      id-token: write
-#    needs: [ build-wheel-macos, build-wheel-linux, build-sdist ]
+#    needs: [ build-wheel-macos-x86, build-wheel-linux, build-sdist ]
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Download artefacts
