@@ -57,7 +57,7 @@ class CMakeBuild(build_ext):
         def build():
             os.makedirs(self.build_temp, exist_ok=True)
             check_call(["cmake", ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
-            check_call(["cmake", "--build", "."] + build_args, cwd=self.build_temp)
+            check_call(["cmake", "--build", ".", "--target", "kitecore"] + build_args, cwd=self.build_temp)
 
         try:
             build()

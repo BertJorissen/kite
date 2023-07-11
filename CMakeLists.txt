@@ -4,6 +4,16 @@ project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+MESSAGE(${CMAKE_CXX_COMPILER_ID})
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+    MESSAGE("-- CLANG USED, SET @loader_path")
+    set(CMAKE_BUILD_RPATH "@executable_path")
+    set(CMAKE_INSTALL_RPATH "@executable_path")
+else()
+    set(CMAKE_BUILD_RPATH "$ORIGIN")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
 option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON)
 option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON)

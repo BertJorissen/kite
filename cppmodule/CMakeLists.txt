@@ -3,16 +3,6 @@ add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
 pybind11_add_module(kitecore src/main.cpp)
 
-MESSAGE(${CMAKE_CXX_COMPILER_ID})
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
-    MESSAGE("-- CLANG USED, SET @loader_path")
-    #set(CMAKE_BUILD_RPATH "@loader_path")
-    #set(CMAKE_INSTALL_RPATH "@loader_path")
-else()
-    set(CMAKE_BUILD_RPATH "$ORIGIN")
-    set(CMAKE_INSTALL_RPATH "$ORIGIN")
-endif()
-
 if(${DOWNLOAD_HDF5})
     MESSAGE("kitecore " ${hdf5_includes} ${hdf5_libs})
     add_dependencies(kitecore hdf5_local)
