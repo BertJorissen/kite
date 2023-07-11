@@ -11,7 +11,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
     set(CMAKE_INSTALL_NAME_DIR "@rpath")
-    set(CMAKE_INSTALL_RPATH "@loader_path/../lib")  # self relative LIBDIR
+    set(CMAKE_INSTALL_RPATH "@executable_path/../lib")  # self relative LIBDIR
     set(CMAKE_SKIP_INSTALL_RPATH FALSE)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
