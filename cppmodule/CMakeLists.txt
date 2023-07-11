@@ -45,7 +45,7 @@ set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRU
 
 add_custom_command(TARGET kitecore
         POST_BUILD COMMAND
-        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@loader_path"
+        ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@loader_path/lib"
         $<TARGET_FILE:kitecore>)
 
 # output to the ${CMAKE_SOURCE_DIR}
