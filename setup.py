@@ -32,8 +32,6 @@ class CMakeBuild(build_ext):
                        "-DQK_NATIVE_EIGEN=" + os.environ.get("QK_NATIVE_EIGEN", "OFF"),
                        "-DQK_CCACHE=" + os.environ.get("QK_CCACHE", "OFF"),
                        "-DQK_CMAKE_PREFIX_PATH=" + os.environ.get("QK_CMAKE_PREFIX_PATH", "")]
-        if "QK_CMAKE_ARCH" in os.environ:
-            cmake_args += ["-DQK_CMAKE_ARCH=" + os.environ.get("QK_CMAKE_ARCH", "x86")]
         try:
             import h5py
             cmake_args += ["-DHDF5_DOWNLOAD_VERSION=" + os.environ.get("HDF5_DOWNLOAD_VERSION", h5py.version.hdf5_version)]

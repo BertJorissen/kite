@@ -16,7 +16,7 @@ jobs:
   #    - run: pip install mkdocs-material mkdocstrings[python]
   #    - run: mkdocs gh-deploy --force
 
-  build-wheel-macos-arm64:
+  build-wheel-macos-x86:
     name: Build wheels on ${{ matrix.os }} ${{ matrix.arch }}
     environment: ci
     if: github.ref == 'refs/heads/master'
@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ macos-latest ]
-        arch: [ arm64 ]
+        arch: [ x86_64 ]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -49,140 +49,100 @@ jobs:
           #  OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT: >
             QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
-            QK_CMAKE_ARCH=${{ matrix.arch }}
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
 
-#  build-wheel-macos-x86:
-#    name: Build wheels on ${{ matrix.os }} ${{ matrix.arch }}
-#    environment: ci
-#    if: github.ref == 'refs/heads/master'
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        os: [ macos-latest ]
-#        arch: [ x86_64 ]
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#      - uses: actions/setup-python@v3
-#      - name: Build wheels
-#        uses: pypa/cibuildwheel@v2.13.1
-#        env:
-#          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
-#          CIBW_BEFORE_BUILD: |
-#            pip install scipy contourpy --prefer-binary
-#            brew install libomp
-#            brew info libomp
-#            brew install boost
-#            brew info boost
-#            clang --version
-#          #CIBW_ENVIRONMENT:
-#          #  CC="/usr/local/bin/gcc-13"
-#          #  CXX="/usr/local/bin/g++-13"
-#          #  OSX_ARCH=${{ matrix.cibw_archs }}
-#          #  OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
-#          CIBW_ENVIRONMENT: >
-#            QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
-#          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
-#          CIBW_BUILD_VERBOSITY: 3
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          path: ./wheelhouse/*.whl
-#
-#  build-wheel-linux:
-#    name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
-#    environment: ci
-#    if: github.ref == 'refs/heads/master'
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-latest ]
-#        cibw_archs: [ x86_64 ]
-#    steps:
-#      - name: Set up QEMU
-#        if: matrix.cibw_archs == 'aarch64'
-#        uses: docker/setup-qemu-action@v2
-#        with:
-#          platforms: arm64
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#      - uses: actions/setup-python@v3
-#      - name: Build wheels
-#        uses: pypa/cibuildwheel@v2.13.1
-#        env:
-#          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
-#          CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
-#          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
-#          CIBW_BUILD_VERBOSITY: 3
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          path: ./wheelhouse/*.whl
-#
-#  build-sdist:
-#    name: Create sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-#    environment: ci
-#    if: github.ref == 'refs/heads/master'
-#    runs-on: ${{ matrix.os }}
-#    strategy:
-#      matrix:
-#        os: [ ubuntu-latest]
-#        python-version: [ "3.10" ]
-#    steps:
-#      - uses: actions/checkout@v3
-#        with:
-#          submodules: true
-#      - name: Set up Python ${{ matrix.python-version }}
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Install dependencies Quantum-Kite
-#        run: python -m pip install wheel scipy matplotlib pytest cmake ninja build
-#      - name: Build wheel
-#        run: python -m build --sdist --outdir dist/
-#      - name: Upload Artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          path: dist/*.tar.gz
-#
-#  testpypi:
-#    name: Test upload on PyPi
-#    environment: ci
-#    if: github.ref == 'refs/heads/master'
-#    permissions:
-#      id-token: write
-#    needs: [ build-wheel-macos-x86, build-wheel-linux, build-sdist ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Download artefacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: artifact
-#          path: dist
-#      - name: Publish distribution 📦 to Test PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          repository-url: https://test.pypi.org/legacy/
-#
-#  pypi:
-#    name: Publish to PyPi
-#    environment: ci
-#    if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'BertJorissen')
-#    permissions:
-#      id-token: write
-#    needs: [ testpypi ]
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Download artefacts
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: artifact
-#          path: dist
-#      - name: Publish distribution 📦 to PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
+  build-wheel-linux:
+    name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
+    environment: ci
+    if: github.ref == 'refs/heads/master'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        cibw_archs: [ x86_64 ]
+    steps:
+      - name: Set up QEMU
+        if: matrix.cibw_archs == 'aarch64'
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-python@v3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.13.1
+        env:
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
+          CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
+          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
+          CIBW_BUILD_VERBOSITY: 3
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
+  build-sdist:
+    name: Create sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    environment: ci
+    if: github.ref == 'refs/heads/master'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest]
+        python-version: [ "3.10" ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies Quantum-Kite
+        run: python -m pip install wheel scipy matplotlib pytest cmake ninja build
+      - name: Build wheel
+        run: python -m build --sdist --outdir dist/
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
+
+  testpypi:
+    name: Test upload on PyPi
+    environment: ci
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      id-token: write
+    needs: [ build-wheel-macos-x86, build-wheel-linux, build-sdist ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  pypi:
+    name: Publish to PyPi
+    environment: ci
+    if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'BertJorissen')
+    permissions:
+      id-token: write
+    needs: [ testpypi ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

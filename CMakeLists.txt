@@ -4,11 +4,6 @@ project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-if((DEFINED QK_CMAKE_ARCH) AND APPLE)
-    set(CMAKE_OSX_ARCHITECTURES ${QK_CMAKE_ARCH})
-    MESSAGE("-- Building on MacOS for: ${QK_CMAKE_ARCH}")
-endif()
-
 MESSAGE("-- compiler is ${CMAKE_CXX_COMPILER_ID}")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
     MESSAGE("-- CLANG USED, other RPATH")
@@ -84,11 +79,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             )
-    if((DEFINED QK_CMAKE_ARCH) AND APPLE)
-        set(ExternalProjectCMakeArgs
-                ${ExternalProjectCMakeArgs}
-                "-DCMAKE_OSX_ARCHITECTURES=${QK_CMAKE_ARCH}")
-    endif()
 
     if(NOT HDF5_DOWNLOAD_VERSION)
         set(HDF5_DOWNLOAD_VERSION "1.12.2")
