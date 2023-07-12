@@ -50,7 +50,7 @@ jobs:
           CIBW_ENVIRONMENT: >
             QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
             QK_CMAKE_ARCH=${{ matrix.arch }}
-          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
+          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *x86*
           CIBW_BUILD_VERBOSITY: 3
       - uses: actions/upload-artifact@v3
         with:
