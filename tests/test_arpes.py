@@ -2,43 +2,9 @@
 import pytest
 import numpy as np
 import kite
-import h5py
 import os
 import pybinding as pb
-from .lattices import square
-
-
-def read_text_and_matrices(filename):
-    data_dict = {}
-    current_key = None
-    current_matrix = []
-    is_matrix_data = False
-
-    with open(filename, 'r') as file:
-        for line in file:
-            line = line.strip()
-
-            if not line[0].isdigit():
-                # Line with text
-                if current_key is not None and current_matrix:
-                    # Add the previous matrix to the dictionary
-                    data_dict[current_key] = np.array(current_matrix)
-                    current_matrix = []
-                current_key = line
-                is_matrix_data = False
-            else:
-                # Matrix data
-                if not is_matrix_data:
-                    # First line of matrix
-                    is_matrix_data = True
-                matrix_row = [float(value) for value in line.split()]
-                current_matrix.append(matrix_row)
-
-    # Add the last matrix to the dictionary
-    if current_key is not None and current_matrix:
-        data_dict[current_key[:-1]] = np.array(current_matrix)
-
-    return data_dict
+from .lattices import square, read_text_and_matrices
 
 
 settings = {
@@ -70,7 +36,7 @@ settings = {
 
 
 @pytest.mark.parametrize("params", settings.values(), ids=list(settings.keys()))
-def test_arpes(params, baseline, plot_if_fails, tmp_path):
+def test_arpes(params, baseline, tmp_path):
     configuration = kite.Configuration(**params['configuration'])
     calculation = kite.Calculation(configuration)
     config_system = params['system']
@@ -85,7 +51,7 @@ def test_arpes(params, baseline, plot_if_fails, tmp_path):
     if 'disorder' in params.keys():
         # do the disorder
         disorder = kite.Disorder(params['system']['lattice'])
-        for realisation in settings['disorder']:
+        for realisation in params['disorder']:
             disorder.add_disorder(**realisation)
         config_system['disorder'] = disorder
     if 'structural_disorder' in params.keys():

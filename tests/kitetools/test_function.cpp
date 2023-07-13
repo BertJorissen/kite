@@ -1,6 +1,6 @@
 #include <iostream>
 #include <Eigen/Dense>
-#include "../../cppcore/kitetools/src/Tools/functions.cpp"
+#include "../../cppcore/kitetools/src/tools/functions.cpp"
 
 // g++ test_function.cpp -I/usr/include/eigen3 -o out && ./out
 

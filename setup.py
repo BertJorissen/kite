@@ -67,7 +67,10 @@ class CMakeBuild(build_ext):
 
 
 setup(
-    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) + ['kite.tests', 'kite.lib'],
+    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) +
+             ['kite.tests', 'kite.lib',
+              'kite.tests.baseline_data.arpes',
+              'kite.tests.baseline_data.dos'],
     package_dir={'kite.tests': 'tests', 'kite.lib': 'kite/lib'},
     include_package_data=True,
     ext_modules=[CMakeExtension('kitecore')],

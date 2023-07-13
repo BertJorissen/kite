@@ -4,7 +4,7 @@ import numpy as np
 import kite
 import h5py
 import os
-from .lattices import square, cube
+from .lattices import square, cube, hexagonal
 
 
 settings = {
@@ -54,12 +54,87 @@ settings = {
         'modification': {'magnetic_field': 65},
         'system': {'lattice': cube(t=-1), 'filename': 'cube-mag3d'},
         'random_seed': "3"
+    },
+    '0-square-speed': {
+        'configuration': {
+            'divisions': [2, 2],
+            'length': [512, 512],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': False,
+            'precision': 1,
+            'spectrum_range': [-5, 5]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 512, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': square(), 'filename': '0-square-speed'},
+        'random_seed': "3"
+    },
+    '1-square-dos': {
+        'configuration': {
+            'divisions': [2, 2],
+            'length': [64, 64],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': False,
+            'precision': 1,
+            'spectrum_range': [-5, 5]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': square(), 'filename': '1-square-dos'},
+        'random_seed': "ones"
+    },
+    '2-graphene-dos': {
+        'configuration': {
+            'divisions': [2, 2],
+            'length': [64, 64],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': False,
+            'precision': 1,
+            'spectrum_range': [-4, 4]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': hexagonal(), 'filename': '2-graphene-dos'},
+        'random_seed': "ones"
+    },
+    '3-haldane-dos': {
+        'configuration': {
+            'divisions': [2, 2],
+            'length': [64, 64],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': True,
+            'precision': 0,
+            'spectrum_range': [-10, 10]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': hexagonal(a=0.24595, t=-1, t_nn=-1/10 * 1j), 'filename': '3-haldane-dos'},
+        'random_seed': "ones"
+    },
+    '4-cubic-dos': {
+        'configuration': {
+            'divisions': [1, 1, 1],
+            'length': [32, 32, 32],
+            'boundaries': ["periodic", "periodic", "periodic"],
+            'is_complex': False,
+            'precision': 1,
+            'spectrum_range': [-7, 7]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': cube(), 'filename': '4-cubic-dos'},
+        'random_seed': "ones"
     }
 }
 
 
 @pytest.mark.parametrize("params", settings.values(), ids=list(settings.keys()))
-def test_dos(params, baseline, plot_if_fails, tmp_path):
+def test_dos(params, baseline, tmp_path):
     configuration = kite.Configuration(**params['configuration'])
     calculation = kite.Calculation(configuration)
     config_system = params['system']
@@ -74,7 +149,7 @@ def test_dos(params, baseline, plot_if_fails, tmp_path):
     if 'disorder' in params.keys():
         # do the disorder
         disorder = kite.Disorder(params['system']['lattice'])
-        for realisation in settings['disorder']:
+        for realisation in params['disorder']:
             disorder.add_disorder(**realisation)
         config_system['disorder'] = disorder
     if 'structural_disorder' in params.keys():
