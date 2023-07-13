@@ -25,7 +25,6 @@ def tests(options=None, plugins=None):
     """
     import pytest
     import pathlib
-    import os
     from pybinding.utils import misc, pltutils
     args = options or []
     if isinstance(args, str):
@@ -37,6 +36,7 @@ def tests(options=None, plugins=None):
         args.append('--failpath=' + os.getcwd() + '/failed')
         with misc.cd(module_path), pltutils.backend('Agg'):
             args += ['-c', str(module_path / 'tests/local.cfg'), str(module_path)]
+            args = [""]
             error_code = pytest.main(args, plugins)
     else:
         # tests are in dev environment -> use development mode

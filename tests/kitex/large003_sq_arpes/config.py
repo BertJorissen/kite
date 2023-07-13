@@ -32,3 +32,4 @@ k_path = pb.results.make_path(*points, step=0.2)
 calculation_arpes = kite.Calculation(configuration)
 calculation_arpes.arpes(k_vector=k_path, weight=[1.5], num_moments=M, num_disorder=1)
 kite.config_system(lattice, configuration, calculation_arpes, filename='config.h5')
+pyth
