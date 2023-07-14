@@ -4,14 +4,14 @@ import numpy as np
 import kite
 import os
 import h5py
-from .lattices import hexagonal, read_text_and_matrices
+from .lattices import hexagonal, read_text_and_matrices, square
 
 
 settings = {
     '5-graphene-optcond': {
         'configuration': {
             'divisions': [2, 2],
-            'length': [64, 64],
+            'length': [32, 32],
             'boundaries': ["periodic", "periodic"],
             'is_complex': False,
             'precision': 1,
@@ -19,7 +19,7 @@ settings = {
         },
         'calculation': {
             'conductivity_optical': {
-                'num_points': 1024,
+                'num_points': 256,
                 'num_moments': 32,
                 'num_disorder': 1,
                 'num_random': 1,
@@ -71,7 +71,7 @@ def test_optical(params, baseline, tmp_path):
     kite.execute.kitetools("{0} --CondOpt -N {1}".format(config_system['filename'], str(tmp_path / "CondOpt.dat")))
     results.append(read_text_and_matrices(str(tmp_path / "CondOpt.dat")))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
 
 
 settingsnl = {
@@ -86,7 +86,7 @@ settingsnl = {
         },
         'calculation': {
             'conductivity_optical_nonlinear': {
-                'num_points': 1000,
+                'num_points': 100,
                 'num_moments': 32,
                 'num_disorder': 1,
                 'num_random': 1,
@@ -141,7 +141,7 @@ def test_opticalnonlinear(params, baseline, tmp_path):
     kite.execute.kitetools("{0} --CondOpt2 -N {1}".format(config_system['filename'], str(tmp_path / "CondOpt2.dat")))
     results.append(read_text_and_matrices(str(tmp_path / "CondOpt2.dat")))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
 
 
 settingssscdc = {
@@ -214,4 +214,71 @@ def test_singleshotconddc(params, baseline, tmp_path):
     with h5py.File(config_system['filename'], 'r') as hdf5_file:
         results.append(np.array(hdf5_file["/Calculation/singleshot_conductivity_dc/SingleShot"][:]))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
+
+
+settingscdc = {
+    '9-square-dc': {
+        'configuration': {
+            'divisions': [2, 2],
+            'length': [64, 64],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': True,
+            'precision': 1,
+            'spectrum_range': [-4.1, 4.1]
+        },
+        'calculation': {
+            'conductivity_dc': {
+                'num_points': 1000,
+                'num_moments': 32,
+                'num_random': 1,
+                'direction': 'xy',
+                'temperature': 0.01
+            }
+        },
+        'modification': {'magnetic_field': 40},
+        'system': {'lattice': square(t=-1), 'filename': '9-square-dc'},
+        'random_seed': "ones"
+    }
+}
+
+
+@pytest.mark.parametrize("params", settingscdc.values(), ids=list(settingscdc.keys()))
+def test_dc(params, baseline, tmp_path):
+    configuration = kite.Configuration(**params['configuration'])
+    calculation = kite.Calculation(configuration)
+    config_system = params['system']
+    config_system['calculation'] = calculation
+    config_system['config'] = configuration
+    config_system['filename'] = str((tmp_path / config_system['filename']).with_suffix(".h5"))
+    for calc_name, calc_settings in params['calculation'].items():
+        getattr(calculation, calc_name)(**calc_settings)
+    if 'modification' in params.keys():
+        # do the modification
+        config_system['modification'] = kite.Modification(**params['modification'])
+    if 'disorder' in params.keys():
+        # do the disorder
+        disorder = kite.Disorder(params['system']['lattice'])
+        for realisation in params['disorder']:
+            getattr(disorder, realisation[0])(**realisation[1])
+        config_system['disorder'] = disorder
+    if 'structural_disorder' in params.keys():
+        # do the structural disorder
+        structural_disorder = kite.StructuralDisorder(
+            lattice=params['system']['lattice'],
+            **params['structural_disorder']['setup']
+        )
+        for func_name, arguments in params['structural_disorder']['calls']:
+            getattr(structural_disorder, func_name)(**arguments)
+        config_system['disorder_structural'] = structural_disorder
+    kite.config_system(**params['system'])
+    if 'random_seed' in params.keys():
+        os.environ["SEED"] = params['random_seed']
+    kite.execute.kitex(config_system['filename'])
+    results = []
+    with h5py.File(config_system['filename'], 'r') as hdf5_file:
+        results.append(np.array(hdf5_file["/Calculation/conductivity_dc/Gammaxy"][:]))
+    kite.execute.kitetools("{0} --CondDC -N {1}".format(config_system['filename'], str((tmp_path / "cond_dc.dat"))))
+    results.append(np.loadtxt(str((tmp_path / "cond_dc.dat"))))
+    expected = baseline(results)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)

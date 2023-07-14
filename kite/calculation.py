@@ -105,7 +105,8 @@ class Calculation:
             Name of the sublattice at which the LDOS will be calculated.
         """
 
-        self._ldos.append({'energy': energy, 'num_moments': num_moments, 'position': np.asmatrix(position),
+        self._ldos.append({'energy': energy, 'num_moments': num_moments,
+                           'position': np.reshape(np.array(position).flatten(), (-1, np.shape(position)[-1])),
                            'sublattice': sublattice, 'num_disorder': num_disorder})
 
     def arpes(self, k_vector, weight, num_moments, num_disorder=1):

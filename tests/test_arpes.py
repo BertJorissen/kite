@@ -1,4 +1,5 @@
 """Test the ARPES calculation of KITE"""
+import h5py
 import pytest
 import numpy as np
 import kite
@@ -11,7 +12,7 @@ settings = {
     'square-arpes': {
         'configuration': {
             'divisions': [2, 2],
-            'length': [256, 256],
+            'length': [32, 32],
             'boundaries': ["periodic", "periodic"],
             'is_complex': True,
             'precision': 1,
@@ -25,11 +26,36 @@ settings = {
                     step=.2
                 ),
                 'weight': [1.5],
-                'num_moments': 256,
+                'num_moments': 100,
                 'num_disorder': 1
             }
         },
         'system': {'lattice': square(t=-1), 'filename': 'square-arpes'},
+        'random_seed': "3"
+    },
+
+    '10-square-arpes': {
+        'configuration': {
+            'divisions': [1, 1],
+            'length': [32, 32],
+            'boundaries': ["periodic", "periodic"],
+            'is_complex': True,
+            'precision': 1,
+            'spectrum_range': [-4.1, 4.1]
+        },
+        'calculation': {
+            'arpes': {
+                'k_vector': pb.results.make_path(
+                    np.array([0, 0]),
+                    np.sum(np.array(square().reciprocal_vectors()), axis=0)[:2],
+                    step=.2
+                ),
+                'weight': [1.5],
+                'num_moments': 32,
+                'num_disorder': 1
+            }
+        },
+        'system': {'lattice': square(t=-1), 'filename': '10-square-arpes'},
         'random_seed': "3"
     },
 }
@@ -68,9 +94,11 @@ def test_arpes(params, baseline, tmp_path):
         os.environ["SEED"] = params['random_seed']
     kite.execute.kitex(config_system['filename'])
     results = []
+    with h5py.File(config_system['filename'], 'r') as hdf5_file:
+        results.append(np.array(hdf5_file["/Calculation/arpes/kMU"][:]))
     kite.execute.kitetools("{0} --ARPES -K green 0.1 -E -10 10 2048 -F 100 -N {1}".format(
         config_system['filename'], str(tmp_path / "arpes"))
     )
     results.append(read_text_and_matrices(str(tmp_path / "arpes.dat")))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)

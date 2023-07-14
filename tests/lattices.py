@@ -1,6 +1,27 @@
 import numpy as np
 import pybinding as pb
 from typing import Tuple
+import os
+
+def read_ldos_files(directory):
+    ldos_files = [filename for filename in os.listdir(directory) if filename.startswith('ldos') and filename.endswith('.dat')]
+
+    data_dict = {}
+
+    for filename in ldos_files:
+        # Extracting the value of <E> from the filename
+        e_value = float(filename[4:-4])
+
+        # Building the file path
+        file_path = os.path.join(directory, filename)
+
+        # Reading file contents using np.loadtxt()
+        contents = np.loadtxt(file_path)
+
+        # Adding contents to the dictionary
+        data_dict[e_value] = contents
+
+    return data_dict
 
 
 def read_text_and_matrices(filename):

@@ -380,7 +380,7 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
                 Lz = system_l[2]
 
             for item in fixed_positions:
-                if item.shape[1] != space_size:
+                if item.shape[0] != space_size:
                     raise SystemExit('The position of the structural disorder should be selected with the '
                                      'relative index of length {}'.format(space_size))
 
@@ -529,7 +529,7 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
             raise SystemExit('Only a single function request of each type is currently allowed. Please use another '
                              'configuration file for the same functionality.')
 
-        position = np.squeeze(position)
+        #position = np.squeeze(position)
         len_pos = np.array(position).shape[0]
 
         if isinstance(sublattice, list):
@@ -559,25 +559,25 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
             Lz = system_l[2]
 
         for item in position:
-            if item.shape[1] != space_size:
+            if item.shape[0] != space_size:
                 raise SystemExit('The probing position for the LDOS should be selected with the '
                                  'relative index of length {}'.format(space_size))
 
         # Check if pos cell is valid
         if space_size == 1:
-            if not all(0 <= np.squeeze(np.asarray(item))[0] < Lx for item in position):
+            if not np.all(0 <= np.squeeze(np.asarray(item))[0] < Lx for item in position):
                 raise SystemExit('The probing position for the LDOS should be selected within the relative '
                                  'coordinates [[0, {}],[0, {}],[0, {}]] with the relative index '
                                  'of length {}'.format(Lx - 1, Ly - 1, Lz - 1, space_size))
         if space_size == 2:
-            if not all(0 <= np.squeeze(np.asarray(item))[0] < Lx and 0 <= np.squeeze(np.asarray(item))[1] < Ly
-                       for item in position):
+            if not np.all(np.all(0 <= np.squeeze(np.asarray(item))[0] < Lx)
+                          and np.all(0 <= np.squeeze(np.asarray(item))[1] < Ly) for item in position):
                 raise SystemExit('The probing position for the LDOS should be selected within the relative '
                                  'coordinates [[0, {}],[0, {}],[0, {}]] with the relative index '
                                  'of length {}'.format(Lx - 1, Ly - 1, Lz - 1, space_size))
 
         if space_size == 3:
-            if not all(0 <= np.squeeze(np.asarray(item))[0] < Lx and 0 <= np.squeeze(np.asarray(item))[1] < Ly
+            if not np.all(0 <= np.squeeze(np.asarray(item))[0] < Lx and 0 <= np.squeeze(np.asarray(item))[1] < Ly
                        and 0 <= np.squeeze(np.asarray(item))[2] < Lz for item in position):
                 raise SystemExit('The probing position for the LDOS should be selected within the relative '
                                  'coordinates [[0, {}],[0, {}],[0, {}]] with the relative index '
@@ -626,18 +626,17 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
             dis.append(single_arpes['num_disorder'])
             spinor.append(single_arpes['weight'])
 
-
         # Get the k vectors written in terms of the reciprocal lattice vectors
-        k_vector = np.asmatrix(np.asarray(k_vector))
-        k_vector_rel = k_vector@vectors.transpose()/np.pi/2
+        k_vector = np.atleast_2d(k_vector)
+        k_vector_rel = k_vector @ vectors.T / (np.pi * 2)
 
         if len(calculation.get_arpes) > 1:
             raise SystemExit('Only a single function request of each type is currently allowed. Please use another '
                              'configuration file for the same functionality.')
         grpc_p.create_dataset('NumMoments', data=moments, dtype=np.int32)
-        grpc_p.create_dataset('k_vector', data=np.asmatrix(np.asarray(k_vector_rel)), dtype=np.float32)
+        grpc_p.create_dataset('k_vector', data=np.reshape(k_vector_rel.flatten(), (-1, space_size)), dtype=np.float64)
         grpc_p.create_dataset('NumDisorder', data=dis, dtype=np.int32)
-        grpc_p.create_dataset('OrbitalWeights', data=np.asmatrix(np.asarray(spinor)))
+        grpc_p.create_dataset('OrbitalWeights', data=np.atleast_2d(spinor))
 
     if calculation.get_gaussian_wave_packet:
         grpc_p = grpc.create_group('gaussian_wave_packet')
@@ -662,10 +661,10 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
         grpc_p.create_dataset('NumPoints', data=num_points, dtype=np.int32)
         grpc_p.create_dataset('NumDisorder', data=num_disorder, dtype=np.int32)
         grpc_p.create_dataset('mean_value', data=mean_value, dtype=np.int32)
-        grpc_p.create_dataset('ProbingPoint', data=np.asmatrix(np.asarray(probing_points)).astype(np.float32))
-        grpc_p.create_dataset('width', data=width, dtype=np.float)
-        grpc_p.create_dataset('spinor', data=np.asmatrix(np.asarray(spinor)).astype(config.type))
-        grpc_p.create_dataset('k_vector', data=np.asmatrix(np.asarray(k_vector)), dtype=np.float32)
+        grpc_p.create_dataset('ProbingPoint', data=np.array(probing_points, np.float64))
+        grpc_p.create_dataset('width', data=width, dtype=np.float64)
+        grpc_p.create_dataset('spinor', data=np.array(np.atleast_2d(spinor), dtype=config.type))
+        grpc_p.create_dataset('k_vector', data=np.reshape(np.array(k_vector).flatten(), (-1, space_size)), dtype=np.float64)
         grpc_p.create_dataset('timestep', data=timestep, dtype=np.float32)
 
     if calculation.get_conductivity_dc:
