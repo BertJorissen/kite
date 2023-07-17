@@ -13,7 +13,7 @@
     Last updated: 28/07/2022
 """
 
-__all__ = ["main"]
+__all__ = ["main", "analyze_results"]
 
 import kite
 import numpy as np
@@ -158,9 +158,9 @@ def main(onsite=(0, 0)):
             pos_matrix.append([d1 + di, d2 + dj])
             sub_matrix.append('A')
             sub_matrix.append('B')
-
+    e_range = np.linspace(-0.4, 0.4, 41)
     calculation.ldos(
-        energy=np.linspace(-0.4, 0.4, 41),
+        energy=e_range,
         num_moments=64,
         num_disorder=1,
         position=pos_matrix,
@@ -177,7 +177,7 @@ def main(onsite=(0, 0)):
     # ../tools/build/KITE-tools graphene_lattice_ldos-output.h5
 
     # returning the name of the created HDF5-file
-    return output_file
+    return output_file, e_range
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ class StructuralDisorder:
             self._exact_position = True
 
         self._concentration = concentration
-        self._position = np.asarray(position)
+        self._position = np.atleast_2d(position)
 
         self._num_bond_disorder_per_type = 0
         self._num_onsite_disorder_per_type = 0

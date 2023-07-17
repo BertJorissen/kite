@@ -66,17 +66,21 @@ class CMakeBuild(build_ext):
             build()
 
 
+manifest_maker.template = "setup.manifest"
 setup(
-    packages=find_packages(exclude=['cppcore', 'cppmodule', 'test*']) +
-             ['kite.tests', 'kite.lib',
-              'kite.tests.baseline_data.arpes',
-              'kite.tests.baseline_data.dos'],
-    package_dir={'kite.tests': 'tests', 'kite.lib': 'kite/lib'},
+    packages=find_packages(exclude=['cppcore', 'cppmodule', 'tests', 'examples']) + [
+        'kite.lib',
+        'kite.tests',
+        'kite.tests.baseline_data.arpes',
+        'kite.tests.baseline_data.conductivity',
+        'kite.tests.baseline_data.dos',
+        'kite.tests.baseline_data.guassianwavepacket',
+        'kite.tests.baseline_data.ldos',
+        'kite.examples',
+        'kite.examples.lattice_twisted_bilayer'
+    ],
+    package_dir={'kite.tests': 'tests', 'kite.examples': 'examples', 'kite.lib': 'kite/lib'},
     include_package_data=True,
     ext_modules=[CMakeExtension('kitecore')],
-    package_data={
-        'kite.lib': ['*'],
-        'kite.tests': ["*"]
-    },
     cmdclass=dict(build_ext=CMakeBuild)
 )

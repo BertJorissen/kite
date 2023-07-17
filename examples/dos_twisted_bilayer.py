@@ -19,6 +19,7 @@ __all__ = ["main"]
 import pybinding as pb
 import numpy as np
 import kite
+import os
 
 
 def twisted_bilayer_lattice(angle_index=0):
@@ -27,8 +28,11 @@ def twisted_bilayer_lattice(angle_index=0):
     # define the angle
     angle = np.array([2.005, 7.341, 13.174, 21.787])[angle_index]
 
+    # Get the absolutepa th of hte curret nsricpt
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     # define the name of the pb.Lattice object
-    name = '.lattice_twisted_bilayer/lattice_tblg_{:.3f}'.format(angle)
+    name = script_dir + 'lattice_twisted_bilayer/lattice_tblg_{:.3f}'.format(angle)
 
     # load a predefined lattice object, the lattice can be saved with pb.save(lattice, name)
     lat = pb.load(name)

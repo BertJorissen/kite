@@ -5,7 +5,13 @@ import numpy as np
 import kite
 import os
 import pybinding as pb
-from .lattices import square, read_text_and_matrices
+from .lattices import square, read_text_and_matrices, hexagonal
+
+
+def get_hex_path() -> pb.results.Path:
+    lat = hexagonal()
+    bz = lat.brillouin_zone()
+    return pb.make_path(bz[3] * 0, bz[3], (bz[3] + bz[4]) / 2, bz[3], step=.2)
 
 
 settings = {
@@ -57,7 +63,7 @@ settings = {
         },
         'system': {'lattice': square(t=-1), 'filename': '10-square-arpes'},
         'random_seed': "3"
-    },
+    }
 }
 
 

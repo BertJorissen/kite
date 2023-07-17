@@ -72,7 +72,7 @@ def main(onsite=(0, 0), t=1):
 
     # number of decomposition parts [nx,ny] in each direction of matrix.
     # This divides the lattice into various sections, each of which is calculated in parallel
-    nx = ny = 1
+    nx = ny = 2
     # number of unit cells in each direction.
     lx = ly = 512
 

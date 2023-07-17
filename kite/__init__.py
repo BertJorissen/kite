@@ -11,7 +11,7 @@ from .modification import *
 from .system import *
 from .utils import *
 from .execute import *
-
+from typing import Optional, List
 
 def tests(options=None, plugins=None):
     """Run the tests
@@ -26,6 +26,7 @@ def tests(options=None, plugins=None):
     import pytest
     import pathlib
     from pybinding.utils import misc, pltutils
+    import os
     args = options or []
     if isinstance(args, str):
         args = args.split()
@@ -44,3 +45,25 @@ def tests(options=None, plugins=None):
             error_code = pytest.main(args, plugins)
 
     return error_code or None
+
+
+def examples(selection: Optional[List[int]] = None):
+    """ Run all the examples for KITEx and KITE-tools
+
+    Parameters
+    ----------
+    selection : Optional[List[int]]
+        If given, the examples with the given indices will be calculated.
+    """
+    import pathlib
+    import sys
+    module_path = pathlib.Path(__file__).parent
+
+    if (module_path / 'examples').exists():
+        # examples are inside installed package -> do the normal way
+        from .examples.run_all_examples import main
+    else:
+        # examples are in dev environment -> use development mode
+        sys.path.insert(1, str(module_path.parent))
+        from examples.run_all_examples import main
+    return main(selection)

@@ -1,0 +1,34 @@
+# Include specific files at the root of the package
+include changelog.md CMakeLists.txt license.md README.md
+
+# Include the cppmodule folder and its contents
+graft cppmodule
+
+# Exclude the cppmodule/deps/pybind11 folder and its contents
+prune cppmodule/deps/pybind11
+
+# Include specific files from cppmodule/deps/pybind11 but not from pybind11 itself
+recursive-include cppmodule/deps/pybind11 CMakeLists.txt *.cmake pybind11/*.h pybind11/detail/*.h
+
+# Include the examples folder and its contents
+recursive-include examples *
+recursive-exclude examples/custom_local_potential *
+recursive-exclude examples/paper *
+
+# Include the docs folder and its contents
+graft docs
+
+# Include the tests folder and its contents but exclude the tests/failed folder
+recursive-include tests *
+recursive-exclude tests/failed *
+recursive-exclude tests/kitex *
+recursive-exclude tests/kitetools *
+
+# Exclude compiled Python files
+global-exclude *.pyc
+
+# Include the cppcore folder and its contents
+recursive-include cppcore *
+
+# Exclude the cppcore/deps folder and its contents
+recursive-exclude cppcore/deps *
