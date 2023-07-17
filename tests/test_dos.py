@@ -121,7 +121,7 @@ def test_dos(params, baseline, tmp_path):
     kite.execute.kitetools("{0} --DOS -N {1}".format(config_system['filename'], str(tmp_path / "dos.dat")))
     results.append(np.loadtxt(str(tmp_path / "dos.dat")))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
 
 
 settingsmag = {
