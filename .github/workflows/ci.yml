@@ -140,7 +140,7 @@ jobs:
       - name: Run tests
         run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
 
-test-sdist-macos:
+  test-sdist-macos:
     name: Test sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     environment: ci
     if: github.ref == 'refs/heads/master'
