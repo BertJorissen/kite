@@ -1,5 +1,4 @@
 # Build the documentation on GitHub and publish on GitHub pages
-
 name: ci
 on:
   push:
