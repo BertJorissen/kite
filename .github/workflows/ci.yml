@@ -50,6 +50,12 @@ jobs:
             QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_TEST: |
+            python -m pip install scipy contourpy --prefer-binary
+            python -m pip install wheel matplotlib pytest cmake ninja build h5py numpy setuptools
+            python -m pip install -i https://test.pypi.org/simple/ pybinding
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
@@ -80,6 +86,12 @@ jobs:
           CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_TEST: |
+            python -m pip install scipy contourpy --prefer-binary
+            python -m pip install wheel matplotlib pytest cmake ninja build h5py numpy setuptools
+            python -m pip install -i https://test.pypi.org/simple/ pybinding
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
@@ -172,6 +184,7 @@ jobs:
           QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/" python -m pip install dist/*.tar.gz
       - name: Run tests
         run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
+
   testpypi:
     name: Test upload on PyPi
     environment: ci

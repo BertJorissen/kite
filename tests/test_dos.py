@@ -75,7 +75,7 @@ settings = {
             'boundaries': ["periodic", "periodic"],
             'is_complex': True,
             'precision': 0,
-            'spectrum_range': [-10, 10]
+            'spectrum_range': [-4, 4]
         },
         'calculation': {
             'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
