@@ -1,5 +1,4 @@
 # Build the documentation on GitHub and publish on GitHub pages
-
 name: ci
 on:
   push:
@@ -51,6 +50,12 @@ jobs:
             QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *arm64
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_TEST: |
+            python -m pip install scipy contourpy --prefer-binary
+            python -m pip install wheel matplotlib pytest cmake ninja build h5py numpy setuptools
+            python -m pip install -i https://test.pypi.org/simple/ pybinding
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
@@ -81,6 +86,12 @@ jobs:
           CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_TEST: |
+            python -m pip install scipy contourpy --prefer-binary
+            python -m pip install wheel matplotlib pytest cmake ninja build h5py numpy setuptools
+            python -m pip install -i https://test.pypi.org/simple/ pybinding
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
@@ -111,7 +122,7 @@ jobs:
         with:
           path: dist/*.tar.gz
 
-  test-sdist:
+  test-sdist-ubuntu:
     name: Test sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     environment: ci
     if: github.ref == 'refs/heads/master'
@@ -119,7 +130,7 @@ jobs:
     needs: [ build-sdist ]
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-latest ]
         python-version: [ "3.10" ]
     steps:
       - name: Download artefacts
@@ -131,11 +142,46 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Quantum-Kite
+      - name: Install deps
         run: |
           python -m pip install wheel scipy matplotlib pytest cmake ninja build h5py numpy setuptools
           python -m pip install -i https://test.pypi.org/simple/ pybinding
+      - name: Install Quantum-Kite
+        run: |
           python -m pip install dist/*.tar.gz
+      - name: Run tests
+        run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
+
+  test-sdist-macos:
+    name: Test sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    environment: ci
+    if: github.ref == 'refs/heads/master'
+    runs-on: ${{ matrix.os }}
+    needs: [ build-sdist ]
+    strategy:
+      matrix:
+        os: [ macos-latest ]
+        python-version: [ "3.10" ]
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install deps
+        run: |
+          python -m pip install wheel scipy matplotlib pytest cmake ninja build h5py numpy setuptools
+          brew install boost libomp
+          brew info libomp
+          brew info boost
+          python -m pip install -i https://test.pypi.org/simple/ pybinding
+      - name: Install Quantum-Kite
+        run: |
+          QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/" python -m pip install dist/*.tar.gz
       - name: Run tests
         run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
 
@@ -145,7 +191,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     permissions:
       id-token: write
-    needs: [ build-wheel-macos-x86, build-wheel-linux, test-sdist ]
+    needs: [ build-wheel-macos-x86, build-wheel-linux, test-sdist-ubuntu, test-sdist-macos]
     runs-on: ubuntu-latest
     steps:
       - name: Download artefacts

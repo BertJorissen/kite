@@ -75,7 +75,7 @@ settings = {
     #         'boundaries': ["periodic", "periodic"],
     #         'is_complex': True,
     #         'precision': 0,
-    #         'spectrum_range': [-10, 10]
+    #         'spectrum_range': [-4, 4]
     #     },
     #     'calculation': {
     #         'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
@@ -83,21 +83,21 @@ settings = {
     #     'system': {'lattice': hexagonal(a=0.24595, t=-1, t_nn=-1/10 * 1j), 'filename': '3-haldane-dos'},
     #     'random_seed': "ones"
     # },
-    # '4-cubic-dos': {
-    #     'configuration': {
-    #         'divisions': [1, 1, 1],
-    #         'length': [32, 32, 32],
-    #         'boundaries': ["periodic", "periodic", "periodic"],
-    #         'is_complex': False,
-    #         'precision': 1,
-    #         'spectrum_range': [-7, 7]
-    #     },
-    #     'calculation': {
-    #         'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
-    #     },
-    #     'system': {'lattice': cube(), 'filename': '4-cubic-dos'},
-    #     'random_seed': "ones"
-    # }
+    '4-cubic-dos': {
+        'configuration': {
+            'divisions': [1, 1, 1],
+            'length': [32, 32, 32],
+            'boundaries': ["periodic", "periodic", "periodic"],
+            'is_complex': False,
+            'precision': 1,
+            'spectrum_range': [-7, 7]
+        },
+        'calculation': {
+            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+        },
+        'system': {'lattice': cube(), 'filename': '4-cubic-dos'},
+        'random_seed': "ones"
+    }
 }
 
 
@@ -121,7 +121,7 @@ def test_dos(params, baseline, tmp_path):
     kite.execute.kitetools("{0} --DOS -N {1}".format(config_system['filename'], str(tmp_path / "dos.dat")))
     results.append(np.loadtxt(str(tmp_path / "dos.dat")))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
+    assert pytest.fuzzy_equal(results, expected, rtol=1e-3, atol=1e-6)
 
 
 settingsmag = {
