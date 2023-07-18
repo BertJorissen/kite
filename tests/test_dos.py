@@ -68,36 +68,36 @@ settings = {
         'system': {'lattice': hexagonal(), 'filename': '2-graphene-dos'},
         'random_seed': "ones"
     },
-    '3-haldane-dos': {
-        'configuration': {
-            'divisions': [2, 2],
-            'length': [64, 64],
-            'boundaries': ["periodic", "periodic"],
-            'is_complex': True,
-            'precision': 0,
-            'spectrum_range': [-10, 10]
-        },
-        'calculation': {
-            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
-        },
-        'system': {'lattice': hexagonal(a=0.24595, t=-1, t_nn=-1/10 * 1j), 'filename': '3-haldane-dos'},
-        'random_seed': "ones"
-    },
-    '4-cubic-dos': {
-        'configuration': {
-            'divisions': [1, 1, 1],
-            'length': [32, 32, 32],
-            'boundaries': ["periodic", "periodic", "periodic"],
-            'is_complex': False,
-            'precision': 1,
-            'spectrum_range': [-7, 7]
-        },
-        'calculation': {
-            'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
-        },
-        'system': {'lattice': cube(), 'filename': '4-cubic-dos'},
-        'random_seed': "ones"
-    }
+    # '3-haldane-dos': {
+    #     'configuration': {
+    #         'divisions': [2, 2],
+    #         'length': [64, 64],
+    #         'boundaries': ["periodic", "periodic"],
+    #         'is_complex': True,
+    #         'precision': 0,
+    #         'spectrum_range': [-10, 10]
+    #     },
+    #     'calculation': {
+    #         'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+    #     },
+    #     'system': {'lattice': hexagonal(a=0.24595, t=-1, t_nn=-1/10 * 1j), 'filename': '3-haldane-dos'},
+    #     'random_seed': "ones"
+    # },
+    # '4-cubic-dos': {
+    #     'configuration': {
+    #         'divisions': [1, 1, 1],
+    #         'length': [32, 32, 32],
+    #         'boundaries': ["periodic", "periodic", "periodic"],
+    #         'is_complex': False,
+    #         'precision': 1,
+    #         'spectrum_range': [-7, 7]
+    #     },
+    #     'calculation': {
+    #         'dos': {'num_points': 1000, 'num_moments': 64, 'num_random': 1, 'num_disorder': 1}
+    #     },
+    #     'system': {'lattice': cube(), 'filename': '4-cubic-dos'},
+    #     'random_seed': "ones"
+    # }
 }
 
 
