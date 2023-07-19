@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches:
-      - windows
+      - master
 jobs:
   #deploy:
   #  runs-on: ubuntu-latest
@@ -117,7 +117,7 @@ jobs:
         env:
           CIBW_ENVIRONMENT:
             CC="C:\MinGW\bin\gcc"
-            CXX="C:\MinGW\bin\gccg++"
+            CXX="C:\MinGW\bin\g++"
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_archs }}
           CIBW_BEFORE_BUILD: pip install scipy contourpy --prefer-binary
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x
