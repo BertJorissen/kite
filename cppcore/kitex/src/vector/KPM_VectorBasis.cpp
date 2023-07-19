@@ -58,7 +58,7 @@ template <typename T, unsigned D>
 template <unsigned MULT> 
 void KPM_VectorBasis<T,D>::Multiply() {
   vverbose_message("Entered Multiply");
-  typedef KPM_Vector<T,D> myvector;
+  //typedef KPM_Vector<T,D> myvector;
   unsigned i = 0;
   /*
     Mosaic Multiplication using a TILE of TILE x TILE
@@ -67,7 +67,7 @@ void KPM_VectorBasis<T,D>::Multiply() {
     MULT = 1 : For the case of the KPM_iteration
   */
   inc_index();
-  KPM_Vector<T,D>* child = static_cast<KPM_Vector<T,D>*>(this);
+  auto* child = static_cast<KPM_Vector<T,D>*>(this);
   child->template KPM_MOTOR<MULT, false>(child, i);
 }
 
@@ -76,7 +76,7 @@ void KPM_VectorBasis<T,D>::Velocity(KPM_Vector<T,D> * kpm_final,  std::vector<st
 {
   // kpm_final shoud be different from this instance
   // 
-  KPM_Vector<T,D>* child = static_cast<KPM_Vector<T,D>*>(this);
+  auto* child = static_cast<KPM_Vector<T,D>*>(this);
   switch(indices.at(pos).size())
     {
     case 0:

@@ -100,3 +100,13 @@ template struct Coordinates<unsigned,1u>;
 template struct Coordinates<unsigned,2u>;
 template struct Coordinates<unsigned,3u>;
 template struct Coordinates<unsigned,4u>;
+
+template struct Coordinates<unsigned long,1u>;
+template struct Coordinates<unsigned long,2u>;
+template struct Coordinates<unsigned long,3u>;
+template struct Coordinates<unsigned long,4u>;
+
+template struct Coordinates<long long,1u>;
+template struct Coordinates<long long,2u>;
+template struct Coordinates<long long,3u>;
+template struct Coordinates<long long,4u>;
