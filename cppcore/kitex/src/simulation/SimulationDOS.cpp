@@ -28,8 +28,8 @@ template <typename T,unsigned D>
 void Simulation<T,D>::store_MU(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *gamma){
     debug_message("Entered store_mu\n");
 
-    long int nMoments   = gamma->rows();
-    long int nPositions = gamma->cols();
+    auto nMoments   = static_cast<long int>(gamma->rows());
+    auto nPositions = static_cast<long int>(gamma->cols());
 
 #pragma omp master
 	Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(nMoments, nPositions);

@@ -57,7 +57,7 @@ void Simulation<T,D>::LMU(int NDisorder, int NMoments, Eigen::Array<unsigned lon
 
     typedef typename extract_value_type<T>::value_type value_type;
     Eigen::Matrix<T, 1, 2> tmp;
-    int NPositions = positions.size();
+    auto NPositions = static_cast<int>(positions.size());
     unsigned long pos;
 
     KPM_Vector<T,D> kpm0(1, *this); // initial random vector

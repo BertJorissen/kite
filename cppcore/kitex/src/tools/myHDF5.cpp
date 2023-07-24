@@ -110,7 +110,7 @@ write_hdf5(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu, H5::H5Fi
     H5::Exception::dontPrint();
     dataset = file->createDataSet(name, complex_datatype, dataspace);
   }
-  catch (H5::FileIException & E) { 
+  catch (H5::FileIException&) {
     dataset = file->openDataSet( name);
   }  
   dataset.write(mu.data(), complex_datatype);
