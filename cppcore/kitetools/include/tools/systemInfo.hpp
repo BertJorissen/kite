@@ -14,7 +14,7 @@ class system_info{
     int isComplex;
 		Eigen::Array<int,1,-1> size;
 		Eigen::Array<double,-1,-1> vectors;
-		Eigen::Array<double, -1, -1> orbital_positions;
+		Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> orbital_positions;
 			
 		double unit_cell_area;
 		double spin_degeneracy;

@@ -79,7 +79,7 @@ write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File *  file, const std::s
     H5::Exception::dontPrint();
     dataset = file->createDataSet(name, DataTypeFor<T>::value, dataspace);
   }
-  catch (H5::FileIException & E) { 
+  catch (H5::FileIException&) {
     dataset = file->openDataSet(name);
   }
   

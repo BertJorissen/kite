@@ -192,7 +192,7 @@ shell_input::shell_input(int argc, char *argv[]){
 
     // First, find the position of each of the following functions:
     valid_keys = std::vector<std::string>{"--DOS", "--CondOpt","--CondDC", "--CondOpt2", "--LDOS", "--ARPES"};
-    len = valid_keys.size();   // length of valid_keys?
+    len = static_cast<int>(valid_keys.size());   // length of valid_keys?
     keys_pos = std::vector<int>(len, -1);
     keys_len = std::vector<int>(len, -1);
 
@@ -392,7 +392,7 @@ void shell_input::parse_CondOpt(int argc, char* argv[]){
             }
             if(name == "-F")
                 CondOpt_Fermi = atof(n1.c_str());
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 CondOpt_Exclusive = true;
             if(name == "-O"){
                 std::string n2 = argv[k + pos + 2];
@@ -441,7 +441,7 @@ void shell_input::parse_CondOpt2(int argc, char* argv[]){
                 CondOpt2_NumEnergies = atoi(n1.c_str());
             if(name == "-R")
                 CondOpt2_ratio = atof(n1.c_str());
-            if(name == "-P" or n1 == "-P")
+            if(name == "-P" || n1 == "-P")
                 CondOpt2_print_all = 1;
             //if(name == "-P")
                 //CondOpt2_print_all = atoi(n1.c_str());
@@ -451,7 +451,7 @@ void shell_input::parse_CondOpt2(int argc, char* argv[]){
                 CondOpt2_Fermi = atof(n1.c_str());
             if(name == "-N")
                 CondOpt2_Name = n1;
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 CondOpt2_Exclusive = true;
             if(name == "-O"){
                 std::string n2 = argv[k + pos + 2];
@@ -515,7 +515,7 @@ void shell_input::parse_DOS(int argc, char* argv[]){
                 // If the DoS is not the penultimate element, then there are other
                 // keys after it, so accessing k+pos+2 will be allowed
                 std::string n2 = argv[k + pos + 2];
-                if(n2=="-N" or n2=="-M" or n2=="-K" or n2=="-X"){
+                if(n2=="-N" || n2=="-M" || n2=="-K" || n2=="-X"){
                     DOS_NumEnergies = atoi(n1.c_str());
                     continue;
                 }
@@ -527,7 +527,7 @@ void shell_input::parse_DOS(int argc, char* argv[]){
                 DOS_NumEnergies = atoi(n3.c_str());
             }
 
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 DOS_Exclusive = true;
         }
         if(keys_len.at(0) == 1){
@@ -571,7 +571,7 @@ void shell_input::parse_lDOS(int argc, char* argv[]){
                   lDOS_kernel_parameter = atof(n2.c_str());
                 }
             }
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 lDOS_Exclusive = true;
         }
         if(keys_len.at(4) == 1){
@@ -590,7 +590,7 @@ void shell_input::parse_lDOS(int argc, char* argv[]){
 
 
 bool is_key(std::string n){
-  return n == "-T" or n == "-O" or n == "-F" or n == "-N" or n == "-X" or n == "-V" or n == "-E";
+  return n == "-T" || n == "-O" || n == "-F" || n == "-N" || n == "-X" || n == "-V" || n == "-E";
 }
 
 void shell_input::parse_ARPES(int argc, char* argv[]){
@@ -629,10 +629,10 @@ void shell_input::parse_ARPES(int argc, char* argv[]){
                 ARPES_Name = n1;
 
             //only calculate the spectral function
-            if(name == "-S" or n1 == "-S")
+            if(name == "-S" || n1 == "-S")
                 ARPES_calculate_full_arpes = false;
 
-            if(name == "-X" or n1 == "-X")
+            if(name == "-X" || n1 == "-X")
                 ARPES_Exclusive = true;
             if(name == "-M")
                 ARPES_NumMoments = atoi(n1.c_str());
@@ -685,7 +685,7 @@ void shell_input::parse_ARPES(int argc, char* argv[]){
                       break;
                   n_args = ii;
               }
-              ARPES_vec = Eigen::Array<double, -1, 1>::Zero(n_args, 1);
+              ARPES_vec = Eigen::Array<double, Eigen::Dynamic, 1>::Zero(n_args, 1);
 
               if(n_args == 1){
                 v1 = atof(argv[k + pos + 1]);
@@ -702,7 +702,7 @@ void shell_input::parse_ARPES(int argc, char* argv[]){
                 v3 = atof(argv[k + pos + 3]);
                 ARPES_vec << v1, v2, v3;
               }
-              if(n_args != 1 and n_args != 2 and n_args != 3){
+              if(n_args != 1 && n_args != 2 && n_args != 3){
                 std::cout << "The number of arguments inside -V for the --ARPES functionality has to be"
                   "either 1, 2 or 3. Please put a reasonable number of arguments. Exiting\n";
                 exit(1);

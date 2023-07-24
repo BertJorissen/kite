@@ -72,7 +72,7 @@ bool conductivity_dc<T, DIM>::is_required(){
 
     // Make sure the config filename has been initialized
     std::string name = systemInfo.filename.c_str();
-    if(name == ""){
+    if(name.empty()){
         std::cout << "ERROR: Filename uninitialized. Exiting.\n";
         exit(1);
     }
@@ -86,7 +86,7 @@ bool conductivity_dc<T, DIM>::is_required(){
     try{
         get_hdf5(&direction, &file, dirName);
         result = true;
-    } catch(H5::Exception& e){}
+    } catch(H5::Exception&){}
 
 
     file.close();
@@ -123,8 +123,8 @@ void conductivity_dc<T, DIM>::set_default_parameters(){
     NEnergies           = 513;              // Number of energies used in the energy integration
     default_NEnergies   = true;
 
-    deltascat           = 0.01/scale;       // scattering parameter in the delta function
-    scat                = 0.01/scale;       // scattering parameter of 10meV in
+    deltascat           = static_cast<T>(0.01/scale);       // scattering parameter in the delta function
+    scat                = static_cast<T>(0.01/scale);       // scattering parameter of 10meV in
     default_scat        = true;             // the Green's functions in KPM reduced units
     default_deltascat   = true;             // the Green's functions in KPM reduced units
 
@@ -133,7 +133,7 @@ void conductivity_dc<T, DIM>::set_default_parameters(){
 
     // Temperature is in energy units, so it is actually kb*T, where kb is Boltzmann's constant
     temperature         = 0.001/scale;      
-    beta                = 1.0/temperature;
+    beta                = static_cast<T>(1.0/temperature);
     default_temp        = true;
 }
 
@@ -144,13 +144,13 @@ void conductivity_dc<T, DIM>::set_energy_limits(){
     // If it cant, uses default limits.
 
 
-    minEnergy               = -0.99;    // Minimum energy
-    maxEnergy               = 0.99;     // Maximum energy
+    minEnergy               = static_cast<T>(-0.99);    // Minimum energy
+    maxEnergy               = static_cast<T>(0.99);     // Maximum energy
     default_energy_limits   = true;
 
     // Choose whether or not to use the limits of integration as
     // computed from the density of states. 
-    if(systemInfo.EnergyLimitsKnown and !full_range){
+    if(systemInfo.EnergyLimitsKnown && !full_range){
         minEnergy = systemInfo.minEnergy;
         maxEnergy = systemInfo.maxEnergy;
         default_energy_limits = false;
@@ -177,7 +177,7 @@ bool conductivity_dc<T, DIM>::fetch_parameters(){
   // Fetch the temperature from the .h5 file
   // The temperature (kb*T) is in energy units. It is already reduced by SCALE from within the python script
 	get_hdf5(&temperature, &file, (char*)(dirName+"Temperature").c_str());	
-  beta = 1.0/temperature;
+  beta = static_cast<T>(1.0/temperature);
   default_temp = false;
 
   // Fetch the number of Fermi energies from the .h5 file
@@ -210,7 +210,7 @@ bool conductivity_dc<T, DIM>::fetch_parameters(){
     }				
 
     possible = true;
-  } catch(H5::Exception& e) {
+  } catch(H5::Exception&) {
       debug_message("Conductivity DC: There is no Gamma matrix.\n");
   }
 	
@@ -220,8 +220,8 @@ bool conductivity_dc<T, DIM>::fetch_parameters(){
   return possible;
 }
 
-template <typename U, unsigned DIM>
-void conductivity_dc<U, DIM>::override_parameters(){
+template <typename T, unsigned DIM>
+void conductivity_dc<T, DIM>::override_parameters(){
     // Overrides the current parameters with the ones from the shell input.
     // These parameters are in eV or Kelvin, so they must scaled down
     // to the KPM units. This includes the temperature
@@ -231,7 +231,7 @@ void conductivity_dc<U, DIM>::override_parameters(){
 
     if(variables.CondDC_Temp != -1){
         temperature     = variables.CondDC_Temp/scale;
-        beta            = 1.0/temperature;
+        beta            = static_cast<T>(1.0/temperature);
         default_temp    = false;
     }
 
@@ -272,12 +272,12 @@ void conductivity_dc<U, DIM>::override_parameters(){
 
 
     if(variables.CondDC_Scat != -8888){
-        scat            = variables.CondDC_Scat/scale;
+        scat            = static_cast<T>(variables.CondDC_Scat/scale);
         default_scat    = false;
     }
 
     if(variables.CondDC_deltaScat != -8888){
-        deltascat         = variables.CondDC_deltaScat/scale;
+        deltascat         = static_cast<T>(variables.CondDC_deltaScat/scale);
         default_deltascat = false;
     } else {
         deltascat = scat;
@@ -313,15 +313,15 @@ void conductivity_dc<U, DIM>::override_parameters(){
   //std::cout << "N_threads: " << N_threads << "\n";
   //std::cout << "D: " << Moments_D << "G: " << Moments_G << "\n";
 
-  Gamma_Padded = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(Moments_D, Moments_G);
+  Gamma_Padded = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(Moments_D, Moments_G);
   Gamma_Padded.block(0,0,NumMoments, NumMoments) = Gamma.block(0,0,NumMoments, NumMoments);
 
   //std::cout << "Gamma_Padded: " << Gamma_Padded << "\n";
 }
 
 
-template <typename U, unsigned DIM>
-void conductivity_dc<U, DIM>::printDC(){
+template <typename T, unsigned DIM>
+void conductivity_dc<T, DIM>::printDC(){
     double scale = systemInfo.energy_scale;
     double shift = systemInfo.energy_shift;
     std::string energy_range = "[" + std::to_string(minEnergy*scale + shift) + ", " + std::to_string(maxEnergy*scale + shift) + "]";
@@ -343,21 +343,21 @@ void conductivity_dc<U, DIM>::printDC(){
 
 
 
-template <typename U, unsigned DIM>
-void conductivity_dc<U, DIM>::calculate2(){
+template <typename T, unsigned DIM>
+void conductivity_dc<T, DIM>::calculate2(){
 
     // Make sure number of energies is odd to use with the Simpson integration method
     if(NEnergies % 2 != 1)
         NEnergies += 1;
 
-    energies = Eigen::Matrix<U, -1, 1>::LinSpaced(NEnergies, minEnergy, maxEnergy);
-    fermiEnergies = Eigen::Matrix<U, -1, 1>::LinSpaced(NFermiEnergies, minFermiEnergy, maxFermiEnergy);
+    energies = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(NEnergies, minEnergy, maxEnergy);
+    fermiEnergies = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(NFermiEnergies, minFermiEnergy, static_cast<T>(maxFermiEnergy));
 
 
   // Imaginary part of the Green's function: Dirac delta (greenR)
   // Derivative of the Green's function: dgreenR
-  Eigen::Matrix<std::complex<U>, -1, -1, Eigen::ColMajor> greenR;
-  Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> dgreenR;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> greenR;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> dgreenR;
 
   // Fill the matrices that are going to be used in the multiplication
   // This is an operation of order ~ (NG + ND) * NE
@@ -370,17 +370,27 @@ void conductivity_dc<U, DIM>::calculate2(){
   // dgreenR * Gamma_Padded * greenR
   // This is an operation of order N^2 * NE and is parallelized
   // It uses T * NG * NE   +  NE * ND   +   2 * NE
-  Eigen::Matrix<std::complex<U>, -1, -1> GammaE;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaE;
   GammaE = triple_product(greenR, dgreenR);
 
 
   // integrate over the whole energy range for each Fermi energy
-  Eigen::Matrix<std::complex<U>, -1, 1> condDC;
-  U den = -systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units; 
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> condDC;
+  T den = static_cast<T>(-systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
   condDC = calc_cond(GammaE)*den;
 
   // save to a file
   save_to_file(condDC);
+}
+
+template<typename T, unsigned int DIM>
+void conductivity_dc<T, DIM>::calculate() {
+
+}
+
+template<typename T, unsigned int DIM>
+void conductivity_dc<T, DIM>::calculate_imag() {
+
 };
 
 

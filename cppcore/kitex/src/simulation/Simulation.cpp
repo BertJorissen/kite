@@ -115,6 +115,22 @@ double Simulation<T,D>::time_kpm(int N_average){
   return double(time_span.count())/N_average;
 }
 
+template<typename T, unsigned int D>
+void Simulation<T, D>::GammaGeneral(int, int, const std::vector<int>&, const std::vector<std::vector<unsigned int>>&,
+                                    const std::string&) {
+
+}
+
+template<typename T, unsigned int D>
+void Simulation<T, D>::recursive_KPM(int, int, std::vector<int>, long *, long *,
+                                     const std::vector<std::vector<unsigned int>>&, std::vector<KPM_Vector<T, D>*> *,
+                                             Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *) {
+
+}
+
+
+#ifndef SIMULATION_INST
+#define SIMULATION_INST
 
 template class Simulation<float ,1u>;
 template class Simulation<double ,1u>;
@@ -136,3 +152,4 @@ template class Simulation<long double ,2u>;
 template class Simulation<std::complex<float> ,2u>;
 template class Simulation<std::complex<double> ,2u>;
 template class Simulation<std::complex<long double> ,2u>;
+#endif SIMULATION_INST

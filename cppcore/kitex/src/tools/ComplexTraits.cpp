@@ -83,14 +83,10 @@ T ComplexTraits<T>::aux_wr(std::size_t x) {
 }
 
 
-
-
-
-
-template struct ComplexTraits<double>;
-template struct ComplexTraits<float>;
-template struct ComplexTraits<long double>;
-template struct ComplexTraits<std::complex<double>>;
-template struct ComplexTraits<std::complex<float>>;
-template struct ComplexTraits<std::complex<long double>>;
+template class ComplexTraits<double>;
+template class ComplexTraits<float>;
+template class ComplexTraits<long double>;
+template class ComplexTraits<std::complex<double>>;
+template class ComplexTraits<std::complex<float>>;
+template class ComplexTraits<std::complex<long double>>;
 

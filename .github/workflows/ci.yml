@@ -98,7 +98,7 @@ jobs:
 
   build-wheel-windows:
     name: Build wheels on ${{ matrix.os }} ${{ matrix.cibw_archs }}
-    if: github.ref == 'refs/heads/windows'
+    if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

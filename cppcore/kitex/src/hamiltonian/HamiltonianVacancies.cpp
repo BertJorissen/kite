@@ -14,6 +14,7 @@
 #include "tools/ComplexTraits.hpp"
 #include "tools/Random.hpp"
 #include "hamiltonian/HamiltonianVacancies.hpp"
+#include <cfloat>
 template <typename T,unsigned D>
 Vacancy_Operator<T,D>::Vacancy_Operator(char * filename, LatticeStructure <D> & rr, KPMRandom <T> & rndB) : r(rr), rnd(rndB), name(filename), position(r.NStr)
 {
@@ -33,7 +34,7 @@ void Vacancy_Operator<T,D>::generate_disorder()
   
   for(unsigned k = 0; k < concentration.size(); k++)
     {
-      std::size_t vacancies_number  = concentration.at(k) * r.N, count = 0;
+      std::size_t vacancies_number  = static_cast<std::size_t>(concentration.at(k)) * r.N, count = 0;
       // Test how many vacancies where in this subdomain
       if(vacancies_number < positions_fixed.at(k).size())
         vacancies_number =  positions_fixed.at(k).size();
@@ -44,7 +45,7 @@ void Vacancy_Operator<T,D>::generate_disorder()
           if(count <  positions_fixed.at(k).size() )
             i = positions_fixed.at(k).at(count);
           else
-            i = rnd.get()*r.N;
+            i = rnd.get() * static_cast<double>(r.N);
           
           latt.set_coord(i + orbitals.at(k).at(0) * r.N );
           r.convertCoordinates(latStr,latt);                  // Get tile position
@@ -71,22 +72,22 @@ template <typename T,unsigned D>
 void Vacancy_Operator<T,D>::add_model(double p, std::vector <int> & orb, std::vector<int> & postmp)
 {
   Coordinates<std::size_t,D + 1> latt(r.ld),  x(r.nd), LATT(r.Lt);
-  std::size_t size_aux  = p * r.Nt * orb.size();
+  std::size_t size_aux  = static_cast<std::size_t>(p) * r.Nt * orb.size();
   std::vector<int> tmp;
   size_aux = (size_aux > postmp.size() ? size_aux : postmp.size());
   orbitals.push_back(orb);
   concentration.push_back(p);
   r.SizetVacancies += size_aux;
   
-  for(size_t i = 0; i < postmp.size(); i++)
+  for(int i : postmp)
     {
-      LATT.set_coord(std::size_t(postmp.at(i)));
+      LATT.set_coord(static_cast<std::size_t>(i));
       r.convertCoordinates(x, LATT);
       if(x.index == r.thread_id)
         {
           r.convertCoordinates(latt, LATT);
 	  if(!any_of(tmp.begin(), tmp.end(), [latt](std::size_t x) {return x == latt.index;}))
-            tmp.push_back(latt.index);
+            tmp.push_back(static_cast<int>(latt.index));
         }
     };
   positions_fixed.push_back(tmp);
@@ -96,8 +97,8 @@ template <typename T,unsigned D>
 void Vacancy_Operator<T,D>::add_conflict_with_defect(std::size_t element, unsigned istride)
 {
   std::vector<std::size_t> & v = position.at(istride);  
-  for(unsigned i = 0; i < v.size(); i++)
-    if(element == v.at(i))
+  for(unsigned i : v)
+    if(element == i)
       vacancies_with_defects.push_back(element);
 }
 
@@ -105,16 +106,16 @@ template <typename T,unsigned D>
 bool Vacancy_Operator<T,D>::test_vacancy(Coordinates<std::size_t,D + 1> & Latt)
 {
   /*
-    1 if is a vacancy
-    0 if not
+    1 if is a vacancy -> true
+    0 if not          -> false
   */
   Coordinates<std::size_t,D + 1> latStr(r.lStr);
   r.convertCoordinates(latStr, Latt);
   auto & vc = position.at(latStr.index);
   if( !any_of(vc.begin(), vc.end(), [Latt](std::size_t x) {return x == Latt.index;}))
-    return 0;
+    return false;
   else
-    return 1;
+    return true;
 }
 
 template <typename T,unsigned D>
@@ -123,7 +124,7 @@ void Vacancy_Operator<T,D>::test_field( T * phi0 )
   // The field should be zero in the vacancies
   for(unsigned i = 0; i  < r.NStr; i++)
     for(auto vc = position.at(i).begin(); vc != position.at(i).end(); vc++)
-      if( abs(phi0[*vc]) > __DBL_EPSILON__)
+      if( abs(phi0[*vc]) > DBL_EPSILON)
         {
           std::cout << "Disparate" << std::endl;
           exit(1);

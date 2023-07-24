@@ -9,7 +9,10 @@
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/Random.hpp"
-
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 template <typename T>
 KPMRandom<T>::KPMRandom() {
   init_random();
@@ -61,7 +64,7 @@ typename std::enable_if<is_tt<std::complex, U>::value, U>::type KPMRandom<T>::in
 template <typename T>
 template <typename U>
 typename std::enable_if<!is_tt<std::complex, U>::value, U>::type KPMRandom<T>::initA() {
-  return (2*dist(rng) - 1.)*sqrt(3);
+  return static_cast<typename std::enable_if<!is_tt<std::complex, U>::value, U>::type>((2*dist(rng) - 1.)*sqrt(3));
 }
 
 template <typename T>

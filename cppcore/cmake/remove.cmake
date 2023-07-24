@@ -1,0 +1,10 @@
+if(${EXECUTE_REMOVE} STREQUAL "TRUE")
+    #files to be moves
+    file(GLOB FILES_TO_REMOVE ${FILES_WITH_WILDCARD})
+    if("${FILES_TO_REMOVE}" STREQUAL "")
+        MESSAGE(STATUS "QK-- The file '${FILES_WITH_WILDCARD}' was not found, can't remove it.")
+    else()
+        file(REMOVE "${FILES_TO_REMOVE}" OPTIONAL)
+        MESSAGE(STATUS "QK-- REMOVED ${FILES_TO_REMOVE}")
+    endif()
+endif()

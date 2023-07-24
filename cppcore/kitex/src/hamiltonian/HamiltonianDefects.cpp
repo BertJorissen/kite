@@ -27,7 +27,7 @@ Defect_Operator<T,D>::Defect_Operator( Hamiltonian<T,D> & h1,  std::string & def
   try {
     H5::Exception::dontPrint();
     get_hdf5<double> ( &p, file, field );    
-  } catch(H5::Exception& e) {
+  } catch(H5::Exception&) {
     // Do nothing
     p = 0.;
   }
@@ -42,7 +42,7 @@ Defect_Operator<T,D>::Defect_Operator( Hamiltonian<T,D> & h1,  std::string & def
     dataspace.close();
     dataset.close();
     get_hdf5<int> ( tmp.data(), file, field );
-  } catch(H5::Exception& e) {
+  } catch(H5::Exception&) {
   }
   
   for(unsigned i = 0; i < tmp.size(); i++)

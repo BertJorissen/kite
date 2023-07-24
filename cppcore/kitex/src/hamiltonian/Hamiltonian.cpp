@@ -16,7 +16,10 @@
 #include "simulation/Global.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
 #include "hamiltonian/HamiltonianAux.hpp"
-
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 
 extern "C" herr_t getMembers(hid_t loc_id, const char *name, void *opdata);
@@ -101,7 +104,7 @@ void Hamiltonian<T,D>::build_structural_disorder()
       for(auto id = defects.begin(); id != defects.end(); id++)
         hd.push_back(Defect_Operator<T,D> (*this,  *id, file ));
     }
-    catch(H5::Exception& e) {
+    catch(H5::Exception&) {
       // Do nothing
     };
     delete file;
@@ -135,7 +138,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
           try {
             H5::Exception::dontPrint();
             get_hdf5<double> ( &p, file, field );
-          } catch(H5::Exception& e) {
+          } catch(H5::Exception&) {
             // Do nothing
             p = 0.;
           }; 
@@ -151,7 +154,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
             dataspace.close();
             dataset.close();
             get_hdf5<int> ( tmp.data(), file, field );
-          } catch(H5::Exception& e) {
+          } catch(H5::Exception&) {
           };
           
           field = *id + std::string("/NumOrbitals");
@@ -163,7 +166,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
           tmp.clear();
         }
     }
-    catch(H5::Exception& e) {
+    catch(H5::Exception&) {
       // Do nothing
     }
     delete file;
@@ -341,7 +344,7 @@ Eigen::Array<T,-1,-1> Hamiltonian<T,D>::fetch_type1(){
     // The reason for this to be a separate function is that I might want to recycle it
 
     Eigen::Array<T, -1,-1> vec;
-    vec = Eigen::Array<T, -1, -1>::Zero(r.Sized,1); // with ghosts
+    vec = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(r.Sized,1); // with ghosts
 
     Coordinates<std::size_t, D+1> coord_Lt(r.Lt); // total (without ghosts)
     Coordinates<std::size_t, D+1> coord_ld(r.ld); // domain without ghosts
@@ -426,7 +429,7 @@ herr_t getMembers(hid_t loc_id, const char *name, void *opdata)
     grp.openGroup(group);
     v->push_back(group);
   }
-  catch(H5::Exception& e) {
+  catch(H5::Exception&) {
     // Don't do anything
   }
   return 0;

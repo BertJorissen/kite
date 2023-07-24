@@ -76,8 +76,8 @@ void system_info<T, DIM>::read(){
   get_hdf5(orbital_positions.data(), &file, (char*)"OrbPositions");
 
 	
-  Eigen::Array<int, -1, -1> divisions;
-  divisions = Eigen::Array<int, -1, -1>::Zero(dim, 1);
+  Eigen::Array<int, Eigen::Dynamic, Eigen::Dynamic> divisions;
+  divisions = Eigen::Array<int, Eigen::Dynamic, Eigen::Dynamic>::Zero(dim, 1);
 
   get_hdf5(divisions.data(), &file, (char*)"Divisions");
   NumThreads = 1;

@@ -47,12 +47,12 @@ class conductivity_dc{
     T minEnergy;
     T maxEnergy;
     bool default_energy_limits;
-    Eigen::Matrix<T, -1, 1> energies;
+    Eigen::Matrix<T, Eigen::Dynamic, 1> energies;
 
     int NFermiEnergies;
     double minFermiEnergy;
     double maxFermiEnergy;
-    Eigen::Matrix<T, -1, 1> fermiEnergies;
+    Eigen::Matrix<T, Eigen::Dynamic, 1> fermiEnergies;
     bool default_NFermi;
     bool default_mFermi;
     bool default_MFermi;
@@ -64,9 +64,9 @@ class conductivity_dc{
     shell_input variables;
 
     // Objects required to successfully calculate the conductivity
-    //Eigen::Array<std::complex<T>, -1, -1, Eigen::RowMajor> Gamma;
-    Eigen::Array<std::complex<T>, -1, -1> Gamma;
-    Eigen::Array<std::complex<T>, -1, -1> Gamma_Padded;
+    //Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Gamma;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Gamma;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Gamma_Padded;
 
 
 
@@ -81,16 +81,14 @@ class conductivity_dc{
     void calculate();
     void calculate2();
     void calculate_imag();
-    Eigen::Matrix<std::complex<T>, -1, -1, Eigen::ColMajor> fill_delta();
-    Eigen::Matrix<std::complex<T>, -1, -1, Eigen::RowMajor> fill_dgreenR();
-    Eigen::Matrix<std::complex<T>, -1, -1> triple_product(
-      Eigen::Matrix<std::complex<T>, -1, -1, Eigen::ColMajor>,
-      Eigen::Matrix<std::complex<T>, -1, -1, Eigen::RowMajor>);
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> fill_delta();
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> fill_dgreenR();
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> triple_product(
+      Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>,
+      Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>);
 
-    Eigen::Matrix<std::complex<T>, -1, 1> calc_cond(
-        Eigen::Matrix<std::complex<T>, -1, -1>);
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> calc_cond(
+        Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>);
 
-    void save_to_file(Eigen::Matrix<std::complex<T>, -1, -1>);
-
-
+    void save_to_file(Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>);
 };

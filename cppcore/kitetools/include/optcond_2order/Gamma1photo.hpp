@@ -6,7 +6,7 @@
 /***********************************************************/
 
 template <typename U, unsigned DIM>
-Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma1contractAandR(){
+Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonlinear<U, DIM>::Gamma1contractAandR(){
   int NumMoments1 = NumMoments; U beta1 = beta; U e_fermi1 = e_fermi;
   std::function<U(int, U)> deltaF = [beta1, e_fermi1, NumMoments1](int n, U energy)->U{
     return delta(n, energy)*U(1.0/(1.0 + U(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<U>(n, NumMoments1);
@@ -15,15 +15,15 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma1con
 
   // Delta matrix of chebyshev moments and energies
   Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaMatrix;
-  DeltaMatrix = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N_energies, NumMoments);
+  DeltaMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, NumMoments);
   for(int n = 0; n < NumMoments; n++)
     for(int e = 0; e < N_energies; e++)
       DeltaMatrix(e,n) = deltaF(n, energies(e)); 
   
-  Eigen::Matrix<std::complex<U>, -1, -1> cond; 
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> cond;
   
-  //cond = Eigen::Matrix<std::complex<U>, -1, 1>::Zero(N_omegas, 1);
-  cond = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
+  //cond = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, 1>::Zero(N_omegas, 1);
+  cond = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
   int N_threads;
   int thread_num;
   int local_NumMoments;
@@ -51,16 +51,16 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma1con
     
     // The Gamma matrix has been divided among the threads
     // Each thread has one section of that matrix, called local_Gamma
-    Eigen::Matrix<std::complex<U>, -1, -1> local_Gamma;
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> local_Gamma;
     local_Gamma = Gamma1.matrix().block(0, local_NumMoments*thread_num, 
         NumMoments, local_NumMoments);
     
     // Result of contracting the indices with the delta function
-    Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> GammaEM;
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> GammaEM;
     GammaEM = DeltaMatrix*local_Gamma;
 
-    Eigen::Matrix<std::complex<U>, -1, -1> local_cond; 
-    local_cond = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> local_cond;
+    local_cond = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
     
     // Loop over the frequencies
     

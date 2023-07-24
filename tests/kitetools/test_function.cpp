@@ -6,11 +6,11 @@
 
 int main(){
     unsigned N = 7;
-    Eigen::Matrix<double, -1, 1> xs;
-    Eigen::Matrix<std::complex<double>, -1, 1> ys;
+    Eigen::Matrix<double, Eigen::Dynamic, 1> xs;
+    Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1> ys;
 
-    xs = Eigen::Matrix<double, -1, 1>::LinSpaced(N,0,1);
-    ys = Eigen::Matrix<std::complex<double>, -1, 1>::Zero(N);
+    xs = Eigen::Matrix<double, Eigen::Dynamic, 1>::LinSpaced(N,0,1);
+    ys = Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1>::Zero(N);
 
     for(unsigned i = 0; i < N; i++){
         ys(i) = xs(i)*xs(i)*xs(i)*xs(i);

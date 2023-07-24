@@ -49,7 +49,7 @@ void Simulation<T, DIM>::calc_wavepacket(){
         int dummy_var;
         get_hdf5<int>(&dummy_var, file, (char *) "/Calculation/gaussian_wave_packet/NumDisorder");
         Global.calculate_wavepacket = 1;
-      } catch(H5::Exception& e) {debug_message("Wavepacket: no need to calculate.\n");}
+      } catch(H5::Exception&) {debug_message("Wavepacket: no need to calculate.\n");}
         file->close();  
         delete file;
     }
@@ -89,8 +89,8 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
   Eigen::Map<Eigen::Matrix<T,-1,-1>> vtmp1(phi.v.data()    , r.Sized  , 1);
   float timestep;
   double width;
-  Eigen::Array<T, -1, -1> avg_results;
-  Eigen::Array<T, -1, -1> results(2*D, 1);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> avg_results;
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> results(2*D, 1);
   H5::DataSet * dataset;
   H5::DataSpace * dataspace;
   hsize_t dim[2];
@@ -259,5 +259,3 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
 #endif
 }
 
-#define instantiate(type,dim) template class Simulation<type,dim>;
-#include "tools/instantiate.hpp"

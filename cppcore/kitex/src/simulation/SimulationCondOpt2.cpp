@@ -44,7 +44,7 @@ void Simulation<T,D>::calc_condopt2(){
     int dummy_variable;
     get_hdf5<int>(&dummy_variable,  file, (char *)   "/Calculation/conductivity_optical_nonlinear/NumMoments");
     Global.calculate_condopt2 = true;
-  } catch(H5::Exception& e) {debug_message("Condopt2: no need to calculate Condopt2.\n");}
+  } catch(H5::Exception&) {debug_message("Condopt2: no need to calculate Condopt2.\n");}
   file->close();
   delete file;
 }
@@ -106,24 +106,3 @@ void Simulation<T,D>::CondOpt2(int NMoments, int NRandom, int NDisorder, int dir
 }
 
 
-
-template class Simulation<float ,1u>;
-template class Simulation<double ,1u>;
-template class Simulation<long double ,1u>;
-template class Simulation<std::complex<float> ,1u>;
-template class Simulation<std::complex<double> ,1u>;
-template class Simulation<std::complex<long double> ,1u>;
-
-template class Simulation<float ,3u>;
-template class Simulation<double ,3u>;
-template class Simulation<long double ,3u>;
-template class Simulation<std::complex<float> ,3u>;
-template class Simulation<std::complex<double> ,3u>;
-template class Simulation<std::complex<long double> ,3u>;
-
-template class Simulation<float ,2u>;
-template class Simulation<double ,2u>;
-template class Simulation<long double ,2u>;
-template class Simulation<std::complex<float> ,2u>;
-template class Simulation<std::complex<double> ,2u>;
-template class Simulation<std::complex<long double> ,2u>;

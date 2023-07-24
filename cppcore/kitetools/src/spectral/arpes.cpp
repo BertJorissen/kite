@@ -23,6 +23,10 @@
 
 #include "tools/functions.hpp"
 #include "macros.hpp"
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 template <typename T, unsigned DIM>
 arpes<T, DIM>::arpes(system_info<T, DIM>& sysinfo, shell_input & vari){
@@ -91,7 +95,7 @@ bool arpes<T, DIM>::is_required(){
         H5::Exception::dontPrint();
         get_hdf5(&NumMoments, &file, (char*)(dirName+"NumMoments").c_str());									
         result = true;
-    } catch(H5::Exception& e){}
+    } catch(H5::Exception&){}
   
 
     file.close();
@@ -105,7 +109,7 @@ void arpes<T, DIM>::override_parameters(){
   double scale = systemInfo->energy_scale;
   double shift = systemInfo->energy_shift;
 
-    if(variables.ARPES_Name != ""){
+    if(!variables.ARPES_Name.empty()){
         filename          = variables.ARPES_Name;
         default_filename  = false;
     }
@@ -140,7 +144,7 @@ void arpes<T, DIM>::override_parameters(){
         default_energies  = false;
     }
     if(variables.ARPES_NumEnergies != -1){
-        NumEnergies      = variables.ARPES_NumEnergies;
+        NumEnergies      = static_cast<int>(variables.ARPES_NumEnergies);
         default_energies = false;
     }
     if(variables.ARPES_NumMoments != -1){
@@ -148,7 +152,7 @@ void arpes<T, DIM>::override_parameters(){
         default_NumMoments = false;
     }
 
-    if(variables.ARPES_kernel != ""){
+    if(!variables.ARPES_kernel.empty()){
         kernel         = variables.ARPES_kernel;
         default_kernel = false;
     }
@@ -159,10 +163,10 @@ void arpes<T, DIM>::override_parameters(){
       }
     }
 
-    if(default_energies == false)
-      energies = Eigen::Matrix<float, -1, 1>::LinSpaced(NumEnergies, Emin, Emax);
+    if(!default_energies)
+      energies = Eigen::Matrix<float, Eigen::Dynamic, 1>::LinSpaced(NumEnergies, Emin, Emax);
 
-    if(variables.ARPES_calculate_full_arpes == false){
+    if(!variables.ARPES_calculate_full_arpes){
       calculate_full_arpes = false;
     }
 
@@ -189,7 +193,7 @@ void arpes<T, DIM>::set_default_parameters(){
   Emax              = 1.0;
   NumEnergies       = 1000;
   default_energies  = true;
-  energies = Eigen::Matrix<float, -1, 1>::LinSpaced(NumEnergies, Emin, Emax);
+  energies = Eigen::Matrix<float, Eigen::Dynamic, 1>::LinSpaced(NumEnergies, Emin, Emax);
 
   // default temperature
   temperature       = 0.1/scale;
@@ -201,7 +205,7 @@ void arpes<T, DIM>::set_default_parameters(){
   default_fermi     = true;
 
   // default momentum of the incident wave
-  incident_vector = Eigen::Array<double, -1, -1>::Zero(DIM, 1);
+  incident_vector = Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(DIM, 1);
   if(DIM == 2) incident_vector << 1.0, 0.0; 
   if(DIM == 3) incident_vector << 1.0, 0.0, 0.0; 
   default_incident  = true;
@@ -243,12 +247,12 @@ bool arpes<T, DIM>::fetch_parameters(){
   dataspace -> getSimpleExtentDims(dim, NULL);
   dataspace->close(); delete dataspace;
   dataset->close();   delete dataset;
-  NumVectors = dim[0];
+  NumVectors = static_cast<unsigned>(dim[0]);
 
   
-  arpes_k_vectors = Eigen::Matrix<double, -1, -1>::Zero(DIM,NumVectors);
+  arpes_k_vectors = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(DIM,NumVectors);
   //std::cout << "Energies: " << Emin << " " << Emax << "\n";
-  energies = Eigen::Matrix<float, -1, 1>::LinSpaced(NumEnergies, Emin, Emax);
+  energies = Eigen::Matrix<float, Eigen::Dynamic, 1>::LinSpaced(NumEnergies, Emin, Emax);
 
   
    //Fetch the momentum vectors from the hdf file
@@ -277,7 +281,7 @@ bool arpes<T, DIM>::fetch_parameters(){
     }				
 
     result = true;
-  } catch(H5::Exception& e) {debug_message("ARPES: There is no kMU matrix.\n");}
+  } catch(H5::Exception&) {debug_message("ARPES: There is no kMU matrix.\n");}
 
   file.close();
   debug_message("Left ARPES::fetch_parameters.\n");
@@ -285,13 +289,13 @@ bool arpes<T, DIM>::fetch_parameters(){
   return result;
 }
 
-template <typename U, unsigned DIM>
-void arpes<U, DIM>::calculate(){
+template <typename T, unsigned DIM>
+void arpes<T, DIM>::calculate(){
   debug_message("Entered arpes::calculate\n");
     
 
-  Eigen::Matrix<std::complex<U>, -1, -1> ARPES = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(NumEnergies, NumVectors);
-  Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> OrderedMU;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> ARPES = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, NumVectors);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> OrderedMU;
   OrderedMU = kMU;
 
   
@@ -302,7 +306,7 @@ void arpes<U, DIM>::calculate(){
   int localN = NumMoments/systemInfo->NumThreads;
   int thread_id = omp_get_thread_num();
   long offset = thread_id*localN*NumVectors;
-  Eigen::Map<Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>> localkMU(OrderedMU.data() + offset, localN, NumVectors);
+  Eigen::Map<Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> localkMU(OrderedMU.data() + offset, localN, NumVectors);
 
     
 
@@ -310,39 +314,39 @@ void arpes<U, DIM>::calculate(){
     
 
   // Calculate the part that depends on the energies
-  Eigen::Matrix<std::complex<U>, -1, -1> GammaE;
-  GammaE = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(NumEnergies, localN);
-  U factor, kern, ferm, del;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaE;
+  GammaE = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, localN);
+  T factor, kern, ferm, del;
   if(kernel =="jackson"){
       for(int m = 0; m < localN; m++){
-        factor = 1.0/(1.0 + U((m + thread_id*localN)==0));
-        kern   = kernel_jackson<U>(m + thread_id*localN, NumMoments)*factor;
+        factor = static_cast<T>(1.0/(1.0 + static_cast<T>((m + thread_id*localN)==0)));
+        kern   = kernel_jackson<T>(m + thread_id*localN, NumMoments)*factor;
         for(int i = 0; i < NumEnergies; i++){
           
           ferm = 1.0;
           if(calculate_full_arpes){
-            ferm      = fermi_function(energies(i) - freq, fermi, beta);
+            ferm      = static_cast<T>(fermi_function(energies(i) - freq, fermi, beta));
           }
 
-          del         = delta(m + thread_id*localN, energies(i) - freq);
+          del         = static_cast<T>(delta(m + thread_id*localN, energies(i) - freq));
           GammaE(i,m) = del*ferm*kern; 
         }
       }
   }
 
   if(kernel == "green"){
-      std::complex<U> c_energy;
+      std::complex<T> c_energy;
       for(int m = 0; m < localN; m++){
-        factor = 1.0/(1.0 + U((m + thread_id*localN)==0));
+        factor = static_cast<T>(1.0/(1.0 + static_cast<T>((m + thread_id*localN)==0)));
         for(int i = 0; i < NumEnergies; i++){
 
           ferm = 1.0;
           if(calculate_full_arpes){
-            ferm      = fermi_function(energies(i) - freq, fermi, beta);
+            ferm      = static_cast<T>(fermi_function(energies(i) - freq, fermi, beta));
           }
 
-          c_energy    = std::complex<U>(energies(i) - freq, kernel_parameter);
-          del         = -green<std::complex<U>>(m + thread_id*localN, 1, c_energy).imag()/M_PI;
+          c_energy    = std::complex<T>(static_cast<T>(energies(i) - freq), static_cast<T>(kernel_parameter));
+          del         = static_cast<T>(-green<std::complex<T>>(m + thread_id*localN, 1, c_energy).imag()/M_PI);
           GammaE(i,m) = del*factor;
         }
       }
@@ -354,10 +358,10 @@ void arpes<U, DIM>::calculate(){
 
   // Save the density of states to a file
   double scale = systemInfo->energy_scale;
-  float shift = systemInfo->energy_shift;
+  float shift = static_cast<float>(systemInfo->energy_shift);
 
   // Generate a vector which which to shift the values of the energies
-  Eigen::Matrix<float, -1, -1> shifts = Eigen::Matrix<float, -1, -1>::Zero(NumEnergies, 1);
+  Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> shifts = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, 1);
   for(int ii = 0; ii < NumEnergies; ii++){
     shifts(ii) = shift;
   }
@@ -365,17 +369,17 @@ void arpes<U, DIM>::calculate(){
 
   if(calculate_full_arpes){
 
-    Eigen::Matrix<double, -1, -1> incidents = Eigen::Matrix<double, -1, -1>::Zero(DIM, NumVectors);
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> incidents = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(DIM, NumVectors);
     for(unsigned ii = 0; ii < NumVectors; ii++){
       incidents.col(ii) = incident_vector;
     }
 
-    Eigen::Matrix<double, -1, -1> modulation = Eigen::Matrix<double, -1, -1>::Zero(1, NumVectors);
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> modulation = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(1, NumVectors);
     modulation = incident_vector.matrix().transpose()*(incidents + arpes_k_vectors.matrix())/incident_vector.matrix().norm();
 
 
     for(unsigned ii = 0; ii < NumVectors; ii++){
-      ARPES.col(ii) *= modulation(ii)*modulation(ii);
+      ARPES.col(ii) *= static_cast<T>(modulation(ii)*modulation(ii));
     }
   }
 

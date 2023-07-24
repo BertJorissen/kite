@@ -35,12 +35,12 @@ class dos{
 
         bool default_NEnergies;
         int NEnergies;
-        Eigen::Matrix<T, -1, 1> energies;
+        Eigen::Matrix<T, Eigen::Dynamic, 1> energies;
 
 
-        Eigen::Array<std::complex<T>, -1, -1> MU;   // Objects required to successfully calculate the conductivity
+        Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> MU;   // Objects required to successfully calculate the conductivity
 
-        Eigen::Array<std::complex<T>, -1, -1> GammaE;
+        Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaE;
         bool dos_finished;
 
         dos(system_info<T, DIM>&, shell_input &);

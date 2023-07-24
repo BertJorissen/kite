@@ -13,7 +13,10 @@
 #include "tools/myHDF5.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
-
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 template <unsigned D>
 LatticeStructure<D>::LatticeStructure(char *name )
 {
@@ -37,7 +40,7 @@ LatticeStructure<D>::LatticeStructure(char *name )
       H5::Exception::dontPrint();
       get_hdf5<int>(&MagneticField, file, (char *) "/Hamiltonian/MagneticFieldMul");
     }
-    catch (H5::Exception& e){}
+    catch (H5::Exception&){}
     file->close();
   }
 
@@ -45,8 +48,8 @@ LatticeStructure<D>::LatticeStructure(char *name )
   // The vector potential always changes in the direction of the slow coordinate
   // which is 1 in 2D and 2 in 3D
   ghost_pot.setZero();
-  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 /Lt[1]*M_PI;
-  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 /Lt[2]*M_PI;
+  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 / Lt[1] * M_PI;
+  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 / Lt[2] * M_PI;
 
 
   test_divisibility();
@@ -252,11 +255,11 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
   // 0 is in the ghosts
   // 1 isn't in the ghosts
   
-  bool teste = 1;
+  bool teste = true;
   
-  for(int j = 0; j < int(D); j++)
+  for(int j = 0; j < static_cast<int>(D); j++)
     if(teste && (Latt.coord[j] < NGHOSTS || Latt.coord[j] >= std::ptrdiff_t(Ld[j] - NGHOSTS)) )
-      teste = 0;                                        // node is in the ghosts!
+      teste = false;                                        // node is in the ghosts!
     else  if(Latt.coord[j] < 0 || Latt.coord[j] > std::ptrdiff_t(Ld[j] - 1))
       {
         //std::cout << "Big Mistake" << std::endl;

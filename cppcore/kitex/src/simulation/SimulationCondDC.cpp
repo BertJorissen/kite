@@ -43,7 +43,7 @@ void Simulation<T,D>::calc_conddc(){
     int dummy_variable;
     get_hdf5<int>(&dummy_variable,  file, (char *)   "/Calculation/conductivity_dc/NumMoments");
     Global.calculate_conddc = true;
-  } catch(H5::Exception& e) {debug_message("CondDC: no need to calculate CondDC.\n");}
+  } catch(H5::Exception&) {debug_message("CondDC: no need to calculate CondDC.\n");}
   file->close();
   delete file;
 }
@@ -87,23 +87,3 @@ void Simulation<T,D>::CondDC(int NMoments, int NRandom, int NDisorder, int direc
 
 
 
-template class Simulation<float ,1u>;
-template class Simulation<double ,1u>;
-template class Simulation<long double ,1u>;
-template class Simulation<std::complex<float> ,1u>;
-template class Simulation<std::complex<double> ,1u>;
-template class Simulation<std::complex<long double> ,1u>;
-
-template class Simulation<float ,3u>;
-template class Simulation<double ,3u>;
-template class Simulation<long double ,3u>;
-template class Simulation<std::complex<float> ,3u>;
-template class Simulation<std::complex<double> ,3u>;
-template class Simulation<std::complex<long double> ,3u>;
-
-template class Simulation<float ,2u>;
-template class Simulation<double ,2u>;
-template class Simulation<long double ,2u>;
-template class Simulation<std::complex<float> ,2u>;
-template class Simulation<std::complex<double> ,2u>;
-template class Simulation<std::complex<long double> ,2u>;

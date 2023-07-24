@@ -56,7 +56,7 @@ endfunction()
 function(download_dependency NAME VERSION URL_FMT FIRST_FILE_FMT)
     set(dir "${CMAKE_CURRENT_SOURCE_DIR}/deps/${NAME}")
 
-    set(version_file "${dir}/_pybinding_dependency_version")
+    set(version_file "${dir}/_quantum_kite_dependency_version")
     if(EXISTS ${version_file})
         file(READ ${version_file} cached_version)
     endif()
