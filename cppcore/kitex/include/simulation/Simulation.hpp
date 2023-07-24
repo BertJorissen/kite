@@ -7,7 +7,7 @@
 
 
 
-template <typename T> using ema = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic, 0, -1, -1>;
+template <typename T> using ema = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>;
 
 template <typename T,unsigned D>
 class Simulation : public ComplexTraits<T> {

@@ -60,11 +60,11 @@ void system_info<T, DIM>::read(){
 
 	file = H5::H5File(filename, H5F_ACC_RDONLY);
 	dim = DIM;										// two-dimensional or three-dimensional
-	size = Eigen::Array<int,1,-1>::Zero(1,dim);		// size of the sample
+	size = Eigen::Array<int,1,Eigen::Dynamic>::Zero(1,dim);		// size of the sample
 	get_hdf5(size.data(), &file, (char*)"L");
 	get_hdf5(&isComplex, &file, (char*)"IS_COMPLEX"); // is the Hamiltonian a complex matrix?
 	
-	vectors = Eigen::Array<double,-1,-1>::Zero(dim,dim);	// Basis of primitive vectors that generate the lattice
+	vectors = Eigen::Array<double,Eigen::Dynamic,Eigen::Dynamic>::Zero(dim,dim);	// Basis of primitive vectors that generate the lattice
 	get_hdf5(vectors.data(), &file, (char*)"LattVectors");
 	unit_cell_area = fabs(vectors.matrix().determinant());	// Use the basis vectors to determine the area of the unit cell
 	
@@ -72,7 +72,7 @@ void system_info<T, DIM>::read(){
   get_hdf5(&energy_scale, &file, (char*)"EnergyScale");								// energy scale
   get_hdf5(&energy_shift, &file, (char*)"EnergyShift");								// energy shift
   get_hdf5(&num_orbitals, &file, (char*)"NOrbitals");									// number of orbitals in each unit cell	
-  orbital_positions = Eigen::Array<double,-1,-1>::Zero(num_orbitals, dim);	// position of each of those orbitals
+  orbital_positions = Eigen::Array<double,Eigen::Dynamic,Eigen::Dynamic>::Zero(num_orbitals, dim);	// position of each of those orbitals
   get_hdf5(orbital_positions.data(), &file, (char*)"OrbPositions");
 
 	

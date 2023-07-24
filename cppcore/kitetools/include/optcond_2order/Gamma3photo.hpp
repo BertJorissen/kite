@@ -43,8 +43,8 @@ Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonl
 
 
   for(int block = 0; block < N_blocks; block ++){
-    Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaGreenRMatrix;
-    Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaGreenAMatrix;
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> DeltaGreenRMatrix;
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> DeltaGreenAMatrix;
     DeltaGreenRMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
     DeltaGreenAMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
     for(int n = 0; n < N0; n++)
@@ -187,7 +187,7 @@ Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonl
           Gamma3Aligned((p-i*local_NumMoments)*N0 + n, m) = Gamma3(N0*N1*p + N0*m + n);
       
     // Delta matrix of chebyshev moments and energies
-    Eigen::Matrix<std::complex<U>,-1, -1> DeltaMatrix;
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic> DeltaMatrix;
     
     DeltaMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>::Zero(N1, N_energies);
     for(int n = 0; n < NumMoments; n++)

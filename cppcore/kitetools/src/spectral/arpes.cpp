@@ -267,13 +267,13 @@ bool arpes<T, DIM>::fetch_parameters(){
   std::string MatrixName = dirName + "kMU";
   try{
     debug_message("Filling the kMU matrix.\n");
-    kMU = Eigen::Matrix<std::complex<T>,-1,-1>::Zero(NumMoments, NumVectors);
+    kMU = Eigen::Matrix<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumVectors);
     
     if(complex)
       get_hdf5(kMU.data(), &file, (char*)MatrixName.c_str());
     if(!complex){
-      Eigen::Matrix<T,-1,-1> kMUReal; 
-      kMUReal = Eigen::Matrix<T,-1,-1>::Zero(NumMoments, NumVectors); 
+      Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> kMUReal;
+      kMUReal = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumVectors);
       get_hdf5(kMUReal.data(), &file, (char*)MatrixName.c_str()); 
 
       

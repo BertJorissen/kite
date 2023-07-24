@@ -91,46 +91,6 @@ void Simulation<T,D>::CondOpt(int NMoments, int NRandom, int NDisorder, int dire
 
 
 
-template void Simulation<float ,1u>::calc_condopt();
-template void Simulation<double ,1u>::calc_condopt();
-template void Simulation<long double ,1u>::calc_condopt();
-template void Simulation<std::complex<float> ,1u>::calc_condopt();
-template void Simulation<std::complex<double> ,1u>::calc_condopt();
-template void Simulation<std::complex<long double> ,1u>::calc_condopt();
-
-template void Simulation<float ,3u>::calc_condopt();
-template void Simulation<double ,3u>::calc_condopt();
-template void Simulation<long double ,3u>::calc_condopt();
-template void Simulation<std::complex<float> ,3u>::calc_condopt();
-template void Simulation<std::complex<double> ,3u>::calc_condopt();
-template void Simulation<std::complex<long double> ,3u>::calc_condopt();
-
-template void Simulation<float ,2u>::calc_condopt();
-template void Simulation<double ,2u>::calc_condopt();
-template void Simulation<long double ,2u>::calc_condopt();
-template void Simulation<std::complex<float> ,2u>::calc_condopt();
-template void Simulation<std::complex<double> ,2u>::calc_condopt();
-template void Simulation<std::complex<long double> ,2u>::calc_condopt();
-
-
-
-template void Simulation<float ,1u>::CondOpt(int, int, int, int);
-template void Simulation<double ,1u>::CondOpt(int, int, int, int);
-template void Simulation<long double ,1u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<float> ,1u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<double> ,1u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<long double> ,1u>::CondOpt(int, int, int, int);
-
-template void Simulation<float ,3u>::CondOpt(int, int, int, int);
-template void Simulation<double ,3u>::CondOpt(int, int, int, int);
-template void Simulation<long double ,3u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<float> ,3u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<double> ,3u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<long double> ,3u>::CondOpt(int, int, int, int);
-
-template void Simulation<float ,2u>::CondOpt(int, int, int, int);
-template void Simulation<double ,2u>::CondOpt(int, int, int, int);
-template void Simulation<long double ,2u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<float> ,2u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<double> ,2u>::CondOpt(int, int, int, int);
-template void Simulation<std::complex<long double> ,2u>::CondOpt(int, int, int, int);
+#define instantiate(type, dim)  template void Simulation<type,dim>::calc_condopt(); \
+  template void Simulation<type,dim>::CondOpt(int, int, int, int);
+#include "tools/instantiate.hpp"

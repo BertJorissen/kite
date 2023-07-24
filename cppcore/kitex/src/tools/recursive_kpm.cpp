@@ -194,7 +194,7 @@
   //KPM_Vector<T,D> *kpm1 = kpm_vector.at(1);
 			
   //// Make sure the local gamma matrix is zeroed
-  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
 
   //long average = 0;
   //for(int disorder = 0; disorder < NDisorder; disorder++){
@@ -266,7 +266,7 @@
   //KPM_Vector<T,D> *kpm1 = kpm_vector.at(1);
 			
   //// Make sure the local gamma matrix is zeroed
-  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
 
   //long average = 0;
   //for(int disorder = 0; disorder < NDisorder; disorder++){

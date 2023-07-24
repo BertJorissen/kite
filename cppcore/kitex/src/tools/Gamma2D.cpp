@@ -72,7 +72,7 @@ void Simulation<T,D>::Gamma2D(int NRandomV, int NDisorder, std::vector<int> N_mo
     size_gamma *= N_moments.at(i);
   }
 
-  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
  
   // finished initializations
 
@@ -173,9 +173,9 @@ void Simulation<T,D>::store_gamma(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic
 		
   switch(dim){
   case 2: {
-    Eigen::Array<T,-1,-1> general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), N_moments.at(0), N_moments.at(1));
+    Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), N_moments.at(0), N_moments.at(1));
 #pragma omp master
-    Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(N_moments.at(0), N_moments.at(1));
+    Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(N_moments.at(0), N_moments.at(1));
 #pragma omp barrier
 #pragma omp critical
     Global.general_gamma.matrix() += (general_gamma.matrix() + factor*general_gamma.matrix().adjoint())/2.0;
@@ -183,9 +183,9 @@ void Simulation<T,D>::store_gamma(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic
     break;
   }
   case 1: {
-    Eigen::Array<T,-1,-1> general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), 1, size_gamma);
+    Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), 1, size_gamma);
 #pragma omp master
-    Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(1, size_gamma);
+    Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(1, size_gamma);
 #pragma omp barrier
 #pragma omp critical
     Global.general_gamma += general_gamma;

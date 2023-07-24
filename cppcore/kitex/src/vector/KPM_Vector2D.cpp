@@ -270,7 +270,7 @@ void KPM_Vector <T, 2>::build_site(unsigned long pos){
 }
 
 template <typename T>
-void KPM_Vector <T, 2>::build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::Matrix<T,-1,1> & weight){
+void KPM_Vector <T, 2>::build_planewave(Eigen::Matrix<double,Eigen::Dynamic,1> & k, Eigen::Matrix<T,Eigen::Dynamic,1> & weight){
     // Builds an initial vector which is a plane wave with a specific value of k
     // weight is the weight of each orbital for this plane wave 
     // |k> = sum_{r,R} w(R) exp(i k.r + i k.R) |r,R>
@@ -318,15 +318,15 @@ void KPM_Vector <T, 2>::build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::M
 
 
 template <typename T>
-void KPM_Vector <T, 2>::build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen::Matrix<T,-1,-1> & psi0, double & sigma,
+void KPM_Vector <T, 2>::build_wave_packet(Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> & k, Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> & psi0, double & sigma,
                                           Eigen::Matrix<double, 1, 2> & vb)
 {
   index = 0;
   Coordinates<std::size_t, 3> x(r.Ld), z(r.Lt);
-  Eigen::Matrix<T,-1,-1>  sum(r.Orb, 1);
+  Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>  sum(r.Orb, 1);
   Eigen::Map<Eigen::Matrix<std::size_t,2, 1>> vv(z.coord);
   Eigen::Matrix<double, 1, 2> va;
-  Eigen::Matrix<double, -1,-1> phase(1, psi0.cols());
+  Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic> phase(1, psi0.cols());
   T soma = assign_value(0,0);
   auto bbs = r.rLat.inverse(); // each row is a bi / 2*M_PI 
   auto vOrb = bbs * r.rOrb;    // each columns is a vector in a1 basis
@@ -337,7 +337,7 @@ void KPM_Vector <T, 2>::build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen
     
 #pragma omp master 
   {
-    simul.Global.mu = Eigen::Matrix<T,-1,-1>(psi0.cols(), 1);      
+    simul.Global.mu = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>(psi0.cols(), 1);
     for(int ik = 0; ik < psi0.cols(); ik++)
       simul.Global.mu(ik, 0) = assign_value( simul.rnd.get(), 0 );
   }

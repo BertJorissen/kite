@@ -34,14 +34,14 @@ int conductivity_nonlinear<T, DIM>::fetch_gamma0(){
   std::string MatrixName = dirName + "Gamma0" + dirString;
   try{
     debug_message("Filling the Gamma0 matrix.\n");
-    Gamma0 = Eigen::Array<std::complex<T>,-1,-1>::Zero(1, NumMoments);
+    Gamma0 = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, NumMoments);
       
     if(complex)
       get_hdf5(Gamma0.data(), &file, (char*)MatrixName.c_str());
       
     if(!complex){
-      Eigen::Array<T,-1,-1> Gamma0Real;
-      Gamma0Real = Eigen::Array<T,-1,-1>::Zero(1, NumMoments);
+      Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Gamma0Real;
+      Gamma0Real = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, NumMoments);
       get_hdf5(Gamma0Real.data(), &file, (char*)MatrixName.c_str());
       Gamma0 = Gamma0Real.template cast<std::complex<T>>();
     }				
@@ -64,14 +64,14 @@ int conductivity_nonlinear<T, DIM>::fetch_gamma1(){
   std::string MatrixName = dirName + "Gamma1" + dirString;
   try{
     debug_message("Filling the Gamma1 matrix.\n");
-    Gamma1 = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, NumMoments);
+    Gamma1 = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 
     if(complex)
       get_hdf5(Gamma1.data(), &file, (char*)MatrixName.c_str());
 
     if(!complex){
-      Eigen::Array<T,-1,-1> Gamma1Real;
-      Gamma1Real = Eigen::Array<T,-1,-1>::Zero(NumMoments, NumMoments);
+      Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Gamma1Real;
+      Gamma1Real = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
       get_hdf5(Gamma1Real.data(), &file, (char*)MatrixName.c_str());
       Gamma1 = Gamma1Real.template cast<std::complex<T>>();
     }				
@@ -92,14 +92,14 @@ int conductivity_nonlinear<T, DIM>::fetch_gamma2(){
   std::string MatrixName = dirName + "Gamma2" + dirString;
   try{
     debug_message("Filling the Gamma2 matrix.\n");
-    Gamma2 = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, NumMoments);
+    Gamma2 = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 		
     if(complex)
       get_hdf5(Gamma2.data(), &file, (char*)MatrixName.c_str());
 		
     if(!complex){
-      Eigen::Array<T,-1,-1> Gamma2Real;
-      Gamma2Real = Eigen::Array<T,-1,-1>::Zero(NumMoments, NumMoments);
+      Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Gamma2Real;
+      Gamma2Real = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
       get_hdf5(Gamma2Real.data(), &file, (char*)MatrixName.c_str());
       Gamma2 = Gamma2Real.template cast<std::complex<T>>();
     }				
@@ -122,14 +122,14 @@ int conductivity_nonlinear<T, DIM>::fetch_gamma3(){
   std::string MatrixName = dirName + "Gamma3" + dirString;
   try{
     debug_message("Filling the Gamma3 matrix.\n");
-    Gamma3 = Eigen::Array<std::complex<T>,-1,-1>::Zero(1, NumMoments*NumMoments*NumMoments);
+    Gamma3 = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, NumMoments*NumMoments*NumMoments);
       
     if(complex)
       get_hdf5(Gamma3.data(), &file, (char*)MatrixName.c_str());
      
     if(!complex){
-      Eigen::Array<T,-1,-1> Gamma3Real;
-      Gamma3Real = Eigen::Array<T,-1,-1>::Zero(1, NumMoments*NumMoments*NumMoments);
+      Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Gamma3Real;
+      Gamma3Real = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, NumMoments*NumMoments*NumMoments);
       get_hdf5(Gamma3Real.data(), &file, (char*)MatrixName.c_str());
         
       Gamma3 = Gamma3Real.template cast<std::complex<T>>();
@@ -324,16 +324,16 @@ void conductivity_nonlinear<T, DIM>::calculate_photo(){
   omega_energies3 = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
   omega_energies4 = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
 
-  Eigen::Matrix<std::complex<T>,1,-1> cond;
-  Eigen::Matrix<std::complex<T>,1,-1> cond0, cond1, cond2, cond3, cond4;
+  Eigen::Matrix<std::complex<T>,1,Eigen::Dynamic> cond;
+  Eigen::Matrix<std::complex<T>,1,Eigen::Dynamic> cond0, cond1, cond2, cond3, cond4;
 
-  cond0 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond1 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond2 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond3 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond4 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
+  cond0 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond1 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond2 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond3 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond4 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
 
-  cond     = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
+  cond     = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
 
   // Contraction of the Gamma matrices with the delta functions and Green's functions
   omega_energies0 += Gamma0contract();
@@ -350,11 +350,11 @@ void conductivity_nonlinear<T, DIM>::calculate_photo(){
     freq = frequencies(w);  
 
     // Energy integration
-    cond0(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies0.col(w)));
-    cond1(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies1.col(w)));
-    cond2(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies2.col(w)));
-    cond3(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies3.col(w)));
-    cond4(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies4.col(w)));
+    cond0(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies0.col(w)));
+    cond1(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies1.col(w)));
+    cond2(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies2.col(w)));
+    cond3(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies3.col(w)));
+    cond4(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies4.col(w)));
 
     // Divide by the frequencies
     cond0(w) /= -scat*scat - freq*freq; 
@@ -423,17 +423,17 @@ void conductivity_nonlinear<T, DIM>::calculate_general(){
   omega_energies3shg3 = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
 
 
-  Eigen::Matrix<std::complex<T>,1,-1> cond_shg;
-  Eigen::Matrix<std::complex<T>,1,-1> cond3shg1, cond3shg2, cond3shg3, cond0shg, cond1shg, cond2shg;
+  Eigen::Matrix<std::complex<T>,1,Eigen::Dynamic> cond_shg;
+  Eigen::Matrix<std::complex<T>,1,Eigen::Dynamic> cond3shg1, cond3shg2, cond3shg3, cond0shg, cond1shg, cond2shg;
 
-  cond0shg  = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond1shg  = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond2shg  = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond3shg1 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond3shg2 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
-  cond3shg3 = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
+  cond0shg  = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond1shg  = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond2shg  = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond3shg1 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond3shg2 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
+  cond3shg3 = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
 
-  cond_shg  = Eigen::Matrix<std::complex<T>, 1, -1>::Zero(1, N_omegas);
+  cond_shg  = Eigen::Matrix<std::complex<T>, 1, Eigen::Dynamic>::Zero(1, N_omegas);
 
   // Contraction of the Gamma matrices with the delta functions and Green's functions
 
@@ -455,12 +455,12 @@ void conductivity_nonlinear<T, DIM>::calculate_general(){
     w2 = frequencies2(w,1);
 
     // Energy integration
-    cond3shg1(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies3shg1.col(w)));
-    cond3shg2(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies3shg2.col(w)));
-    cond3shg3(w) = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies3shg3.col(w)));
-    cond2shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies2shg.col(w)));
-    cond1shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies1shg.col(w)));
-    cond0shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,-1,1>(omega_energies0shg.col(w)));
+    cond3shg1(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies3shg1.col(w)));
+    cond3shg2(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies3shg2.col(w)));
+    cond3shg3(w) = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies3shg3.col(w)));
+    cond2shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies2shg.col(w)));
+    cond1shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies1shg.col(w)));
+    cond0shg(w)  = integrate(energies, Eigen::Matrix<std::complex<T>,Eigen::Dynamic,1>(omega_energies0shg.col(w)));
 
     // Divide by the frequencies
     cond3shg1(w) /= (w1 + imaginary*scat)*(w2 + imaginary*scat);
@@ -540,7 +540,7 @@ void conductivity_nonlinear<T, DIM>::calculate(){
 
     energies     = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_energies, -lim, lim);
     frequencies  = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_omegas, minFreq, maxFreq);
-    frequencies2 = Eigen::Matrix<T, -1, 2>::Zero(N_omegas, 2);
+    frequencies2 = Eigen::Matrix<T, Eigen::Dynamic, 2>::Zero(N_omegas, 2);
 
 
   for(int w = 0; w < N_omegas; w++){

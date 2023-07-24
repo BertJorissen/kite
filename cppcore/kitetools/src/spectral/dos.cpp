@@ -189,14 +189,14 @@ bool dos<T, DIM>::fetch_parameters(){
     std::string MatrixName = dirName + "MU";
     try{
 		debug_message("Filling the MU matrix.\n");
-		MU = Eigen::Array<std::complex<T>,-1,-1>::Zero(1, MaxMoments);
+		MU = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, MaxMoments);
 		
 		if(complex)
 			get_hdf5(MU.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> MUReal;
-			MUReal = Eigen::Array<T,-1,-1>::Zero(1, MaxMoments);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> MUReal;
+			MUReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, MaxMoments);
 			get_hdf5(MUReal.data(), &file, (char*)MatrixName.c_str());
 			
 			MU = MUReal.template cast<std::complex<T>>();

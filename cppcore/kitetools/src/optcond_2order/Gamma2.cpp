@@ -24,13 +24,13 @@ Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonl
   };
 
   // Delta matrix of chebyshev moments and energies
-  Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaMatrix;
+  Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> DeltaMatrix;
   DeltaMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, NumMoments);
   for(int n = 0; n < NumMoments; n++)
     for(int e = 0; e < N_energies; e++)
       DeltaMatrix(e,n) = deltaF(n, energies(e)); 
 
-  Eigen::Matrix<std::complex<U>, -1,-1> cond; 
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic,Eigen::Dynamic> cond;
   
   cond = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
   int N_threads;

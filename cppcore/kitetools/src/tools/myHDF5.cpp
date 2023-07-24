@@ -64,7 +64,7 @@ typename std::enable_if<!is_tt<std::complex, T>::value, void>::type get_hdf5(T *
 
 
 template <typename T>
-typename std::enable_if<!is_tt<std::complex, T>::value, void>::type write_hdf5(const Eigen::Array<T, -1, -1 > & mu,
+typename std::enable_if<!is_tt<std::complex, T>::value, void>::type write_hdf5(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu,
                                                                                              H5::H5File *  file,
                                                                                              const std::string  name) {
   hsize_t    dims[2], chunk_dims[2]; // dataset dimensions
@@ -89,7 +89,7 @@ typename std::enable_if<!is_tt<std::complex, T>::value, void>::type write_hdf5(c
 
 
 template <typename T>
-typename std::enable_if<is_tt<std::complex, T>::value, void>::type write_hdf5(const Eigen::Array<T, -1, -1 > & mu,
+typename std::enable_if<is_tt<std::complex, T>::value, void>::type write_hdf5(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu,
 									      H5::H5File * file,
                                                                                         const std::string name) {
   hsize_t    dims[2], chunk_dims[2]; // dataset dimensions
@@ -130,7 +130,7 @@ void instantiateHDF<T>:: get_hdf5A(T * l, H5::H5File * file,  char *name) {
 }
 
 template <typename T> 
-void instantiateHDF<T>:: write_hdf5A(const Eigen::Array<T, -1, -1 > & mu, H5::H5File * file, const std::string name) {
+void instantiateHDF<T>:: write_hdf5A(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu, H5::H5File * file, const std::string name) {
   write_hdf5<T>(mu, file, name);
 }
 

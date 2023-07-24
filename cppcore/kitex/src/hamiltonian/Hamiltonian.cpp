@@ -208,7 +208,7 @@ void Hamiltonian<T,D>::build_Anderson_disorder() {
     
   Anderson_orb_address.resize(r.Orb);
   U_Orbital.resize(r.Orb);
-  Eigen::Array<int,-1,-1> vv = Eigen::Map<Eigen::Array<int,-1,-1>>(orb_num.data(), dim[1], dim[0]);
+  Eigen::Array<int,Eigen::Dynamic,Eigen::Dynamic> vv = Eigen::Map<Eigen::Array<int,Eigen::Dynamic,Eigen::Dynamic>>(orb_num.data(), dim[1], dim[0]);
     
   std::fill_n ( Anderson_orb_address.begin(), r.Orb, -2 );
   std::fill_n ( U_Orbital.begin(), r.Orb,  0 );
@@ -336,14 +336,14 @@ void Hamiltonian<T,D>::generate_custom_local(){
 }
 
 template <typename T, unsigned D>
-Eigen::Array<T,-1,-1> Hamiltonian<T,D>::fetch_type1(){
-//void Hamiltonian<T,D>::fetch_type1(Eigen::Array<T, -1,-1> local){
+Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Hamiltonian<T,D>::fetch_type1(){
+//void Hamiltonian<T,D>::fetch_type1(Eigen::Array<T, Eigen::Dynamic,-1> local){
     // This function could be in LatticeStructure, but that class is not templated
     // with respect to the variable T, so I chose to put it in Hamiltonian
 
     // The reason for this to be a separate function is that I might want to recycle it
 
-    Eigen::Array<T, -1,-1> vec;
+    Eigen::Array<T, Eigen::Dynamic,Eigen::Dynamic> vec;
     vec = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(r.Sized,1); // with ghosts
 
     Coordinates<std::size_t, D+1> coord_Lt(r.Lt); // total (without ghosts)

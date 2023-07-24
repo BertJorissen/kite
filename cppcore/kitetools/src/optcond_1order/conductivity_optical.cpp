@@ -197,14 +197,14 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
   bool possibleGamma = false;
   try{
 		debug_message("Filling the Gamma matrix.\n");
-		Gamma = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, NumMoments);
+		Gamma = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 		
 		if(complex)
 			get_hdf5(Gamma.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> GammaReal;
-			GammaReal = Eigen::Array<T,-1,-1>::Zero(NumMoments, NumMoments);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> GammaReal;
+			GammaReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 			get_hdf5(GammaReal.data(), &file, (char*)MatrixName.c_str());
 			
 			Gamma = GammaReal.template cast<std::complex<T>>();
@@ -222,14 +222,14 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
   bool possibleLambda = false;
   try{
 		debug_message("Filling the Lambda matrix.\n");
-		Lambda = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, 1);
+		Lambda = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, 1);
 		
 		if(complex)
 			get_hdf5(Lambda.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> LambdaReal;
-			LambdaReal = Eigen::Array<T,-1,-1>::Zero(NumMoments, 1);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> LambdaReal;
+			LambdaReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, 1);
 			get_hdf5(LambdaReal.data(), &file, (char*)MatrixName.c_str());
 			
 			Lambda = LambdaReal.template cast<std::complex<T>>();
@@ -633,7 +633,7 @@ void conductivity_optical<T, DIM>::calculate(){
 
 
   // Delta matrix of chebyshev moments and energies
-  Eigen::Matrix<std::complex<T>,-1, -1> DeltaMatrix;
+  Eigen::Matrix<std::complex<T>,Eigen::Dynamic, Eigen::Dynamic> DeltaMatrix;
   DeltaMatrix = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, Moments_D);
   for(int n = 0; n < Moments_D; n++)
     for(int e = 0; e < N_energies; e++)
@@ -674,13 +674,13 @@ void conductivity_optical<T, DIM>::calculate(){
     Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaEM;
     GammaEM = DeltaMatrix*local_Gamma;
 
-    Eigen::Matrix<std::complex<T>,-1, 1> GammaEp;
-    Eigen::Matrix<std::complex<T>,-1, 1> GammaEn;
-    Eigen::Matrix<std::complex<T>,-1, 1> GammaE;
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaEp;
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaEn;
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaE;
     Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> local_cond;
-    GammaEp = Eigen::Matrix<std::complex<T>,-1, 1>::Zero(N_energies, 1);
-    GammaEn = Eigen::Matrix<std::complex<T>,-1, 1>::Zero(N_energies, 1);
-    GammaE  = Eigen::Matrix<std::complex<T>,-1, 1>::Zero(N_energies, 1);
+    GammaEp = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    GammaEn = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    GammaE  = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
     local_cond = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>::Zero(N_omegas, 1);
 
     // Loop over the frequencies

@@ -32,7 +32,7 @@ void Simulation<T,D>::store_MU(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *
     long int nPositions = gamma->cols();
 
 #pragma omp master
-	Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(nMoments, nPositions);
+	Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(nMoments, nPositions);
 #pragma omp barrier
 #pragma omp critical
 	Global.general_gamma += *gamma;
@@ -126,69 +126,7 @@ void Simulation<T,D>::DOS(int NMoments, int NRandom, int NDisorder){
 }
 
 
-
-
-template void Simulation<float ,1u>::store_MU(Eigen::Array<float, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<double ,1u>::store_MU(Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<long double ,1u>::store_MU(Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<float> ,1u>::store_MU(Eigen::Array<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<double> ,1u>::store_MU(Eigen::Array<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<long double> ,1u>::store_MU(Eigen::Array<std::complex<long double>, Eigen::Dynamic, Eigen::Dynamic> *);
-
-template void Simulation<float ,2u>::store_MU(Eigen::Array<float, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<double ,2u>::store_MU(Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<long double ,2u>::store_MU(Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<float> ,2u>::store_MU(Eigen::Array<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<double> ,2u>::store_MU(Eigen::Array<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<long double> ,2u>::store_MU(Eigen::Array<std::complex<long double>, Eigen::Dynamic, Eigen::Dynamic> *);
-
-template void Simulation<float ,3u>::store_MU(Eigen::Array<float, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<double ,3u>::store_MU(Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<long double ,3u>::store_MU(Eigen::Array<long double, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<float> ,3u>::store_MU(Eigen::Array<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<double> ,3u>::store_MU(Eigen::Array<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic> *);
-template void Simulation<std::complex<long double> ,3u>::store_MU(Eigen::Array<std::complex<long double>, Eigen::Dynamic, Eigen::Dynamic> *);
-
-
-template void Simulation<float ,1u>::calc_DOS();
-template void Simulation<double ,1u>::calc_DOS();
-template void Simulation<long double ,1u>::calc_DOS();
-template void Simulation<std::complex<float> ,1u>::calc_DOS();
-template void Simulation<std::complex<double> ,1u>::calc_DOS();
-template void Simulation<std::complex<long double> ,1u>::calc_DOS();
-
-template void Simulation<float ,3u>::calc_DOS();
-template void Simulation<double ,3u>::calc_DOS();
-template void Simulation<long double ,3u>::calc_DOS();
-template void Simulation<std::complex<float> ,3u>::calc_DOS();
-template void Simulation<std::complex<double> ,3u>::calc_DOS();
-template void Simulation<std::complex<long double> ,3u>::calc_DOS();
-
-template void Simulation<float ,2u>::calc_DOS();
-template void Simulation<double ,2u>::calc_DOS();
-template void Simulation<long double ,2u>::calc_DOS();
-template void Simulation<std::complex<float> ,2u>::calc_DOS();
-template void Simulation<std::complex<double> ,2u>::calc_DOS();
-template void Simulation<std::complex<long double> ,2u>::calc_DOS();
-
-
-template void Simulation<float ,1u>::DOS(int, int, int);
-template void Simulation<double ,1u>::DOS(int, int, int);
-template void Simulation<long double ,1u>::DOS(int, int, int);
-template void Simulation<std::complex<float> ,1u>::DOS(int, int, int);
-template void Simulation<std::complex<double> ,1u>::DOS(int, int, int);
-template void Simulation<std::complex<long double> ,1u>::DOS(int, int, int);
-
-template void Simulation<float ,3u>::DOS(int, int, int);
-template void Simulation<double ,3u>::DOS(int, int, int);
-template void Simulation<long double ,3u>::DOS(int, int, int);
-template void Simulation<std::complex<float> ,3u>::DOS(int, int, int);
-template void Simulation<std::complex<double> ,3u>::DOS(int, int, int);
-template void Simulation<std::complex<long double> ,3u>::DOS(int, int, int);
-
-template void Simulation<float ,2u>::DOS(int, int, int);
-template void Simulation<double ,2u>::DOS(int, int, int);
-template void Simulation<long double ,2u>::DOS(int, int, int);
-template void Simulation<std::complex<float> ,2u>::DOS(int, int, int);
-template void Simulation<std::complex<double> ,2u>::DOS(int, int, int);
-template void Simulation<std::complex<long double> ,2u>::DOS(int, int, int);
+#define instantiate(type, dim)  template void Simulation<type,dim>::store_MU(Eigen::Array<type, Eigen::Dynamic, Eigen::Dynamic> *); \
+  template void Simulation<type,dim>::calc_DOS(); \
+  template void Simulation<type,dim>::DOS(int, int, int);
+#include "tools/instantiate.hpp"

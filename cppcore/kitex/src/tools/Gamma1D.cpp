@@ -36,7 +36,7 @@ void Simulation<T,D>::Gamma1D(int NRandomV, int NDisorder, int N_moments,
   KPM_Vector<T,D> kpm1(2, *this);
 		
   // Make sure the local gamma matrix is zeroed
-  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, -1, -1 >::Zero(1, N_moments);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, N_moments);
   Eigen::Matrix<T, 1, 2> tmp =  Eigen::Matrix < T, 1, 2> ::Zero();		
 
   long average = 0;
@@ -91,7 +91,7 @@ void Simulation<T,D>::store_gamma1D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynam
 
   long int size_gamma = static_cast<long int>(gamma->cols());
 #pragma omp master
-  Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(1, size_gamma);
+  Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(1, size_gamma);
 #pragma omp barrier
 #pragma omp critical
   Global.general_gamma += *gamma;
@@ -110,6 +110,6 @@ void Simulation<T,D>::store_gamma1D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynam
   debug_message("Left store_gamma\n");
 }
 
-
-
-
+#define instantiate(type, dim)  template void Simulation<type,dim>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string); \
+  template void Simulation<type,dim>::store_gamma1D(Eigen::Array<type, Eigen::Dynamic, Eigen::Dynamic>* , std::string);
+#include "tools/instantiate.hpp"

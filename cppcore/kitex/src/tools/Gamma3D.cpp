@@ -209,10 +209,10 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynam
   int N0 = N_moments.at(0);
   int N1 = N_moments.at(1);
   int N2 = N_moments.at(2);
-  Eigen::Array<T,-1,-1> general_gamma;
-  general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), N0*N1, N2);
-  Eigen::Array<T,-1,-1> storage_gamma; 
-  storage_gamma = Eigen::Array<T,-1,-1>::Zero(N0*N1, N2);
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma;
+  general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), N0*N1, N2);
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> storage_gamma;
+  storage_gamma = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(N0*N1, N2);
     
   switch(dim){
   case 3:{

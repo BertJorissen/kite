@@ -202,13 +202,13 @@ bool ldos<T, DIM>::fetch_parameters(){
   std::string MatrixName = dirName + "lMU";
   try{
     debug_message("Filling the lMU matrix.\n");
-    lMU = Eigen::Matrix<std::complex<T>,-1,-1>::Zero(MaxMoments, NumPositions);
+    lMU = Eigen::Matrix<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(MaxMoments, NumPositions);
     
     if(complex)
       get_hdf5(lMU.data(), &file, (char*)MatrixName.c_str());
     if(!complex){
-      Eigen::Matrix<T,-1,-1> lMUReal; 
-      lMUReal = Eigen::Matrix<T,-1,-1>::Zero(MaxMoments, NumPositions); 
+      Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> lMUReal;
+      lMUReal = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(MaxMoments, NumPositions);
       get_hdf5(lMUReal.data(), &file, (char*)MatrixName.c_str()); 
       
       lMU = lMUReal.template cast<std::complex<T>>();

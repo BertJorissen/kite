@@ -196,14 +196,14 @@ bool conductivity_dc<T, DIM>::fetch_parameters(){
   bool possible = false;
   try{
     debug_message("Filling the Gamma matrix.\n");
-    Gamma = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, NumMoments);
+    Gamma = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
   
     if(complex)
       get_hdf5(Gamma.data(), &file, (char*)MatrixName.c_str());
     
     if(!complex){
-      Eigen::Array<T,-1,-1> GammaReal;
-      GammaReal = Eigen::Array<T,-1,-1>::Zero(NumMoments, NumMoments);
+      Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> GammaReal;
+      GammaReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
       get_hdf5(GammaReal.data(), &file, (char*)MatrixName.c_str());
       
       Gamma = GammaReal.template cast<std::complex<T>>();
