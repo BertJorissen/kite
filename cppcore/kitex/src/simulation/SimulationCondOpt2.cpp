@@ -79,8 +79,8 @@ if(local_calculate_condopt2){
   }
 
 }
-template <typename T,unsigned D>
 
+template <typename T,unsigned D>
 void Simulation<T,D>::CondOpt2(int NMoments, int NRandom, int NDisorder, int direction, int special){
     std::string dir(num2str3(direction));                                                // xxx Gamma0
     std::string dirc1 = dir.substr(0,1) + "," + dir.substr(1,2);                         // x,xx Gamma1
@@ -88,7 +88,7 @@ void Simulation<T,D>::CondOpt2(int NMoments, int NRandom, int NDisorder, int dir
     std::string dirc3 = dir.substr(0,1) + "," + dir.substr(1,1) + "," + dir.substr(2,1); // x,x,x Gamma3
 
     std::string directory = "/Calculation/conductivity_optical_nonlinear/";
-       
+
     // regular nonlinear calculation
     if(special != 1){
       Gamma1D(NRandom, NDisorder, NMoments, process_string(dir), directory + "Gamma0" + dir);
@@ -106,3 +106,48 @@ void Simulation<T,D>::CondOpt2(int NMoments, int NRandom, int NDisorder, int dir
 }
 
 
+
+
+template void Simulation<float ,1u>::calc_condopt2();
+template void Simulation<double ,1u>::calc_condopt2();
+template void Simulation<long double ,1u>::calc_condopt2();
+template void Simulation<std::complex<float> ,1u>::calc_condopt2();
+template void Simulation<std::complex<double> ,1u>::calc_condopt2();
+template void Simulation<std::complex<long double> ,1u>::calc_condopt2();
+
+template void Simulation<float ,3u>::calc_condopt2();
+template void Simulation<double ,3u>::calc_condopt2();
+template void Simulation<long double ,3u>::calc_condopt2();
+template void Simulation<std::complex<float> ,3u>::calc_condopt2();
+template void Simulation<std::complex<double> ,3u>::calc_condopt2();
+template void Simulation<std::complex<long double> ,3u>::calc_condopt2();
+
+template void Simulation<float ,2u>::calc_condopt2();
+template void Simulation<double ,2u>::calc_condopt2();
+template void Simulation<long double ,2u>::calc_condopt2();
+template void Simulation<std::complex<float> ,2u>::calc_condopt2();
+template void Simulation<std::complex<double> ,2u>::calc_condopt2();
+template void Simulation<std::complex<long double> ,2u>::calc_condopt2();
+
+
+
+template void Simulation<float ,1u>::CondOpt2(int, int, int, int, int);
+template void Simulation<double ,1u>::CondOpt2(int, int, int, int, int);
+template void Simulation<long double ,1u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<float> ,1u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<double> ,1u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<long double> ,1u>::CondOpt2(int, int, int, int, int);
+
+template void Simulation<float ,3u>::CondOpt2(int, int, int, int, int);
+template void Simulation<double ,3u>::CondOpt2(int, int, int, int, int);
+template void Simulation<long double ,3u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<float> ,3u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<double> ,3u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<long double> ,3u>::CondOpt2(int, int, int, int, int);
+
+template void Simulation<float ,2u>::CondOpt2(int, int, int, int, int);
+template void Simulation<double ,2u>::CondOpt2(int, int, int, int, int);
+template void Simulation<long double ,2u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<float> ,2u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<double> ,2u>::CondOpt2(int, int, int, int, int);
+template void Simulation<std::complex<long double> ,2u>::CondOpt2(int, int, int, int, int);

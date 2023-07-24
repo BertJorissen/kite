@@ -5,8 +5,7 @@
 /*                                                         */
 /***********************************************************/
 
-#ifndef SIMULATION_HPP
-#define SIMULATION_HPP
+
 
 template <typename T> using ema = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic, 0, -1, -1>;
 
@@ -71,4 +70,3 @@ public:
   void ARPES(int NDisorder, int NMoments, Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> & k_vectors, Eigen::Matrix<T, Eigen::Dynamic, 1> & weight);
   void store_ARPES(ema<T> *);
 };
-#endif SIMULATION_HPP

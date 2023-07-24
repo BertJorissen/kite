@@ -152,4 +152,4 @@ template class Simulation<long double ,2u>;
 template class Simulation<std::complex<float> ,2u>;
 template class Simulation<std::complex<double> ,2u>;
 template class Simulation<std::complex<long double> ,2u>;
-#endif SIMULATION_INST
+#endif //SIMULATION_INST

@@ -277,9 +277,11 @@ template void LatticeStructure<3u>::convertCoordinates<std::size_t>(Coordinates<
 template void LatticeStructure<1u>::convertCoordinates<long>(Coordinates<long, 2u> &, Coordinates<long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long>(Coordinates<long, 3u> &, Coordinates<long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long>(Coordinates<long, 4u> &, Coordinates<long, 4u> &);
+#ifdef _WIN32
 template void LatticeStructure<1u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 2u> &, Coordinates<unsigned long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 3u> &, Coordinates<unsigned long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 4u> &, Coordinates<unsigned long, 4u> &);
+#endif
 template void LatticeStructure<1u>::convertCoordinates<long long>(Coordinates<long long, 2u> &, Coordinates<long long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long long>(Coordinates<long long, 3u> &, Coordinates<long long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long long>(Coordinates<long long, 4u> &, Coordinates<long long, 4u> &);

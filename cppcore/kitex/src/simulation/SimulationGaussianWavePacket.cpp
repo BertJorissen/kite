@@ -259,3 +259,46 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
 #endif
 }
 
+
+template void Simulation<float ,1u>::calc_wavepacket();
+template void Simulation<double ,1u>::calc_wavepacket();
+template void Simulation<long double ,1u>::calc_wavepacket();
+template void Simulation<std::complex<float> ,1u>::calc_wavepacket();
+template void Simulation<std::complex<double> ,1u>::calc_wavepacket();
+template void Simulation<std::complex<long double> ,1u>::calc_wavepacket();
+
+template void Simulation<float ,3u>::calc_wavepacket();
+template void Simulation<double ,3u>::calc_wavepacket();
+template void Simulation<long double ,3u>::calc_wavepacket();
+template void Simulation<std::complex<float> ,3u>::calc_wavepacket();
+template void Simulation<std::complex<double> ,3u>::calc_wavepacket();
+template void Simulation<std::complex<long double> ,3u>::calc_wavepacket();
+
+template void Simulation<float ,2u>::calc_wavepacket();
+template void Simulation<double ,2u>::calc_wavepacket();
+template void Simulation<long double ,2u>::calc_wavepacket();
+template void Simulation<std::complex<float> ,2u>::calc_wavepacket();
+template void Simulation<std::complex<double> ,2u>::calc_wavepacket();
+template void Simulation<std::complex<long double> ,2u>::calc_wavepacket();
+
+
+template void Simulation<float ,1u>::Gaussian_Wave_Packet();
+template void Simulation<double ,1u>::Gaussian_Wave_Packet();
+template void Simulation<long double ,1u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<float> ,1u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<double> ,1u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<long double> ,1u>::Gaussian_Wave_Packet();
+
+template void Simulation<float ,3u>::Gaussian_Wave_Packet();
+template void Simulation<double ,3u>::Gaussian_Wave_Packet();
+template void Simulation<long double ,3u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<float> ,3u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<double> ,3u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<long double> ,3u>::Gaussian_Wave_Packet();
+
+template void Simulation<float ,2u>::Gaussian_Wave_Packet();
+template void Simulation<double ,2u>::Gaussian_Wave_Packet();
+template void Simulation<long double ,2u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<float> ,2u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<double> ,2u>::Gaussian_Wave_Packet();
+template void Simulation<std::complex<long double> ,2u>::Gaussian_Wave_Packet();

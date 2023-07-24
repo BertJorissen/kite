@@ -95,7 +95,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
     set(hdf5_lib_name "libhdf5") # name of the HDF5-lib
     set(hdf5_cpp_lib_name "libhdf5_cpp") # name of the HDF5_cpp-lib
     if(APPLE)
-        set(HDF_SL_EXT "*dylib*") # extension for apple-shared-libs
+        set(HDF_SL_EXT "dylib") # extension for apple-shared-libs
     elseif(WIN32)
         set(HDF_SL_EXT "dll") # extension for microsoft-shared-libs
         if((${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND MSVC)
@@ -108,7 +108,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             set(hdf5_cpp_lib_name "Release/hdf5_cpp")
         endif()
     else()
-        set(HDF_SL_EXT "*so*") # extension for linux-shared-libs
+        set(HDF_SL_EXT "so") # extension for linux-shared-libs
     endif()
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
@@ -119,8 +119,8 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/${hdf5_lib_name}.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/${hdf5_cpp_lib_name}.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/${hdf5_lib_name}.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/${hdf5_cpp_lib_name}.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes # header files for the build
@@ -146,12 +146,3 @@ add_subdirectory(cppmodule)
 if(EXISTS ${CMAKE_SOURCE_DIR}/docs)
     add_subdirectory(docs EXCLUDE_FROM_ALL)
 endif()
-
-add_custom_target(clean-all COMMENT "Cleaning all generated files.")
-add_custom_command(TARGET clean-all
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps"
-        COMMAND ${CMAKE_COMMAND} -DEXECUTE_REMOVE=TRUE -DFILES_WITH_WILDCARD=${hdf5_libs_folder}/${hdf5_lib_name}.${HDF_SL_EXT} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/remove.cmake
-        COMMAND ${CMAKE_COMMAND} -DEXECUTE_REMbilityOVE=TRUE -DFILES_WITH_WILDCARD=${hdf5_libs_folder}/${hdf5_cpp_lib_name}.${HDF_SL_EXT} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/remove.cmake
-        COMMAND ${CMAKE_COMMAND} -DEXECUTE_REMOVE=TRUE -DFILES_WITH_WILDCARD=${hdf5_libs_folder}/COPYING -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/remove.cmake
-        )

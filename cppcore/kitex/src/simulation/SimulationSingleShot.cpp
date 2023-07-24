@@ -424,3 +424,117 @@ void Simulation<T,D>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1> energie
 }
 
 
+template void Simulation<float ,1u>::calc_singleshot();
+template void Simulation<double ,1u>::calc_singleshot();
+template void Simulation<long double ,1u>::calc_singleshot();
+template void Simulation<std::complex<float> ,1u>::calc_singleshot();
+template void Simulation<std::complex<double> ,1u>::calc_singleshot();
+template void Simulation<std::complex<long double> ,1u>::calc_singleshot();
+
+template void Simulation<float ,3u>::calc_singleshot();
+template void Simulation<double ,3u>::calc_singleshot();
+template void Simulation<long double ,3u>::calc_singleshot();
+template void Simulation<std::complex<float> ,3u>::calc_singleshot();
+template void Simulation<std::complex<double> ,3u>::calc_singleshot();
+template void Simulation<std::complex<long double> ,3u>::calc_singleshot();
+
+template void Simulation<float ,2u>::calc_singleshot();
+template void Simulation<double ,2u>::calc_singleshot();
+template void Simulation<long double ,2u>::calc_singleshot();
+template void Simulation<std::complex<float> ,2u>::calc_singleshot();
+template void Simulation<std::complex<double> ,2u>::calc_singleshot();
+template void Simulation<std::complex<long double> ,2u>::calc_singleshot();
+
+
+template void Simulation<float ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<double ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<long double ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<float> ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<double> ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<long double> ,1u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+
+template void Simulation<float ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<double ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<long double ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<float> ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<double> ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<long double> ,3u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+
+template void Simulation<float ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<double ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<long double ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<float> ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<double> ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);
+template void Simulation<std::complex<long double> ,2u>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<double, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  Eigen::Array<int, Eigen::Dynamic, 1>,
+  int NDisorder, int NRandomV, std::string);

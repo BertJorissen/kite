@@ -87,3 +87,46 @@ void Simulation<T,D>::CondDC(int NMoments, int NRandom, int NDisorder, int direc
 
 
 
+
+template void Simulation<float ,1u>::calc_conddc();
+template void Simulation<double ,1u>::calc_conddc();
+template void Simulation<long double ,1u>::calc_conddc();
+template void Simulation<std::complex<float> ,1u>::calc_conddc();
+template void Simulation<std::complex<double> ,1u>::calc_conddc();
+template void Simulation<std::complex<long double> ,1u>::calc_conddc();
+
+template void Simulation<float ,3u>::calc_conddc();
+template void Simulation<double ,3u>::calc_conddc();
+template void Simulation<long double ,3u>::calc_conddc();
+template void Simulation<std::complex<float> ,3u>::calc_conddc();
+template void Simulation<std::complex<double> ,3u>::calc_conddc();
+template void Simulation<std::complex<long double> ,3u>::calc_conddc();
+
+template void Simulation<float ,2u>::calc_conddc();
+template void Simulation<double ,2u>::calc_conddc();
+template void Simulation<long double ,2u>::calc_conddc();
+template void Simulation<std::complex<float> ,2u>::calc_conddc();
+template void Simulation<std::complex<double> ,2u>::calc_conddc();
+template void Simulation<std::complex<long double> ,2u>::calc_conddc();
+
+
+template void Simulation<float ,1u>::CondDC(int, int, int, int);
+template void Simulation<double ,1u>::CondDC(int, int, int, int);
+template void Simulation<long double ,1u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<float> ,1u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<double> ,1u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<long double> ,1u>::CondDC(int, int, int, int);
+
+template void Simulation<float ,3u>::CondDC(int, int, int, int);
+template void Simulation<double ,3u>::CondDC(int, int, int, int);
+template void Simulation<long double ,3u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<float> ,3u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<double> ,3u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<long double> ,3u>::CondDC(int, int, int, int);
+
+template void Simulation<float ,2u>::CondDC(int, int, int, int);
+template void Simulation<double ,2u>::CondDC(int, int, int, int);
+template void Simulation<long double ,2u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<float> ,2u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<double> ,2u>::CondDC(int, int, int, int);
+template void Simulation<std::complex<long double> ,2u>::CondDC(int, int, int, int);
