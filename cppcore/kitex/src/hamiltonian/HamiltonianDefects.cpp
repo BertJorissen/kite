@@ -313,7 +313,7 @@ void Defect_Operator<T,D>::generate_disorder()  {
           r.convertCoordinates(latStr, Latt);
 	    
           auto & st = h.hV.position.at(latStr.index);
-	  if( !any_of(st.begin(), st.end(), [Latt](std::ptrdiff_t x ) {return Latt.index == x;} ))
+	  if( !any_of(st.begin(), st.end(), [Latt](std::size_t x ) {return Latt.index == x;} ))
             {     
               border_element1.push_back( Latt.index );	    
               border_element2.push_back(Latt.index + Global.element2_diff[i]);
@@ -329,7 +329,7 @@ void Defect_Operator<T,D>::generate_disorder()  {
           r.convertCoordinates(Latt, LATT );
           r.convertCoordinates(latStr, Latt);
           auto & st = h.hV.position.at(latStr.index); 
-	  if( !any_of(st.begin(), st.end(), [Latt](std::ptrdiff_t x ) {return x == Latt.index;}))
+	  if( !any_of(st.begin(), st.end(), [Latt](std::size_t x ) {return x == Latt.index;}))
             {
               border_element.push_back(Latt.index );	    
               border_U.push_back(Global.U[i] );

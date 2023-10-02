@@ -175,7 +175,7 @@ bool ldos<T, DIM>::fetch_parameters(){
   
   if(DIM == 2){
     global_positions = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,3);
-    for(long i = 0; i < static_cast<long>(NumPositions); i++){
+    for(long i = 0; i < NumPositions; i++){
       int Lx = systemInfo->size[0];
       global_positions(i,0) = ldos_Positions(i)%Lx;
       global_positions(i,1) = ldos_Positions(i)/Lx;
@@ -183,7 +183,7 @@ bool ldos<T, DIM>::fetch_parameters(){
     }
   } else if(DIM ==3){
     global_positions = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,4);
-    for(long i = 0; i < static_cast<long>(NumPositions); i++){
+    for(long i = 0; i < NumPositions; i++){
       int Lx = systemInfo->size[0];
       int Ly = systemInfo->size[1];
       

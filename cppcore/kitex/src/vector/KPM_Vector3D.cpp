@@ -408,35 +408,35 @@ void KPM_Vector <T, 3>::empty_ghosts(int mem_index) {
 
   // perpendicular to x axis
   
-  for(long io = 0; io < static_cast<long>(r.Ld[3]); io++)
-    for(long i2 = 0; i2 < static_cast<long>(r.Ld[2]); i2++)
-      for(long i1 = 0; i1 <  static_cast<long>(r.Ld[1]); i1++)
+  for(long  io = 0; io < r.Ld[3]; io++)
+    for(long i2 = 0; i2 < r.Ld[2]; i2++)
+      for(long i1 = 0; i1 <  r.Ld[1]; i1++)
         for(long i0 = 0; i0 < NGHL; i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({static_cast<long>(r.Ld[0]) - 1 - i0, i1, i2, io}).index, mem_index) *= 0;
+            v(x.set({r.Ld[0] - 1 - i0, i1, i2, io}).index, mem_index) *= 0;
           }
 
   // perpendicular to y axis
   
-  for(long  io = 0; io < static_cast<long>(r.Ld[3]); io++)
-    for(long i2 = 0; i2 < static_cast<long>(r.Ld[2]); i2++)
+  for(long  io = 0; io < r.Ld[3]; io++)
+    for(long i2 = 0; i2 < r.Ld[2]; i2++)
       for(long i1 = 0; i1 < NGHL; i1++)
-        for(long i0 = 0; i0 < static_cast<long>(r.Ld[0]); i0++)
+        for(long i0 = 0; i0 < r.Ld[0]; i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({i0,static_cast<long>(r.Ld[1]) - 1 -  i1, i2, io}).index, mem_index) *= 0;
+            v(x.set({i0,r.Ld[1] - 1 -  i1, i2, io}).index, mem_index) *= 0;
           }
   
   // perpendicular to y axis
   
-  for(long  io = 0; io < static_cast<long>(r.Ld[3]); io++)
+  for(long  io = 0; io < r.Ld[3]; io++)
     for(long i2 = 0; i2 < NGHL; i2++)
-      for(long i1 = 0; i1 < static_cast<long>(r.Ld[1]); i1++)
-        for(long i0 = 0; i0 <  static_cast<long>(r.Ld[0]); i0++)
+      for(long i1 = 0; i1 < r.Ld[1]; i1++)
+        for(long i0 = 0; i0 <  r.Ld[0]; i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({i0,i1,static_cast<long>(r.Ld[2]) - 1 - i2, io}).index, mem_index) *= 0;
+            v(x.set({i0,i1,r.Ld[2] - 1 - i2, io}).index, mem_index) *= 0;
           }
 }
 

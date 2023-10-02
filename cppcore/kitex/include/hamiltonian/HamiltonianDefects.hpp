@@ -10,7 +10,7 @@ struct Defect_Operator: public ComplexTraits<T> {
   typedef typename extract_value_type<T>::value_type value_type;
   using ComplexTraits<T>::multEiphase;
   double                                   p;                        // Concentration of defects
-  unsigned                     NumberNodes{};                        // Number of nodes in the deffect
+  unsigned                       NumberNodes{};                        // Number of nodes in the deffect
   std::vector <T>                          U;                        // local energies
   std::vector <unsigned>             element;                        // nodes with local energies
   std::vector <T>                    hopping;                        // vector of the non-zero values of the hopping operator                //

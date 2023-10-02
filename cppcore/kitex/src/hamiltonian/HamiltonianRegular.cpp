@@ -66,7 +66,7 @@ void Periodic_Operator<T,D>::Convert_Build (  LatticeStructure <D> & r )
     
   // rLat is organized per columns each column is a lattice vector
     
-  Coordinates<std::ptrdiff_t, D + 1> b3(l), Ld(r.Ld);
+  Coordinates<std::ptrdiff_t, D + 1> b3(l), Ld(r.Ld);    
   Eigen::Map<Eigen::Matrix<std::ptrdiff_t,D, 1>> v(b3.coord); // Column vector
     
   for(unsigned io = 0; io < r.Orb; io++)
