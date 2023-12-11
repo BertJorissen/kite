@@ -4,6 +4,11 @@ add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 pybind11_add_module(kitecore src/main.cpp)
 
 if(${DOWNLOAD_HDF5})
+    # WINDOWS THINGS
+    # set(hdf5_libs "C:/Users/cmt/CLionProjects/kite/cppcore/deps/hdf5/build/bin/hdf5.lib;C:/Users/cmt/CLionProjects/kite/cppcore/deps/hdf5/build/bin/hdf5_cpp.lib;C:/Users/cmt/CLionProjects/kite/cppcore/deps/hdf5/build/bin/hdf5.dll;C:/Users/cmt/CLionProjects/kite/cppcore/deps/hdf5/build/bin/hdf5_cpp.dll")
+    # it seems that in windows, the dll is also added, and that this file is used in the compilation.
+
+    # /Windows things
     MESSAGE(STATUS "QK--kitecore  ${hdf5_includes} ${hdf5_libs}")
     add_dependencies(kitecore hdf5_local)
     target_include_directories(kitecore SYSTEM PRIVATE ${hdf5_includes})
@@ -24,11 +29,14 @@ target_link_libraries(kitecore PRIVATE cppcore_kitetools)
 if(NOT MSVC)  # match default visibility of core library and extension module
     target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
     target_compile_options(cppcore_kitetools PRIVATE -fvisibility=hidden)
+else()
+    target_compile_options(cppcore_kitex PRIVATE)
+    target_compile_options(cppcore_kitetools PRIVATE)
 endif()
 
 if(${OPENMP_FOUND})
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
-    set(CORRECT_CODING_FLAGS "-Wall ")
+    set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
     if(MSVC)
         set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")

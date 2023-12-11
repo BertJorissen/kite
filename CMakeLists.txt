@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 
 project(kite CXX)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)  # We need the C+17 standard for advanced features like the Bessel-j-function
 
 MESSAGE(STATUS "QK-- compiler is ${CMAKE_CXX_COMPILER_ID}") # See chat compiler we're using, some give weird results
@@ -65,11 +66,14 @@ endif()
 
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
+    set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
+    set(hdf5_INSTALL_DIR ${HDF5_DIR}/install)
+    set(hdf5_build_bin "${HDF5_DIR}/build/bin")
     set(ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"
             "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
             "-DBUILD_SHARED_LIBS=ON"
-            "-DBUILD_STATIC_LIBS=ON"
+            "-DBUILD_STATIC_LIBS=OFF"
             "-DHDF5_BUILD_CPP_LIB=ON"
             "-DHDF5_BUILD_C_LIB=ON"
             "-DHDF5_BUILD_HL_LIB=ON"
@@ -86,32 +90,32 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
     set(HDF5_USE_STATIC_LIBRARIES OFF) # we want shared libs
     major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version) # find the versions of the chosen HDF5-version
     MESSAGE(STATUS "QK-- HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version}")
-    set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
+    # set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY) # if not set, use the default python-lib location
         set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
     else()
         set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     endif()
-    set(hdf5_lib_name "libhdf5") # name of the HDF5-lib
-    set(hdf5_cpp_lib_name "libhdf5_cpp") # name of the HDF5_cpp-lib
-    set(hdf5_build_bin "${HDF5_DIR}/build/bin")
+    set(hdf5_lib_name "hdf5") # name of the HDF5-lib
+    set(hdf5_cpp_lib_name "hdf5_cpp") # name of the HDF5_cpp-lib
     if(APPLE)
         set(HDF_SL_EXT "dylib") # extension for apple-shared-libs
     elseif(WIN32)
-        set(HDF_SL_EXT "lib") # extension for microsoft-shared-libs
+        set(HDF_SL_EXT "lib" "dll") # extension for microsoft-shared-libs
+        set(hdf5_lib_name "hdf5") # MSVC drops the 'lib'
+        set(hdf5_cpp_lib_name "hdf5_cpp")
         if((${CMAKE_BUILD_TYPE} STREQUAL "Debug") AND MSVC)
             MESSAGE(STATUS "QK-- DEBUG MODE ON MSVC, ADDING,'_D' to lib-name.")
-            set(hdf5_lib_name "hdf5_D") # MSVC adds '_D' to the name if in debug mode
-            set(hdf5_cpp_lib_name "hdf5_cpp_D")
+            set(hdf5_lib_name "${hdf5_lib_name}_D") # MSVC adds '_D' to the name if in debug mode
+            set(hdf5_cpp_lib_name "${hdf5_cpp_lib_name}_D")
         else()
             MESSAGE(STATUS "QK-- RELEASE MODE ON MSVC.")
-            set(hdf5_build_bin "${HDF5_DIR}/build/bin/Release")
-            set(hdf5_lib_name "libhdf5") # MSVC drops the 'lib'
-            set(hdf5_cpp_lib_name "libhdf5_cpp")
+            set(hdf5_build_bin "${hdf5_build_bin}/Release")
         endif()
     else()
         set(HDF_SL_EXT "so") # extension for linux-shared-libs
     endif()
+    string(REPLACE ";" "," HDF_SL_EXT_F "${HDF_SL_EXT}")
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
             CMAKE_ARGS ${ExternalProjectCMakeArgs}
@@ -121,9 +125,9 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             TMP_DIR    ${HDF5_DIR}/tmp
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${hdf5_build_bin}/${hdf5_lib_name}.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${hdf5_build_bin}/${hdf5_cpp_lib_name}.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILENAME_NO_EXT=${hdf5_build_bin}/${hdf5_lib_name}                    -DSL_EXT=${HDF_SL_EXT_F} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILENAME_NO_EXT=${hdf5_build_bin}/${hdf5_cpp_lib_name}                -DSL_EXT=${HDF_SL_EXT_F} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILENAME_NO_EXT=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING -DSL_EXT=OFF         -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes # header files for the build
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
@@ -132,11 +136,13 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             ${HDF5_DIR}/build
             )
     include_directories(${hdf5_includes})
-
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
     # the new location of the libs, preferably in the kite/lib folder (set above)
-    set(hdf5_libs ${hdf5_libs_folder}/${hdf5_lib_name}.${HDF_SL_EXT} ${hdf5_libs_folder}/${hdf5_cpp_lib_name}.${HDF_SL_EXT} )
+    set(hdf5_libs "")
+    list(GET HDF_SL_EXT 0 ext_one)
+    set(hdf5_libs ${hdf5_libs} ${hdf5_libs_folder}/${hdf5_lib_name}.${ext_one} ${hdf5_libs_folder}/${hdf5_cpp_lib_name}.${ext_one})
+    MESSAGE(STATUS "QK-- HDF5_LIBS:  ${hdf5_libs}")
 endif()
 
 find_package(OpenMP)
