@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.9)
-
 project(kite CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
-MESSAGE("-- compiler is ${CMAKE_CXX_COMPILER_ID}")
+MESSAGE(STATUS "compiler is ${CMAKE_CXX_COMPILER_ID}")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
-    MESSAGE("-- CLANG USED, other RPATH")
+    MESSAGE(STATUS "CLANG USED, other RPATH")
     set(CMAKE_MACOSX_RPATH TRUE) # next 8 lines, I really don't know why this works lol
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
@@ -27,13 +26,13 @@ option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON)
 option(QK_CCACHE "Use CCache" ON)
 
 
-MESSAGE("-- QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5}")
-MESSAGE("-- QK_NATIVE_EIGEN: ${QK_NATIVE_EIGEN}")
-MESSAGE("-- QK_CCACHE:       ${QK_CCACHE}")
+MESSAGE(STATUS "QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5}")
+MESSAGE(STATUS "QK_NATIVE_EIGEN: ${QK_NATIVE_EIGEN}")
+MESSAGE(STATUS "QK_CCACHE:       ${QK_CCACHE}")
 
 set(CMAKE_PREFIX_PATH ${QK_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
-MESSAGE(-- CMAKE PREFIX PATH ${CMAKE_PREFIX_PATH})
-MESSAGE(-- OpenMP Root Dir ${OpenMP_ROOT_DIR})
+MESSAGE(STATUS "CMAKE PREFIX PATH ${CMAKE_PREFIX_PATH}")
+MESSAGE(STATUS "OpenMP Root Dir ${OpenMP_ROOT_DIR}")
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
 endif()
@@ -85,7 +84,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     endif()
     set(HDF5_USE_STATIC_LIBRARIES OFF)
     major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
-    MESSAGE(HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version})
+    MESSAGE(STATUS "HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version}")
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
         set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
@@ -104,6 +103,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             BINARY_DIR ${HDF5_DIR}/build
             STAMP_DIR  ${HDF5_DIR}/stamp
             TMP_DIR    ${HDF5_DIR}/tmp
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/libhdf5.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
