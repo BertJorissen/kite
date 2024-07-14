@@ -98,7 +98,7 @@ set(use_bst 0)
 if(${CMAKE_CXX_COMPILER_ID} MATCHES ".*Clang.*" OR
    (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 8.0.0))
     MESSAGE(STATUS "Clang is used, or gcc<8.0.0. Try to fallback on Boost for C++17 feature 'std::cyl_bessel_j'")
-    find_package(Boost)
+    find_package(Boost CONFIG 1.20.0)
     if(Boost_FOUND)
         get_target_property(Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES)
         target_include_directories(cppcore_kitex SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})

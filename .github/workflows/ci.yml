@@ -14,8 +14,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-12, macos-14, windows-latest ]
-        python-version: [ "3.10" ]
+        include:
+          - os: ubuntu-latest
+            options: ""
+            python-version: "3.10"
+          - os: windows-latest
+            options: ""
+            python-version: "3.10"
+          - os: macos-12
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp/"
+            python-version: "3.10"
+          - os: macos-14
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp/"
+            python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,6 +37,14 @@ jobs:
       - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
+      - name: MacOS install BOOST and LIBOMP
+        if: runner.os == 'macos-12' || runner.os == 'macos-14'
+        run: |
+          brew install libomp
+          brew info libomp
+          brew install boost@1.85
+          brew info boost
+          clang --version
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -33,12 +52,12 @@ jobs:
       - name: Install dependencies for Pybinding
         run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja
       - name: Build with CMake and test Python / C++
-        timeout-minutes: 20
+        timeout-minutes: 30
         run: |
           mkdir build_tests
           cd build_tests
-          cmake ..
-          cmake --build . -j --target tests --config Release
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.options }}
+          cmake --build . -j --target kitecore --config Release
           cd ..
       - name: Test Python
         run: python -c "import pybinding as pb; exit(pb.tests())"
@@ -53,16 +72,20 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            options: ""
             arch: x86_64
             python-version: "3.10"
           - os: windows-latest
+            options: ""
             arch: x86_64
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp/"
             python-version: "3.10"
           - os: macos-14
             arch: arm64
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp/"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +106,7 @@ jobs:
             pip install scipy contourpy --prefer-binary
             brew install libomp
             brew info libomp
-            brew install boost
+            brew install boost@1.85
             brew info boost
             clang --version
           # CIBW_ENVIRONMENT:
@@ -91,8 +114,8 @@ jobs:
           #   CXX="/usr/local/bin/g++-13"
           #   OSX_ARCH=${{ matrix.cibw_archs }}
           #   OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
-          # CIBW_ENVIRONMENT: >
-          #   QK_CMAKE_PREFIX_PATH="/usr/local/Cellar/boost/1.82.0_1;/usr/local/opt/libomp/"
+          CIBW_ENVIRONMENT: >
+            QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install scipy contourpy h5py pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
@@ -222,7 +245,10 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 
   deploy:
+    name: Make and upload the documentation
     runs-on: ubuntu-latest
+    needs: [ test-compile ]
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
