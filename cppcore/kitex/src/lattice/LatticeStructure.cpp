@@ -30,7 +30,7 @@ LatticeStructure<D>::LatticeStructure(char *name )
     get_hdf5<unsigned>(Bd, file, (char *) "/Boundaries");
     get_hdf5<unsigned>(nd, file, (char *) "/Divisions");      
     get_hdf5<double>(BdTwist, file, (char *) "/BoundaryTwists");
-    for(int i=0; i<D;i++)
+    for(unsigned int i=0; i<D;i++)
       RandomBoundaries[i] = (Bd[i]==2);
     
     try {
@@ -235,7 +235,7 @@ void LatticeStructure<D>::print_coordinates(std::size_t pos1, std::size_t pos2)
   Coordinates<long, D + 1> Latt1(Ld);
   Coordinates<long, D + 1> Latt2(Ld);
   Eigen::Matrix<double, D, 1> r1, r2;
-  Eigen::Map<Eigen::Matrix<std::ptrdiff_t, D, 1>> v1(Latt1.coord), v2(Latt2.coord); // Column vectors
+  Eigen::Map<Eigen::Matrix<long, D, 1>> v1(Latt1.coord), v2(Latt2.coord); // Column vectors
   Latt1.set_coord(pos1);
   Latt2.set_coord(pos2);
     
@@ -274,4 +274,11 @@ template void LatticeStructure<3u>::convertCoordinates<std::size_t>(Coordinates<
 template void LatticeStructure<1u>::convertCoordinates<long>(Coordinates<long, 2u> &, Coordinates<long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long>(Coordinates<long, 3u> &, Coordinates<long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long>(Coordinates<long, 4u> &, Coordinates<long, 4u> &);
+template void LatticeStructure<1u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 2u> &, Coordinates<unsigned long, 2u> &);
+template void LatticeStructure<2u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 3u> &, Coordinates<unsigned long, 3u> &);
+template void LatticeStructure<3u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 4u> &, Coordinates<unsigned long, 4u> &);
+template void LatticeStructure<1u>::convertCoordinates<long long>(Coordinates<long long, 2u> &, Coordinates<long long, 2u> &);
+template void LatticeStructure<2u>::convertCoordinates<long long>(Coordinates<long long, 3u> &, Coordinates<long long, 3u> &);
+template void LatticeStructure<3u>::convertCoordinates<long long>(Coordinates<long long, 4u> &, Coordinates<long long, 4u> &);
+
 

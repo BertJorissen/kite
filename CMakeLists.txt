@@ -49,15 +49,29 @@ include(download)
 include(ExternalProject)
 
 
+find_package(OpenMP REQUIRED)
+MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
+
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
-    find_package(HDF5 COMPONENTS CXX)
+    find_package(HDF5 COMPONENTS CXX HL)
     if(${HDF5_FOUND})
         set(HDF5_USE_STATIC_LIBRARIES ON)
         set(DOWNLOAD_HDF5 False)
-        MESSAGE(STATUS "Using native machine HDF5")
+        MESSAGE(STATUS "Using native machine HDF5, version: ${HDF5_VERSION}")
         MESSAGE(STATUS "Hdf5-CXX Library:  ${HDF5_CXX_LIBRARIES}")
+
+        find_package(Python3 QUIET)
+        if(${Python3_FOUND})
+            execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; print(h5py.version.hdf5_version)" OUTPUT_VARIABLE HDF5_PYTHON_VERSION)
+            MESSAGE(STATUS "HDF5 h5py Version: ${HDF5_PYTHON_VERSION}")
+            if (HDF5_PYTHON_VERSION VERSION_EQUAL HDF5_VERSION)
+                MESSAGE(STATUS "HDF5 Python Version matches HDF5 C++ Version, code will run correctly.")
+            else()
+                MESSAGE(WARNING "HDF5 Python Version does not match HDF5 C++ Version, do NOT use the python interface. Unexpected behavior may occur.")
+            endif()
+        endif()
     else()
         MESSAGE(STATUS "Couldn't find HDF5, installing it instead.")
     endif()
@@ -80,7 +94,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             )
 
     if(NOT HDF5_DOWNLOAD_VERSION)
-        set(HDF5_DOWNLOAD_VERSION "1.12.2")
+        set(HDF5_DOWNLOAD_VERSION "1.14.2")
     endif()
     set(HDF5_USE_STATIC_LIBRARIES OFF)
     major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
@@ -92,9 +106,14 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
         set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     endif()
     if(APPLE)
-        set(HDF_SL_EXT "dylib")
+        set(HDF_SL_EXT "*dylib*")
+        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
+    elseif(WIN32)
+        set(HDF_SL_EXT "lib")
+        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Release)
     else()
-        set(HDF_SL_EXT "so")
+        set(HDF_SL_EXT "*so*")
+        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
     endif()
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
@@ -106,12 +125,13 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/libhdf5.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/build/bin/libhdf5_cpp.*${HDF_SL_EXT}* -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/libhdf5.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/libhdf5_cpp.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             )
     set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
+            ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src/H5FDsubfiling
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/c++/src
             ${HDF5_DIR}/build/src
             ${HDF5_DIR}/build
@@ -122,9 +142,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
 
     set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.${HDF_SL_EXT} ${hdf5_libs_folder}/libhdf5.${HDF_SL_EXT})
 endif()
-
-find_package(OpenMP)
-MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
 
 add_subdirectory(cppcore)
 add_subdirectory(cppmodule)

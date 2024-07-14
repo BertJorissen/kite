@@ -360,7 +360,7 @@ void KPM_Vector <T, 2>::build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen
             for(unsigned io = 0; io < r.Orb; io++)
               {
                 double xx = (va  + vOrb.col(io).transpose() ) * k.col(ik);
-                sum(io, 0) += psi0(io,ik) * exp(assign_value(-0.5*gauss,  2.*M_PI * (xx + 0.*phase(0,ik) )));
+                sum(io, 0) += psi0(io,ik) * exp(assign_value(-0.5*gauss,  2.* M_PI * (xx + 0.*phase(0,ik) )));
               }
           }
 	  
