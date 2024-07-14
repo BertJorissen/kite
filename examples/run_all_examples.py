@@ -146,7 +146,7 @@ def main(selection: Optional[List[int]] = None):
         If given, the examples with the given indices will be calculated.
     """
     if selection is None:
-        selection = np.arange(17, dtype=int) + 1
+        selection = np.arange(22, dtype=int) + 1
 
     # Header
     print_command("##########################################################################")
@@ -405,8 +405,8 @@ def main(selection: Optional[List[int]] = None):
                               title="DC Conductivity Phosphorene XX/YY", file_out=cond_dc_figure)
 
     if 16 in selection:
-        # Example 17: dos_twisted_bilayer.py
-        print_command("======= Example 17: DOS for twisted bilayer graphene at 21.787 degrees ===")
+        # Example 16: dos_twisted_bilayer.py
+        print_command("======= Example 16: DOS for twisted bilayer graphene at 21.787 degrees ===")
         from .dos_twisted_bilayer import main as example_main
         print_command("- - - -            Making the configuration file                 - - - - -")
         hdf5_file = example_main()
@@ -419,8 +419,8 @@ def main(selection: Optional[List[int]] = None):
         make_figure_dos(file_data=dos_data, title="DOS Twisted Bilayer graphene at 21.787 degrees",
                         file_out=dos_figure)
     if 17 in selection:
-        # Example 18: dos_t_symmetric_cubic_weyl_sm.py
-        print_command("======= Example 18: DOS for T symmetric weyl sm                    =======")
+        # Example 17: dos_t_symmetric_cubic_weyl_sm.py
+        print_command("======= Example 17: DOS for T symmetric weyl sm                    =======")
         from .dos_t_symmetric_cubic_weyl_sm import main as example_main
         print_command("- - - -            Making the configuration file                 - - - - -")
         hdf5_file = example_main()
@@ -434,8 +434,8 @@ def main(selection: Optional[List[int]] = None):
                         file_out=dos_figure)
 
     if 18 in selection:
-        # Example 19: optcond_t_symmetric_cubic_weyl_sm.py
-        print_command("======= Example 19: Optical confuctivity  for T symmetric weyl sm    =====")
+        # Example 18: optcond_t_symmetric_cubic_weyl_sm.py
+        print_command("======= Example 18: Optical confuctivity  for T symmetric weyl sm    =====")
         from .optcond_t_symmetric_cubic_weyl_sm import main as example_main
         print_command("- - - -            Making the configuration file                 - - - - -")
         hdf5_file = example_main()
@@ -449,8 +449,8 @@ def main(selection: Optional[List[int]] = None):
                              file_out=opt_cond_figure)
 
     if 19 in selection:
-        # Example 20: dos_fu_kane_mele_model.py
-        print_command("======= Example 20: DOS Fu-Kane-Mele model                         =======")
+        # Example 19: dos_fu_kane_mele_model.py
+        print_command("======= Example 19: DOS Fu-Kane-Mele model                         =======")
         from .dos_fu_kane_mele_model import main as example_main
         print_command("- - - -            Making the configuration file                 - - - - -")
         hdf5_file = example_main()
@@ -464,8 +464,8 @@ def main(selection: Optional[List[int]] = None):
                         file_out=dos_figure)
 
     if 20 in selection:
-        # Example 21: ARPES in bilayer graphene
-        print_command("======= Example 21: ARPES in bilayer graphene model                         =======")
+        # Example 20: ARPES in bilayer graphene
+        print_command("======= Example 20: ARPES in bilayer graphene model                         =======")
         from .arpes_bilayer import main as example_main
 
         print_command("- - - -            Making the configuration file                 - - - - -")
@@ -480,8 +480,8 @@ def main(selection: Optional[List[int]] = None):
         terminal("mv arpes.png {0}".format(arpes_data))
 
     if 21 in selection:
-        # Example 22: ARPES in cubic lattice
-        print_command("======= Example 22: ARPES in cubic lattice model                         =======")
+        # Example 21: ARPES in cubic lattice
+        print_command("======= Example 21: ARPES in cubic lattice model                         =======")
         from .arpes_cubic import main as example_main
 
         print_command("- - - -            Making the configuration file                 - - - - -")
@@ -496,8 +496,8 @@ def main(selection: Optional[List[int]] = None):
         terminal("mv arpes.png {0}".format(arpes_data))
 
     if 22 in selection:
-        # Example 23: second-order optical conductivity
-        print_command("======= Example 23: second-order photoconductivity in hexagonal Boron Nitride =======")
+        # Example 22: second-order optical conductivity
+        print_command("======= Example 22: second-order photoconductivity in hexagonal Boron Nitride =======")
         from .hbn_optcond2_vacancies import main as example_main
 
         print_command("- - - -            Making the configuration file                 - - - - -")
