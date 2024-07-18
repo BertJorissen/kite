@@ -22,10 +22,10 @@ jobs:
             options: ""
             python-version: "3.10"
           - os: macos-12
-            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
             python-version: "3.10"
           - os: macos-14
-            options: "/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"
+            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -82,11 +82,11 @@ jobs:
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
-            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp"
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
             python-version: "3.10"
           - os: macos-14
             arch: arm64
-            options: "/opt/homebrew/Cellar/boost/1.85.0;L/opt/homebrew/opt/libomp"
+            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
