@@ -153,7 +153,7 @@ void Simulation<T, DIM>::calc_ARPES(){
       H5::DataSet * dataset;
       H5::DataSpace * dataspace;
       hsize_t dim_k[2], dim_w[2];
-      H5::H5File * file  = new H5::H5File(name, H5F_ACC_RDONLY);
+      auto * file  = new H5::H5File(name, H5F_ACC_RDONLY);
       dataset            = new H5::DataSet(file->openDataSet("/Calculation/arpes/k_vector")  );
       dataspace          = new H5::DataSpace(dataset->getSpace());
       dataspace -> getSimpleExtentDims(dim_k, NULL);
@@ -208,6 +208,64 @@ void Simulation<T, DIM>::calc_ARPES(){
     }
 
 }
+template void Simulation<float,1u>::store_ARPES(Eigen::Array<float, -1, -1> *);
+template void Simulation<double,1u>::store_ARPES(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double,1u>::store_ARPES(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float>,1u>::store_ARPES(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double>,1u>::store_ARPES(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double>,1u>::store_ARPES(Eigen::Array<std::complex<long double>, -1, -1> *);
+template void Simulation<float,2u>::store_ARPES(Eigen::Array<float, -1, -1> *);
+template void Simulation<double,2u>::store_ARPES(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double,2u>::store_ARPES(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float>,2u>::store_ARPES(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double>,2u>::store_ARPES(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double>,2u>::store_ARPES(Eigen::Array<std::complex<long double>, -1, -1> *);
+template void Simulation<float,3u>::store_ARPES(Eigen::Array<float, -1, -1> *);
+template void Simulation<double,3u>::store_ARPES(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double,3u>::store_ARPES(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float>,3u>::store_ARPES(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double>,3u>::store_ARPES(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double>,3u>::store_ARPES(Eigen::Array<std::complex<long double>, -1, -1> *);
 
+template void Simulation<float,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<float, -1, 1> &);
+template void Simulation<double,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<double, -1, 1> &);
+template void Simulation<long double,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<long double, -1, 1> &);
+template void Simulation<std::complex<float>,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<float>, -1, 1> &);
+template void Simulation<std::complex<double>,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<double>, -1, 1> &);
+template void Simulation<std::complex<long double>,1u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<long double>, -1, 1> &);
+template void Simulation<float,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<float, -1, 1> &);
+template void Simulation<double,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<double, -1, 1> &);
+template void Simulation<long double,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<long double, -1, 1> &);
+template void Simulation<std::complex<float>,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<float>, -1, 1> &);
+template void Simulation<std::complex<double>,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<double>, -1, 1> &);
+template void Simulation<std::complex<long double>,2u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<long double>, -1, 1> &);
+template void Simulation<float,3u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<float, -1, 1> &);
+template void Simulation<double,3u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<double, -1, 1> &);
+template void Simulation<long double,3u>::ARPES(int , int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<long double, -1, 1> &);
+template void Simulation<std::complex<float>,3u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<float>, -1, 1> &);
+template void Simulation<std::complex<double>,3u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<double>, -1, 1> &);
+template void Simulation<std::complex<long double>,3u>::ARPES(int, int, Eigen::Array<double, -1, -1> &, Eigen::Matrix<std::complex<long double>, -1, 1> &);
+
+template void Simulation<float,1u>::calc_ARPES();
+template void Simulation<double,1u>::calc_ARPES();
+template void Simulation<long double,1u>::calc_ARPES();
+template void Simulation<std::complex<float>,1u>::calc_ARPES();
+template void Simulation<std::complex<double>,1u>::calc_ARPES();
+template void Simulation<std::complex<long double>,1u>::calc_ARPES();
+template void Simulation<float,2u>::calc_ARPES();
+template void Simulation<double,2u>::calc_ARPES();
+template void Simulation<long double,2u>::calc_ARPES();
+template void Simulation<std::complex<float>,2u>::calc_ARPES();
+template void Simulation<std::complex<double>,2u>::calc_ARPES();
+template void Simulation<std::complex<long double>,2u>::calc_ARPES();
+template void Simulation<float,3u>::calc_ARPES();
+template void Simulation<double,3u>::calc_ARPES();
+template void Simulation<long double,3u>::calc_ARPES();
+template void Simulation<std::complex<float>,3u>::calc_ARPES();
+template void Simulation<std::complex<double>,3u>::calc_ARPES();
+template void Simulation<std::complex<long double>,3u>::calc_ARPES();
+
+/*
 #define instantiate(type,dim) template class Simulation<type,dim>;
 #include "tools/instantiate.hpp"
+ */

@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/parse_input.hpp"
 #include "tools/systemInfo.hpp"
 #include "tools/functions.hpp"

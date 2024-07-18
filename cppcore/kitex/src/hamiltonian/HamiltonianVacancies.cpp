@@ -5,15 +5,13 @@
 /*                                                         */
 /***********************************************************/
 
-
-
-
 #include "Generic.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/Random.hpp"
 #include "hamiltonian/HamiltonianVacancies.hpp"
+
 template <typename T,unsigned D>
 Vacancy_Operator<T,D>::Vacancy_Operator(char * filename, LatticeStructure <D> & rr, KPMRandom <T> & rndB) : r(rr), rnd(rndB), name(filename), position(r.NStr)
 {
@@ -123,13 +121,33 @@ void Vacancy_Operator<T,D>::test_field( T * phi0 )
   // The field should be zero in the vacancies
   for(unsigned i = 0; i  < r.NStr; i++)
     for(auto vc = position.at(i).begin(); vc != position.at(i).end(); vc++)
-      if( abs(phi0[*vc]) > __DBL_EPSILON__)
+      if( abs(phi0[*vc]) > std::numeric_limits<double>::epsilon())
         {
           std::cout << "Disparate" << std::endl;
           exit(1);
         }
 }
 
+template struct Vacancy_Operator<float,1u>;
+template struct Vacancy_Operator<double,1u>;
+template struct Vacancy_Operator<long double,1u>;
+template struct Vacancy_Operator<std::complex<float>,1u>;
+template struct Vacancy_Operator<std::complex<double>,1u>;
+template struct Vacancy_Operator<std::complex<long double>,1u>;
+template struct Vacancy_Operator<float,2u>;
+template struct Vacancy_Operator<double,2u>;
+template struct Vacancy_Operator<long double,2u>;
+template struct Vacancy_Operator<std::complex<float>,2u>;
+template struct Vacancy_Operator<std::complex<double>,2u>;
+template struct Vacancy_Operator<std::complex<long double>,2u>;
+template struct Vacancy_Operator<float,3u>;
+template struct Vacancy_Operator<double,3u>;
+template struct Vacancy_Operator<long double,3u>;
+template struct Vacancy_Operator<std::complex<float>,3u>;
+template struct Vacancy_Operator<std::complex<double>,3u>;
+template struct Vacancy_Operator<std::complex<long double>,3u>;
 
+/*
 #define instantiate(type, dim)  template struct Vacancy_Operator<type,dim>;
 #include "tools/instantiate.hpp"
+*/

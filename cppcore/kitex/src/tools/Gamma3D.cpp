@@ -5,8 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
-
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
@@ -14,10 +12,13 @@
 #include "tools/Random.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
+
 template <typename T, unsigned D>
 class Hamiltonian;
+
 template <typename T, unsigned D>
 class KPM_Vector;
+
 #include "simulation/Simulation.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
@@ -220,7 +221,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
     // six symmetries that may be taken advantage of ('*' denotes complex conjugation)
     // G_nmp  = G_mpn = G_pnm 
     // G_nmp* = G_pmn = G_mnp = G_npm 
-    if(indices.at(0) == indices.at(1) and indices.at(0) == indices.at(2)){
+    if(indices.at(0) == indices.at(1) && indices.at(0) == indices.at(2)){
       for(int n = 0; n < N0; n++){
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
@@ -239,7 +240,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
         
     // Now check if any two directions are the same
     // Check if the two first directions are the same but different from the third
-    if(indices.at(0) == indices.at(1) and indices.at(0) != indices.at(2) and N1 == N2){
+    if(indices.at(0) == indices.at(1) && indices.at(0) != indices.at(2) && N1 == N2){
       for(int n = 0; n < N0; n++){
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
@@ -251,7 +252,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
     }
         
     // Check if the first and last directions are the same but different from the second
-    if(indices.at(0) == indices.at(2) and indices.at(0) != indices.at(1) and N0 == N2){
+    if(indices.at(0) == indices.at(2) && indices.at(0) != indices.at(1) && N0 == N2){
       for(int n = 0; n < N0; n++){
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
@@ -263,7 +264,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
     }
         
     // Check if the last two directions are the same but different from the first
-    if(indices.at(2) == indices.at(1) and indices.at(0) != indices.at(2) and N0 == N1){
+    if(indices.at(2) == indices.at(1) && indices.at(0) != indices.at(2) && N0 == N1){
       for(int n = 0; n < N0; n++){
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
@@ -275,7 +276,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
     }
         
     // Check if all the directions are different
-    if(indices.at(0) != indices.at(1) and indices.at(0) != indices.at(2) and indices.at(1) != indices.at(2)){
+    if(indices.at(0) != indices.at(1) && indices.at(0) != indices.at(2) && indices.at(1) != indices.at(2)){
       storage_gamma += general_gamma;
     }
 
@@ -296,7 +297,48 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
   debug_message("Left store_gamma\n");
 }
 
+template void Simulation<float,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,1u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,2u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,3u>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+
+template void Simulation<float,1u>::store_gamma3D(Eigen::Array<float, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,1u>::store_gamma3D(Eigen::Array<double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,1u>::store_gamma3D(Eigen::Array<long double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,1u>::store_gamma3D(Eigen::Array<std::complex<float>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,1u>::store_gamma3D(Eigen::Array<std::complex<double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,1u>::store_gamma3D(Eigen::Array<std::complex<long double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,2u>::store_gamma3D(Eigen::Array<float, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,2u>::store_gamma3D(Eigen::Array<double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,2u>::store_gamma3D(Eigen::Array<long double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,2u>::store_gamma3D(Eigen::Array<std::complex<float>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,2u>::store_gamma3D(Eigen::Array<std::complex<double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,2u>::store_gamma3D(Eigen::Array<std::complex<long double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,3u>::store_gamma3D(Eigen::Array<float, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,3u>::store_gamma3D(Eigen::Array<double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,3u>::store_gamma3D(Eigen::Array<long double, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,3u>::store_gamma3D(Eigen::Array<std::complex<float>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,3u>::store_gamma3D(Eigen::Array<std::complex<double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,3u>::store_gamma3D(Eigen::Array<std::complex<long double>, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+
+
+/*
 #define instantiate(type,dim) template void Simulation<type,dim>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string); \
   template void Simulation<type,dim>::store_gamma3D(Eigen::Array<type, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
 
 #include "tools/instantiate.hpp"
+ */

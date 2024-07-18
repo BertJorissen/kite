@@ -39,7 +39,7 @@ public:
   bool boundary[D][2]; // Information about the Global border in the subdomain 
   Eigen::Matrix<double, D, D> ghost_pot; // ghosts_correlation potential
   
-  LatticeStructure(char *);
+  explicit LatticeStructure(char *);
   unsigned get_BorderSize();
   template <typename T>
   void     convertCoordinates(Coordinates<T, D + 1> & dest, Coordinates<T, D + 1> & source);

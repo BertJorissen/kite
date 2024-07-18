@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "Generic.hpp"
 #include "simulation/Global.hpp"
 #include "tools/ComplexTraits.hpp"
@@ -15,7 +14,6 @@
 #include "lattice/LatticeStructure.hpp"
 #include "hamiltonian/HamiltonianRegular.hpp"
 
-
 template <typename T, unsigned D>
 Periodic_Operator<T,D>::Periodic_Operator (char * name, LatticeStructure<D> & rr) : r(rr)
 {
@@ -24,7 +22,7 @@ Periodic_Operator<T,D>::Periodic_Operator (char * name, LatticeStructure<D> & rr
   NHoppings =  Eigen::Array<unsigned, Eigen::Dynamic, 1 > (r.Orb);
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
     get_hdf5<unsigned>(NHoppings.data(), file, (char *) "/Hamiltonian/NHoppings");
     
     std::size_t max  	= NHoppings.maxCoeff();
@@ -137,6 +135,26 @@ void Periodic_Operator<T,D>::build_velocity(std::vector<unsigned> & components, 
     }
 }
 
+template class Periodic_Operator<float,1u>;
+template class Periodic_Operator<double,1u>;
+template class Periodic_Operator<long double,1u>;
+template class Periodic_Operator<std::complex<float>,1u>;
+template class Periodic_Operator<std::complex<double>,1u>;
+template class Periodic_Operator<std::complex<long double>,1u>;
+template class Periodic_Operator<float,2u>;
+template class Periodic_Operator<double,2u>;
+template class Periodic_Operator<long double,2u>;
+template class Periodic_Operator<std::complex<float>,2u>;
+template class Periodic_Operator<std::complex<double>,2u>;
+template class Periodic_Operator<std::complex<long double>,2u>;
+template class Periodic_Operator<float,3u>;
+template class Periodic_Operator<double,3u>;
+template class Periodic_Operator<long double,3u>;
+template class Periodic_Operator<std::complex<float>,3u>;
+template class Periodic_Operator<std::complex<double>,3u>;
+template class Periodic_Operator<std::complex<long double>,3u>;
+
+/*
 #define instantiate(type, dim)               template struct Periodic_Operator<type, dim>;
 #include "tools/instantiate.hpp"
-
+*/

@@ -13,15 +13,16 @@
 #include "tools/Random.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
+
 template<typename T, unsigned D>
 class Simulation;
+
 #include "simulation/Global.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
 #include "vector/KPM_Vector.hpp"
 //#include "queue.hpp"
 #include "simulation/Simulation.hpp"
-
 
 template <typename T>
 KPM_Vector<T,2u>::KPM_Vector(int mem, Simulation<T,2> & sim) :

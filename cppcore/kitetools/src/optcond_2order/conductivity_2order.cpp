@@ -14,7 +14,7 @@
 #include <omp.h>
 
 #include "tools/ComplexTraits.hpp"
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/myHDF5.hpp"
 
 #include "tools/parse_input.hpp"
@@ -169,7 +169,7 @@ conductivity_nonlinear<T, DIM>::conductivity_nonlinear(system_info<T, DIM>& info
     isRequired = true;
   } catch(H5::Exception& e){}
   
-  if(isRequired and variables.CondOpt2_is_required){
+  if(isRequired && variables.CondOpt2_is_required){
     set_default_parameters();
     isPossible = fetch_parameters(); // do we have all we need to calculate the conductivity?
     override_parameters();
@@ -298,15 +298,15 @@ bool conductivity_nonlinear<T, DIM>::fetch_parameters(){
   bool hasGamma3 = false;
 
   // Fetch the Gamma matrices from the hdf file and return the success value
-  if(not special) hasGamma0 = fetch_gamma0(); 
+  if(!special) hasGamma0 = fetch_gamma0();
   hasGamma1 = fetch_gamma1();
   hasGamma2 = fetch_gamma2(); 
-  if(not special) hasGamma3 = fetch_gamma3();
+  if(!special) hasGamma3 = fetch_gamma3();
 
   // check if we have all the objects that we need
   bool possible = false;
-  if(special)     possible = hasGamma1 and hasGamma2;
-  if(not special) possible = hasGamma0 and hasGamma1 and hasGamma2 and hasGamma3;
+  if(special)     possible = hasGamma1 && hasGamma2;
+  if(!special) possible = hasGamma0 && hasGamma1 && hasGamma2 && hasGamma3;
 
   file.close();
   debug_message("Left conductivity_nonlinear::read.\n");
@@ -340,7 +340,7 @@ void conductivity_nonlinear<U, DIM>::calculate_photo(){
   omega_energies1 += 0.5*Gamma1contractAandR(); 
   omega_energies2 += Gamma2contractAandR(); 
 
-  if(not special){
+  if(!special){
     omega_energies4 += Gamma3Contract_RA(); 
     omega_energies3 += Gamma3Contract_RRandAAblocks();
   }
@@ -440,7 +440,7 @@ void conductivity_nonlinear<U, DIM>::calculate_general(){
   omega_energies1shg += 0.5*Gamma1shgcontractAandR();
   omega_energies2shg += Gamma2shgcontractAandR();
 
-  if(not special){
+  if(! special){
     omega_energies0shg  += Gamma0contract();
     omega_energies3shg1 += Gamma3shgContract_RA();
     omega_energies3shg2 += Gamma3shgContract_RR();
@@ -549,7 +549,7 @@ void conductivity_nonlinear<U, DIM>::calculate(){
   }
 
   if(photo)     calculate_photo();
-  if(not photo) calculate_general();
+  if(!photo) calculate_general();
   
   debug_message("Left calc_nonlinear_cond.\n");
 }
@@ -566,3 +566,113 @@ template class conductivity_nonlinear<double, 3u>;
 template class conductivity_nonlinear<long double, 1u>;
 template class conductivity_nonlinear<long double, 2u>;
 template class conductivity_nonlinear<long double, 3u>;
+
+template int conductivity_nonlinear<float, 1u>::fetch_gamma0();
+template int conductivity_nonlinear<float, 2u>::fetch_gamma0();
+template int conductivity_nonlinear<float, 3u>::fetch_gamma0();
+template int conductivity_nonlinear<double, 1u>::fetch_gamma0();
+template int conductivity_nonlinear<double, 2u>::fetch_gamma0();
+template int conductivity_nonlinear<double, 3u>::fetch_gamma0();
+template int conductivity_nonlinear<long double, 1u>::fetch_gamma0();
+template int conductivity_nonlinear<long double, 2u>::fetch_gamma0();
+template int conductivity_nonlinear<long double, 3u>::fetch_gamma0();
+
+template int conductivity_nonlinear<float, 1u>::fetch_gamma1();
+template int conductivity_nonlinear<float, 2u>::fetch_gamma1();
+template int conductivity_nonlinear<float, 3u>::fetch_gamma1();
+template int conductivity_nonlinear<double, 1u>::fetch_gamma1();
+template int conductivity_nonlinear<double, 2u>::fetch_gamma1();
+template int conductivity_nonlinear<double, 3u>::fetch_gamma1();
+template int conductivity_nonlinear<long double, 1u>::fetch_gamma1();
+template int conductivity_nonlinear<long double, 2u>::fetch_gamma1();
+template int conductivity_nonlinear<long double, 3u>::fetch_gamma1();
+
+template int conductivity_nonlinear<float, 1u>::fetch_gamma2();
+template int conductivity_nonlinear<float, 2u>::fetch_gamma2();
+template int conductivity_nonlinear<float, 3u>::fetch_gamma2();
+template int conductivity_nonlinear<double, 1u>::fetch_gamma2();
+template int conductivity_nonlinear<double, 2u>::fetch_gamma2();
+template int conductivity_nonlinear<double, 3u>::fetch_gamma2();
+template int conductivity_nonlinear<long double, 1u>::fetch_gamma2();
+template int conductivity_nonlinear<long double, 2u>::fetch_gamma2();
+template int conductivity_nonlinear<long double, 3u>::fetch_gamma2();
+
+template int conductivity_nonlinear<float, 1u>::fetch_gamma3();
+template int conductivity_nonlinear<float, 2u>::fetch_gamma3();
+template int conductivity_nonlinear<float, 3u>::fetch_gamma3();
+template int conductivity_nonlinear<double, 1u>::fetch_gamma3();
+template int conductivity_nonlinear<double, 2u>::fetch_gamma3();
+template int conductivity_nonlinear<double, 3u>::fetch_gamma3();
+template int conductivity_nonlinear<long double, 1u>::fetch_gamma3();
+template int conductivity_nonlinear<long double, 2u>::fetch_gamma3();
+template int conductivity_nonlinear<long double, 3u>::fetch_gamma3();
+
+template void conductivity_nonlinear<float, 1u>::override_parameters();
+template void conductivity_nonlinear<float, 2u>::override_parameters();
+template void conductivity_nonlinear<float, 3u>::override_parameters();
+template void conductivity_nonlinear<double, 1u>::override_parameters();
+template void conductivity_nonlinear<double, 2u>::override_parameters();
+template void conductivity_nonlinear<double, 3u>::override_parameters();
+template void conductivity_nonlinear<long double, 1u>::override_parameters();
+template void conductivity_nonlinear<long double, 2u>::override_parameters();
+template void conductivity_nonlinear<long double, 3u>::override_parameters();
+
+template void conductivity_nonlinear<float, 1u>::set_default_parameters();
+template void conductivity_nonlinear<float, 2u>::set_default_parameters();
+template void conductivity_nonlinear<float, 3u>::set_default_parameters();
+template void conductivity_nonlinear<double, 1u>::set_default_parameters();
+template void conductivity_nonlinear<double, 2u>::set_default_parameters();
+template void conductivity_nonlinear<double, 3u>::set_default_parameters();
+template void conductivity_nonlinear<long double, 1u>::set_default_parameters();
+template void conductivity_nonlinear<long double, 2u>::set_default_parameters();
+template void conductivity_nonlinear<long double, 3u>::set_default_parameters();
+
+template void conductivity_nonlinear<float, 1u>::printOpt2();
+template void conductivity_nonlinear<float, 2u>::printOpt2();
+template void conductivity_nonlinear<float, 3u>::printOpt2();
+template void conductivity_nonlinear<double, 1u>::printOpt2();
+template void conductivity_nonlinear<double, 2u>::printOpt2();
+template void conductivity_nonlinear<double, 3u>::printOpt2();
+template void conductivity_nonlinear<long double, 1u>::printOpt2();
+template void conductivity_nonlinear<long double, 2u>::printOpt2();
+template void conductivity_nonlinear<long double, 3u>::printOpt2();
+
+template bool conductivity_nonlinear<float, 1u>::fetch_parameters();
+template bool conductivity_nonlinear<float, 2u>::fetch_parameters();
+template bool conductivity_nonlinear<float, 3u>::fetch_parameters();
+template bool conductivity_nonlinear<double, 1u>::fetch_parameters();
+template bool conductivity_nonlinear<double, 2u>::fetch_parameters();
+template bool conductivity_nonlinear<double, 3u>::fetch_parameters();
+template bool conductivity_nonlinear<long double, 1u>::fetch_parameters();
+template bool conductivity_nonlinear<long double, 2u>::fetch_parameters();
+template bool conductivity_nonlinear<long double, 3u>::fetch_parameters();
+
+template void conductivity_nonlinear<float, 1u>::calculate_photo();
+template void conductivity_nonlinear<float, 2u>::calculate_photo();
+template void conductivity_nonlinear<float, 3u>::calculate_photo();
+template void conductivity_nonlinear<double, 1u>::calculate_photo();
+template void conductivity_nonlinear<double, 2u>::calculate_photo();
+template void conductivity_nonlinear<double, 3u>::calculate_photo();
+template void conductivity_nonlinear<long double, 1u>::calculate_photo();
+template void conductivity_nonlinear<long double, 2u>::calculate_photo();
+template void conductivity_nonlinear<long double, 3u>::calculate_photo();
+
+template void conductivity_nonlinear<float, 1u>::calculate_general();
+template void conductivity_nonlinear<float, 2u>::calculate_general();
+template void conductivity_nonlinear<float, 3u>::calculate_general();
+template void conductivity_nonlinear<double, 1u>::calculate_general();
+template void conductivity_nonlinear<double, 2u>::calculate_general();
+template void conductivity_nonlinear<double, 3u>::calculate_general();
+template void conductivity_nonlinear<long double, 1u>::calculate_general();
+template void conductivity_nonlinear<long double, 2u>::calculate_general();
+template void conductivity_nonlinear<long double, 3u>::calculate_general();
+
+template void conductivity_nonlinear<float, 1u>::calculate();
+template void conductivity_nonlinear<float, 2u>::calculate();
+template void conductivity_nonlinear<float, 3u>::calculate();
+template void conductivity_nonlinear<double, 1u>::calculate();
+template void conductivity_nonlinear<double, 2u>::calculate();
+template void conductivity_nonlinear<double, 3u>::calculate();
+template void conductivity_nonlinear<long double, 1u>::calculate();
+template void conductivity_nonlinear<long double, 2u>::calculate();
+template void conductivity_nonlinear<long double, 3u>::calculate();

@@ -4,6 +4,8 @@ project(kite CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 MESSAGE(STATUS "compiler is ${CMAKE_CXX_COMPILER_ID}")
+MESSAGE(STATUS "CMAKE_CXX_COMPILER_VERSION: ${CMAKE_CXX_COMPILER_VERSION}")
+MESSAGE(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
     MESSAGE(STATUS "CLANG USED, other RPATH")
     set(CMAKE_MACOSX_RPATH TRUE) # next 8 lines, I really don't know why this works lol
@@ -40,6 +42,7 @@ endif()
 if(QK_CCACHE)
     find_program(ccache_found ccache)
     if(ccache_found)
+        MESSAGE(STATUS "CCache found, using it.")
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
     endif()
@@ -91,6 +94,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             "-DHDF5_BUILD_FORTRAN=OFF"        # Skip building Fortran API
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
+            "-DCMAKE_CXX_FLAGS=-DH5_BUILT_AS_DYNAMIC_LIB"
             )
 
     if(NOT HDF5_DOWNLOAD_VERSION)
@@ -105,13 +109,25 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     else()
         set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
     endif()
+    set(HDF5_BTP "")
     if(APPLE)
         set(HDF_SL_EXT "*dylib*")
+        set(HDF_SL_PRE "lib")
         set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
     elseif(WIN32)
-        set(HDF_SL_EXT "lib")
-        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Release)
+        set(HDF_SL_PRE "")
+        set(HDF_SL_EXT "dll")
+        string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_UPPER)
+        if (BUILD_TYPE_UPPER STREQUAL "DEBUG")
+            set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Debug)
+            set(HDF5_BTP "_D")
+        elseif (BUILD_TYPE_UPPER STREQUAL "RELEASE")
+            set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Release)
+        else ()
+            MESSAGE(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
+        endif ()
     else()
+        set(HDF_SL_PRE "lib")
         set(HDF_SL_EXT "*so*")
         set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
     endif()
@@ -125,10 +141,12 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/libhdf5.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/libhdf5_cpp.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            )
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=FALSE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5${HDF5_BTP}.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=FALSE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5_cpp${HDF5_BTP}.${HDF_SL_EXT} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5${HDF5_BTP}.lib -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5_cpp${HDF5_BTP}.lib -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=FALSE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+    )
     set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src/H5FDsubfiling
@@ -139,8 +157,13 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     include_directories(${hdf5_includes})
 
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
-    set(hdf5_libs ${hdf5_libs_folder}/libhdf5_cpp.${HDF_SL_EXT} ${hdf5_libs_folder}/libhdf5.${HDF_SL_EXT})
+    if (WIN32)
+        set(hdf5_libs ${hdf5_libs_folder}/hdf5${HDF5_BTP}.lib ${hdf5_libs_folder}/hdf5_cpp${HDF5_BTP}.lib)
+        set(hdf5_libs ${hdf5_libs} ${hdf5_libs_folder}/hdf5${HDF5_BTP}.${HDF_SL_EXT} ${hdf5_libs_folder}/hdf5_cpp${HDF5_BTP}.${HDF_SL_EXT})
+    else()
+        set(hdf5_libs ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5.${HDF_SL_EXT} ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5_cpp.${HDF_SL_EXT})
+    endif()
+    MESSAGE(STATUS ${hdf5_libs})
 endif()
 
 add_subdirectory(cppcore)

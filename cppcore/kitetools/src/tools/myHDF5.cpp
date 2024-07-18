@@ -8,7 +8,7 @@
 #include <complex>
 #include <Eigen/Dense>
 #include "tools/ComplexTraits.hpp"
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/myHDF5.hpp"
 
 template<>

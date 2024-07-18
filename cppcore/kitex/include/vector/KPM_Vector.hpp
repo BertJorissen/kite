@@ -6,6 +6,7 @@
 /***********************************************************/
 
 #include <iomanip>
+
 template <typename T,unsigned D>
 class KPM_Vector : public KPM_VectorBasis <T, D> {
 private:
@@ -63,13 +64,9 @@ public:
   void Exchange_Boundaries();
   void test_boundaries_system();
   void empty_ghosts(int mem_index);
-  template <unsigned MULT, bool VELOCITY>  
-  void multiply_defect(std::size_t , T* & , T* & , unsigned axis);
+  template <unsigned MULT, bool VELOCITY> void multiply_defect(std::size_t , T* & , T* & , unsigned axis);
 };
 
 
 #include "KPM_Vector2D.hpp"
 #include "KPM_Vector3D.hpp"
-
-
-

@@ -8,7 +8,7 @@
 
 #include <Eigen/Dense>
 #include <complex>
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include <vector>
 #include "tools/parse_input.hpp"
 #include "tools/systemInfo.hpp"

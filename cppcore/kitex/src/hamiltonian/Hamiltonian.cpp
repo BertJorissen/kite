@@ -5,8 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
-
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/Random.hpp"
@@ -17,15 +15,13 @@
 #include "hamiltonian/Hamiltonian.hpp"
 #include "hamiltonian/HamiltonianAux.hpp"
 
-
-
 extern "C" herr_t getMembers(hid_t loc_id, const char *name, void *opdata);
 template <typename T, unsigned D>
 Hamiltonian<T,D>::Hamiltonian(char *filename,  LatticeStructure<D> & rr, GLOBAL_VARIABLES <T> & gg) : name(filename), r(rr) , Global(gg),  hr(name, r), cross_mozaic(r.NStr), hV(name, rr, rnd)
 {
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(filename, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(filename, H5F_ACC_RDONLY);
     get_hdf5<double>(&EnergyScale, file, (char *) "/EnergyScale");
     delete file;
   }
@@ -89,7 +85,7 @@ void Hamiltonian<T,D>::build_structural_disorder()
   
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
     // Test if there is a strutural disorder to build
     H5::Group  grp;
     std::vector<std::string> defects;
@@ -310,7 +306,7 @@ void Hamiltonian<T,D>::generate_custom_local(){
 #pragma omp critical
 {
     try { 
-      H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+      auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
       get_hdf5(&custom_required, file, (char*)"Hamiltonian/CustomLocalEnergy");
       get_hdf5(&print_flag, file, (char*)"Hamiltonian/PrintCustomLocalEnergy");
       delete file;
@@ -352,7 +348,7 @@ Eigen::Array<T,-1,-1> Hamiltonian<T,D>::fetch_type1(){
 
 #pragma omp critical
     {
-        H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+        auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
         get_hdf5(&Escale, file, (char*)"EnergyScale");
         get_hdf5(&Eshift, file, (char*)"EnergyShift");
         delete file;
@@ -419,7 +415,7 @@ herr_t getMembers(hid_t loc_id, const char *name, void *opdata)
   std::string  sep = "/";
   std::string Defect = name;
   std::string group = Disorder+sep+name; 
-  std::vector<std::string> * v = static_cast<std::vector<std::string> *> (opdata);
+  auto * v = static_cast<std::vector<std::string> *> (opdata);
   
   try {
     H5::Exception::dontPrint();
@@ -432,6 +428,26 @@ herr_t getMembers(hid_t loc_id, const char *name, void *opdata)
   return 0;
 }
 
+template class Hamiltonian<float,1u>;
+template class Hamiltonian<double,1u>;
+template class Hamiltonian<long double,1u>;
+template class Hamiltonian<std::complex<float>,1u>;
+template class Hamiltonian<std::complex<double>,1u>;
+template class Hamiltonian<std::complex<long double>,1u>;
+template class Hamiltonian<float,2u>;
+template class Hamiltonian<double,2u>;
+template class Hamiltonian<long double,2u>;
+template class Hamiltonian<std::complex<float>,2u>;
+template class Hamiltonian<std::complex<double>,2u>;
+template class Hamiltonian<std::complex<long double>,2u>;
+template class Hamiltonian<float,3u>;
+template class Hamiltonian<double,3u>;
+template class Hamiltonian<long double,3u>;
+template class Hamiltonian<std::complex<float>,3u>;
+template class Hamiltonian<std::complex<double>,3u>;
+template class Hamiltonian<std::complex<long double>,3u>;
+
+/*
 #define instantiate(type, dim)               template class Hamiltonian<type,dim>;
 #include "tools/instantiate.hpp"
-
+*/

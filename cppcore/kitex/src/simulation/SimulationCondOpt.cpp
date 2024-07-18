@@ -39,7 +39,7 @@ void Simulation<T,D>::calc_condopt(){
   bool local_calculate_condopt = false;
 #pragma omp master
 {
-  H5::H5File * file = new H5::H5File(name, H5F_ACC_RDONLY);
+  auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
   Global.calculate_condopt = false;
   try{
     int dummy_variable;
@@ -64,7 +64,7 @@ if(local_calculate_condopt){
 
 #pragma omp critical
 {
-    H5::H5File * file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
 
     debug_message("Optical conductivity: checking if we need to calculate Condopt.\n");
     get_hdf5<int>(&direction, file, (char *) "/Calculation/conductivity_optical/Direction");
@@ -91,23 +91,40 @@ void Simulation<T,D>::CondOpt(int NMoments, int NRandom, int NDisorder, int dire
 
 
 
-template class Simulation<float ,1u>;
-template class Simulation<double ,1u>;
-template class Simulation<long double ,1u>;
-template class Simulation<std::complex<float> ,1u>;
-template class Simulation<std::complex<double> ,1u>;
-template class Simulation<std::complex<long double> ,1u>;
+template void Simulation<float ,1u>::calc_condopt();
+template void Simulation<double ,1u>::calc_condopt();
+template void Simulation<long double ,1u>::calc_condopt();
+template void Simulation<std::complex<float> ,1u>::calc_condopt();
+template void Simulation<std::complex<double> ,1u>::calc_condopt();
+template void Simulation<std::complex<long double> ,1u>::calc_condopt();
+template void Simulation<float ,3u>::calc_condopt();
+template void Simulation<double ,3u>::calc_condopt();
+template void Simulation<long double ,3u>::calc_condopt();
+template void Simulation<std::complex<float> ,3u>::calc_condopt();
+template void Simulation<std::complex<double> ,3u>::calc_condopt();
+template void Simulation<std::complex<long double> ,3u>::calc_condopt();
+template void Simulation<float ,2u>::calc_condopt();
+template void Simulation<double ,2u>::calc_condopt();
+template void Simulation<long double ,2u>::calc_condopt();
+template void Simulation<std::complex<float> ,2u>::calc_condopt();
+template void Simulation<std::complex<double> ,2u>::calc_condopt();
+template void Simulation<std::complex<long double> ,2u>::calc_condopt();
 
-template class Simulation<float ,3u>;
-template class Simulation<double ,3u>;
-template class Simulation<long double ,3u>;
-template class Simulation<std::complex<float> ,3u>;
-template class Simulation<std::complex<double> ,3u>;
-template class Simulation<std::complex<long double> ,3u>;
-
-template class Simulation<float ,2u>;
-template class Simulation<double ,2u>;
-template class Simulation<long double ,2u>;
-template class Simulation<std::complex<float> ,2u>;
-template class Simulation<std::complex<double> ,2u>;
-template class Simulation<std::complex<long double> ,2u>;
+template void Simulation<float ,1u>::CondOpt(int, int, int, int);
+template void Simulation<double ,1u>::CondOpt(int, int, int, int);
+template void Simulation<long double ,1u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<float> ,1u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<double> ,1u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<long double> ,1u>::CondOpt(int, int, int, int);
+template void Simulation<float ,3u>::CondOpt(int, int, int, int);
+template void Simulation<double ,3u>::CondOpt(int, int, int, int);
+template void Simulation<long double ,3u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<float> ,3u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<double> ,3u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<long double> ,3u>::CondOpt(int, int, int, int);
+template void Simulation<float ,2u>::CondOpt(int, int, int, int);
+template void Simulation<double ,2u>::CondOpt(int, int, int, int);
+template void Simulation<long double ,2u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<float> ,2u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<double> ,2u>::CondOpt(int, int, int, int);
+template void Simulation<std::complex<long double> ,2u>::CondOpt(int, int, int, int);

@@ -13,7 +13,7 @@
 #include <omp.h>
 #include <ctime>
 #include <Eigen/Dense>
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include <H5Group.h>
 #include <complex>
 #include <random>
@@ -83,7 +83,7 @@
 #define verbose_message(VAR)              \
   _Pragma("omp master")                   \
   {                                       \
-    std::cout<<VAR<<std::flush;           \
+    std::cout<<VAR<<std::flush;    \
   }                                       \
   _Pragma("omp barrier")
 #else
@@ -117,4 +117,8 @@
 #endif
 #else
 #define debug_message(VAR) 
+#endif
+
+#ifndef M_PI
+#define M_PI   3.14159265358979323846264338327950288
 #endif

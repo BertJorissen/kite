@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
@@ -13,16 +12,19 @@
 #include "tools/Random.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
+
 template <typename T, unsigned D>
 class Hamiltonian;
+
 template <typename T, unsigned D>
 class KPM_Vector;
+
 #include "simulation/Simulation.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
 #include "vector/KPM_VectorBasis.hpp"
 #include "vector/KPM_Vector.hpp"
-template <typename T,unsigned D>
 
+template <typename T,unsigned D>
 void Simulation<T,D>::Gamma1D(int NRandomV, int NDisorder, int N_moments,
     std::vector<std::vector<unsigned>> indices, std::string name_dataset){
 
@@ -110,10 +112,46 @@ void Simulation<T,D>::store_gamma1D(Eigen::Array<T, -1, -1> *gamma,
   debug_message("Left store_gamma\n");
 }
 
+template void Simulation<float,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,1u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,2u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<float,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<double,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<long double,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<float>,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<double>,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
+template void Simulation<std::complex<long double>,3u>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string);
 
+template void Simulation<float,1u>::store_gamma1D(Eigen::Array<float, -1, -1>* , std::string);
+template void Simulation<double,1u>::store_gamma1D(Eigen::Array<double, -1, -1>* , std::string);
+template void Simulation<long double,1u>::store_gamma1D(Eigen::Array<long double, -1, -1>* , std::string);
+template void Simulation<std::complex<float>,1u>::store_gamma1D(Eigen::Array<std::complex<float>, -1, -1>* , std::string);
+template void Simulation<std::complex<double>,1u>::store_gamma1D(Eigen::Array<std::complex<double>, -1, -1>* , std::string);
+template void Simulation<std::complex<long double>,1u>::store_gamma1D(Eigen::Array<std::complex<long double>, -1, -1>* , std::string);
+template void Simulation<float,2u>::store_gamma1D(Eigen::Array<float, -1, -1>* , std::string);
+template void Simulation<double,2u>::store_gamma1D(Eigen::Array<double, -1, -1>* , std::string);
+template void Simulation<long double,2u>::store_gamma1D(Eigen::Array<long double, -1, -1>* , std::string);
+template void Simulation<std::complex<float>,2u>::store_gamma1D(Eigen::Array<std::complex<float>, -1, -1>* , std::string);
+template void Simulation<std::complex<double>,2u>::store_gamma1D(Eigen::Array<std::complex<double>, -1, -1>* , std::string);
+template void Simulation<std::complex<long double>,2u>::store_gamma1D(Eigen::Array<std::complex<long double>, -1, -1>* , std::string);
+template void Simulation<float,3u>::store_gamma1D(Eigen::Array<float, -1, -1>* , std::string);
+template void Simulation<double,3u>::store_gamma1D(Eigen::Array<double, -1, -1>* , std::string);
+template void Simulation<long double,3u>::store_gamma1D(Eigen::Array<long double, -1, -1>* , std::string);
+template void Simulation<std::complex<float>,3u>::store_gamma1D(Eigen::Array<std::complex<float>, -1, -1>* , std::string);
+template void Simulation<std::complex<double>,3u>::store_gamma1D(Eigen::Array<std::complex<double>, -1, -1>* , std::string);
+template void Simulation<std::complex<long double>,3u>::store_gamma1D(Eigen::Array<std::complex<long double>, -1, -1>* , std::string);
+
+/*
 #define instantiate(type, dim)  template void Simulation<type,dim>::Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string); \
   template void Simulation<type,dim>::store_gamma1D(Eigen::Array<type, -1, -1>* , std::string);
 #include "tools/instantiate.hpp"
-
-
-
+*/

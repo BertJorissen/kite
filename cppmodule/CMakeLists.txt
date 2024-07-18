@@ -12,7 +12,6 @@ if(${DOWNLOAD_HDF5})
 else()
     target_include_directories(kitecore SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
     target_link_libraries(kitecore PRIVATE ${HDF5_CXX_LIBRARIES})
-
 endif()
 target_include_directories(kitecore SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
@@ -26,6 +25,9 @@ if(NOT MSVC)  # match default visibility of core library and extension module
     target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
     target_compile_options(cppcore_kitetools PRIVATE -fvisibility=hidden)
 endif()
+
+set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(${OPENMP_FOUND})
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
@@ -49,10 +51,6 @@ else()
     endif ()
 endif()
 
-
-set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")  # similar as in the first parts; don't ask me why this works lol
     add_custom_command(TARGET kitecore
             POST_BUILD COMMAND
@@ -65,9 +63,10 @@ if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set_target_properties(kitecore PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/kite/lib)
     foreach(config ${CMAKE_CONFIGURATION_TYPES})
         string(TOUPPER ${config} config)
-        set_target_properties(kitecore PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR}/kite/lib)
+        set_target_properties(kitecore PROPERTIES
+            LIBRARY_OUTPUT_DIRECTORY_${config} ${CMAKE_SOURCE_DIR}/kite/lib)
     endforeach()
 endif()
 
-add_custom_target(pytest COMMAND ${PYTHON_EXECUTABLE} -m pytest tests DEPENDS kitecore
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_custom_target(pytest COMMAND ${PYTHON_EXECUTABLE} -m pytest DEPENDS kitecore
+                  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})

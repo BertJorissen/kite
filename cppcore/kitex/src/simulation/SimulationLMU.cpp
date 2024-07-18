@@ -57,7 +57,7 @@ void Simulation<T,D>::LMU(int NDisorder, int NMoments, Eigen::Array<unsigned lon
 
     typedef typename extract_value_type<T>::value_type value_type;
     Eigen::Matrix<T, 1, 2> tmp;
-    int NPositions = positions.size();
+    int NPositions = static_cast<int>(positions.size());
     unsigned long pos;
 
     KPM_Vector<T,D> kpm0(1, *this); // initial random vector
@@ -152,7 +152,7 @@ void Simulation<T,D>::calc_LDOS(){
       H5::DataSet * dataset;
       H5::DataSpace * dataspace;
       hsize_t dim[1];
-      H5::H5File * file = new H5::H5File(name, H5F_ACC_RDONLY);
+      auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
       dataset           = new H5::DataSet(file->openDataSet("/Calculation/ldos/Orbitals")  );
       dataspace         = new H5::DataSpace(dataset->getSpace());
       dataspace -> getSimpleExtentDims(dim, NULL);
@@ -183,23 +183,59 @@ void Simulation<T,D>::calc_LDOS(){
 }
 
 
-template class Simulation<float ,1u>;
-template class Simulation<double ,1u>;
-template class Simulation<long double ,1u>;
-template class Simulation<std::complex<float> ,1u>;
-template class Simulation<std::complex<double> ,1u>;
-template class Simulation<std::complex<long double> ,1u>;
+template void Simulation<float ,1u>::store_LMU(Eigen::Array<float, -1, -1>* );
+template void Simulation<double ,1u>::store_LMU(Eigen::Array<double, -1, -1>* );
+template void Simulation<long double ,1u>::store_LMU(Eigen::Array<long double, -1, -1>* );
+template void Simulation<std::complex<float> ,1u>::store_LMU(Eigen::Array<std::complex<float>, -1, -1>* );
+template void Simulation<std::complex<double> ,1u>::store_LMU(Eigen::Array<std::complex<double>, -1, -1>* );
+template void Simulation<std::complex<long double> ,1u>::store_LMU(Eigen::Array<std::complex<long double>, -1, -1>* );
+template void Simulation<float ,2u>::store_LMU(Eigen::Array<float, -1, -1>* );
+template void Simulation<double ,2u>::store_LMU(Eigen::Array<double, -1, -1>* );
+template void Simulation<long double ,2u>::store_LMU(Eigen::Array<long double, -1, -1>* );
+template void Simulation<std::complex<float> ,2u>::store_LMU(Eigen::Array<std::complex<float>, -1, -1>* );
+template void Simulation<std::complex<double> ,2u>::store_LMU(Eigen::Array<std::complex<double>, -1, -1>* );
+template void Simulation<std::complex<long double> ,2u>::store_LMU(Eigen::Array<std::complex<long double>, -1, -1>* );
+template void Simulation<float ,3u>::store_LMU(Eigen::Array<float, -1, -1>* );
+template void Simulation<double ,3u>::store_LMU(Eigen::Array<double, -1, -1>* );
+template void Simulation<long double ,3u>::store_LMU(Eigen::Array<long double, -1, -1>* );
+template void Simulation<std::complex<float> ,3u>::store_LMU(Eigen::Array<std::complex<float>, -1, -1>* );
+template void Simulation<std::complex<double> ,3u>::store_LMU(Eigen::Array<std::complex<double>, -1, -1>* );
+template void Simulation<std::complex<long double> ,3u>::store_LMU(Eigen::Array<std::complex<long double>, -1, -1>* );
 
-template class Simulation<float ,3u>;
-template class Simulation<double ,3u>;
-template class Simulation<long double ,3u>;
-template class Simulation<std::complex<float> ,3u>;
-template class Simulation<std::complex<double> ,3u>;
-template class Simulation<std::complex<long double> ,3u>;
+template void Simulation<float ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<double ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<long double ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<float> ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<double> ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<long double> ,1u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<float ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<double ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<long double ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<float> ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<double> ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<long double> ,2u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<float ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<double ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<long double ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<float> ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<double> ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+template void Simulation<std::complex<long double> ,3u>::LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
 
-template class Simulation<float ,2u>;
-template class Simulation<double ,2u>;
-template class Simulation<long double ,2u>;
-template class Simulation<std::complex<float> ,2u>;
-template class Simulation<std::complex<double> ,2u>;
-template class Simulation<std::complex<long double> ,2u>;
+template void Simulation<float ,1u>::calc_LDOS();
+template void Simulation<double ,1u>::calc_LDOS();
+template void Simulation<long double ,1u>::calc_LDOS();
+template void Simulation<std::complex<float> ,1u>::calc_LDOS();
+template void Simulation<std::complex<double> ,1u>::calc_LDOS();
+template void Simulation<std::complex<long double> ,1u>::calc_LDOS();
+template void Simulation<float ,2u>::calc_LDOS();
+template void Simulation<double ,2u>::calc_LDOS();
+template void Simulation<long double ,2u>::calc_LDOS();
+template void Simulation<std::complex<float> ,2u>::calc_LDOS();
+template void Simulation<std::complex<double> ,2u>::calc_LDOS();
+template void Simulation<std::complex<long double> ,2u>::calc_LDOS();
+template void Simulation<float ,3u>::calc_LDOS();
+template void Simulation<double ,3u>::calc_LDOS();
+template void Simulation<long double ,3u>::calc_LDOS();
+template void Simulation<std::complex<float> ,3u>::calc_LDOS();
+template void Simulation<std::complex<double> ,3u>::calc_LDOS();
+template void Simulation<std::complex<long double> ,3u>::calc_LDOS();

@@ -13,7 +13,7 @@
 #include <string>
 #include <omp.h>
 
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
 
@@ -45,7 +45,7 @@ conductivity_optical<T, DIM>::conductivity_optical(system_info<T, DIM>& info, sh
         if(isPossible){
             printOpt();                  // Print all the parameters used
 
-            if(default_Convergence_D and default_Convergence_G){
+            if(default_Convergence_D && default_Convergence_G){
                 calculate();
             } else {
                 calculateBlocks();
@@ -244,7 +244,7 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
 
 	file.close();
 	debug_message("Left conductivity_optical::fetch_parameters.\n");
-  return possibleLambda and possibleGamma;
+  return possibleLambda && possibleGamma;
 }
 
 
@@ -444,7 +444,7 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 #pragma omp parallel 
 {
 #pragma omp for schedule(static, 1) nowait
-  for(unsigned j = 0; j < Nmax*Mmax; j++){
+  for(int j = 0; j < Nmax*Mmax; j++){
     // block index j = n + Nmax*m
     int n = j % Nmax;
     int m = j / Nmax;

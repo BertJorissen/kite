@@ -7,7 +7,6 @@
 
 #include "Generic.hpp"
 
-
 template <typename T, unsigned D>
 struct Coordinates;
 
@@ -19,7 +18,7 @@ struct Coordinates {
   T basis[D];
   Coordinates(T x, unsigned (&b)[D]);
   Coordinates(T (&coord)[D], unsigned (&b)[D]);
-  Coordinates(unsigned (&b)[D]);
+  explicit Coordinates(unsigned (&b)[D]);
   void  buildBasis();  
   void print();
   Coordinates<T,D> & set(std::initializer_list<T> a_args);

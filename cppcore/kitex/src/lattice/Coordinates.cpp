@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "lattice/Coordinates.hpp"
 
 template <typename T, unsigned D>

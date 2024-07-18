@@ -18,20 +18,20 @@ KPMRandom<T>::KPMRandom() {
 template <typename T>
 void KPMRandom<T>::init_random()
 {
-
-  char *env;
-  env = getenv("SEED");
-    if(env==NULL){
-      // Didn't find the seed
-      std::random_device r;
-      std::array<int, 624> seed_data;
-      std::generate(seed_data.begin(), seed_data.end(), std::ref(r));
-      std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-      rng.seed(seq); 
-    }
-    else {
-      // Found the seed
-      rng.seed(atoi(env)); 
+    size_t requiredSize = 0;
+    getenv_s(&requiredSize, nullptr, 0, "SEED");
+    if (requiredSize == 0) {
+        // SEED not found, use random_device as before
+        std::random_device r;
+        std::array<int, 624> seed_data;
+        std::generate(seed_data.begin(), seed_data.end(), std::ref(r));
+        std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
+        rng.seed(seq);
+    } else {
+        // SEED found, use it
+        std::vector<char> seedValue(requiredSize);
+        getenv_s(&requiredSize, seedValue.data(), requiredSize, "SEED");
+        rng.seed(atoi(seedValue.data()));
     }
 }
 

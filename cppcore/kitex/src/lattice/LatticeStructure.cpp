@@ -20,7 +20,7 @@ LatticeStructure<D>::LatticeStructure(char *name )
   
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
     get_hdf5<unsigned>(&Orb, file, (char *) "/NOrbitals");
     get_hdf5<double>(rLat.data(), file, (char *) "/LattVectors");    
     rOrb = Eigen::MatrixXd::Zero(D, Orb);
@@ -252,11 +252,11 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
   // 0 is in the ghosts
   // 1 isn't in the ghosts
   
-  bool teste = 1;
+  bool teste = true;
   
   for(int j = 0; j < int(D); j++)
     if(teste && (Latt.coord[j] < NGHOSTS || Latt.coord[j] >= std::ptrdiff_t(Ld[j] - NGHOSTS)) )
-      teste = 0;                                        // node is in the ghosts!
+      teste = false;                                        // node is in the ghosts!
     else  if(Latt.coord[j] < 0 || Latt.coord[j] > std::ptrdiff_t(Ld[j] - 1))
       {
         //std::cout << "Big Mistake" << std::endl;

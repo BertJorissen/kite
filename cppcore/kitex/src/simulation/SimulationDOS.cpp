@@ -64,7 +64,7 @@ void Simulation<T,D>::calc_DOS(){
   bool local_calculate_dos = false;
 #pragma omp master
 {
-  H5::H5File * file = new H5::H5File(name, H5F_ACC_RDONLY);
+  auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
   Global.calculate_dos = false;
   try{
     int dummy_variable;
@@ -88,7 +88,7 @@ if(local_calculate_dos){
 #pragma omp barrier
 #pragma omp critical
 {
-    H5::H5File * file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
 
     debug_message("DOS: checking if we need to calculate DOS.\n");
     get_hdf5<int>(&NMoments,  file, (char *)   "/Calculation/dos/NumMoments");
@@ -126,24 +126,59 @@ void Simulation<T,D>::DOS(int NMoments, int NRandom, int NDisorder){
 }
 
 
+template void Simulation<float ,1u>::store_MU(Eigen::Array<float, -1, -1> *);
+template void Simulation<double ,1u>::store_MU(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double ,1u>::store_MU(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float> ,1u>::store_MU(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double> ,1u>::store_MU(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double> ,1u>::store_MU(Eigen::Array<std::complex<long double>, -1, -1> *);
+template void Simulation<float ,3u>::store_MU(Eigen::Array<float, -1, -1> *);
+template void Simulation<double ,3u>::store_MU(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double ,3u>::store_MU(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float> ,3u>::store_MU(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double> ,3u>::store_MU(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double> ,3u>::store_MU(Eigen::Array<std::complex<long double>, -1, -1> *);
+template void Simulation<float ,2u>::store_MU(Eigen::Array<float, -1, -1> *);
+template void Simulation<double ,2u>::store_MU(Eigen::Array<double, -1, -1> *);
+template void Simulation<long double ,2u>::store_MU(Eigen::Array<long double, -1, -1> *);
+template void Simulation<std::complex<float> ,2u>::store_MU(Eigen::Array<std::complex<float>, -1, -1> *);
+template void Simulation<std::complex<double> ,2u>::store_MU(Eigen::Array<std::complex<double>, -1, -1> *);
+template void Simulation<std::complex<long double> ,2u>::store_MU(Eigen::Array<std::complex<long double>, -1, -1> *);
 
-template class Simulation<float ,1u>;
-template class Simulation<double ,1u>;
-template class Simulation<long double ,1u>;
-template class Simulation<std::complex<float> ,1u>;
-template class Simulation<std::complex<double> ,1u>;
-template class Simulation<std::complex<long double> ,1u>;
+template void Simulation<float ,1u>::calc_DOS();
+template void Simulation<double ,1u>::calc_DOS();
+template void Simulation<long double ,1u>::calc_DOS();
+template void Simulation<std::complex<float> ,1u>::calc_DOS();
+template void Simulation<std::complex<double> ,1u>::calc_DOS();
+template void Simulation<std::complex<long double> ,1u>::calc_DOS();
+template void Simulation<float ,3u>::calc_DOS();
+template void Simulation<double ,3u>::calc_DOS();
+template void Simulation<long double ,3u>::calc_DOS();
+template void Simulation<std::complex<float> ,3u>::calc_DOS();
+template void Simulation<std::complex<double> ,3u>::calc_DOS();
+template void Simulation<std::complex<long double> ,3u>::calc_DOS();
+template void Simulation<float ,2u>::calc_DOS();
+template void Simulation<double ,2u>::calc_DOS();
+template void Simulation<long double ,2u>::calc_DOS();
+template void Simulation<std::complex<float> ,2u>::calc_DOS();
+template void Simulation<std::complex<double> ,2u>::calc_DOS();
+template void Simulation<std::complex<long double> ,2u>::calc_DOS();
 
-template class Simulation<float ,3u>;
-template class Simulation<double ,3u>;
-template class Simulation<long double ,3u>;
-template class Simulation<std::complex<float> ,3u>;
-template class Simulation<std::complex<double> ,3u>;
-template class Simulation<std::complex<long double> ,3u>;
-
-template class Simulation<float ,2u>;
-template class Simulation<double ,2u>;
-template class Simulation<long double ,2u>;
-template class Simulation<std::complex<float> ,2u>;
-template class Simulation<std::complex<double> ,2u>;
-template class Simulation<std::complex<long double> ,2u>;
+template void Simulation<float ,1u>::DOS(int, int, int);
+template void Simulation<double ,1u>::DOS(int, int, int);
+template void Simulation<long double ,1u>::DOS(int, int, int);
+template void Simulation<std::complex<float> ,1u>::DOS(int, int, int);
+template void Simulation<std::complex<double> ,1u>::DOS(int, int, int);
+template void Simulation<std::complex<long double> ,1u>::DOS(int, int, int);
+template void Simulation<float ,3u>::DOS(int, int, int);
+template void Simulation<double ,3u>::DOS(int, int, int);
+template void Simulation<long double ,3u>::DOS(int, int, int);
+template void Simulation<std::complex<float> ,3u>::DOS(int, int, int);
+template void Simulation<std::complex<double> ,3u>::DOS(int, int, int);
+template void Simulation<std::complex<long double> ,3u>::DOS(int, int, int);
+template void Simulation<float ,2u>::DOS(int, int, int);
+template void Simulation<double ,2u>::DOS(int, int, int);
+template void Simulation<long double ,2u>::DOS(int, int, int);
+template void Simulation<std::complex<float> ,2u>::DOS(int, int, int);
+template void Simulation<std::complex<double> ,2u>::DOS(int, int, int);
+template void Simulation<std::complex<long double> ,2u>::DOS(int, int, int);

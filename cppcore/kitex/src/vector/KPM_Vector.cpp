@@ -7,6 +7,7 @@
 
 template<typename T, unsigned D>
 class Simulation;
+
 #include "Generic.hpp"
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
@@ -101,6 +102,38 @@ void KPM_Vector<T,D>::test_boundaries_system(){}
 template <typename T, unsigned D>
 void KPM_Vector<T,D>::empty_ghosts(int mem_index){(void) mem_index;}
 
+
+template class KPM_Vector<float,1u>;
+template void KPM_Vector<float,1u>::KPM_MOTOR<0u,false>(KPM_Vector<float,1u> *, unsigned);
+template void KPM_Vector<float,1u>::KPM_MOTOR<1u,false>(KPM_Vector<float,1u> *, unsigned);
+template void KPM_Vector<float,1u>::KPM_MOTOR<0u,true>(KPM_Vector<float,1u> *, unsigned);
+
+template class KPM_Vector<double,1u>;
+template void KPM_Vector<double,1u>::KPM_MOTOR<0u,false>(KPM_Vector<double,1u> *, unsigned);
+template void KPM_Vector<double,1u>::KPM_MOTOR<1u,false>(KPM_Vector<double,1u> *, unsigned);
+template void KPM_Vector<double,1u>::KPM_MOTOR<0u,true>(KPM_Vector<double,1u> *, unsigned);
+
+template class KPM_Vector<long double,1u>;
+template void KPM_Vector<long double,1u>::KPM_MOTOR<0u,false>(KPM_Vector<long double,1u> *, unsigned);
+template void KPM_Vector<long double,1u>::KPM_MOTOR<1u,false>(KPM_Vector<long double,1u> *, unsigned);
+template void KPM_Vector<long double,1u>::KPM_MOTOR<0u,true>(KPM_Vector<long double,1u> *, unsigned);
+
+template class KPM_Vector<std::complex<float>,1u>;
+template void KPM_Vector<std::complex<float>,1u>::KPM_MOTOR<0u,false>(KPM_Vector<std::complex<float>,1u> *, unsigned);
+template void KPM_Vector<std::complex<float>,1u>::KPM_MOTOR<1u,false>(KPM_Vector<std::complex<float>,1u> *, unsigned);
+template void KPM_Vector<std::complex<float>,1u>::KPM_MOTOR<0u,true>(KPM_Vector<std::complex<float>,1u> *, unsigned);
+
+template class KPM_Vector<std::complex<double>,1u>;
+template void KPM_Vector<std::complex<double>,1u>::KPM_MOTOR<0u,false>(KPM_Vector<std::complex<double>,1u> *, unsigned);
+template void KPM_Vector<std::complex<double>,1u>::KPM_MOTOR<1u,false>(KPM_Vector<std::complex<double>,1u> *, unsigned);
+template void KPM_Vector<std::complex<double>,1u>::KPM_MOTOR<0u,true>(KPM_Vector<std::complex<double>,1u> *, unsigned);
+
+template class KPM_Vector<std::complex<long double>,1u>;
+template void KPM_Vector<std::complex<long double>,1u>::KPM_MOTOR<0u,false>(KPM_Vector<std::complex<long double>,1u> *, unsigned);
+template void KPM_Vector<std::complex<long double>,1u>::KPM_MOTOR<1u,false>(KPM_Vector<std::complex<long double>,1u> *, unsigned);
+template void KPM_Vector<std::complex<long double>,1u>::KPM_MOTOR<0u,true>(KPM_Vector<std::complex<long double>,1u> *, unsigned);
+
+/*
 #define instantiateTYPE(type)               template class KPM_Vector <type,1u>; \
   template void KPM_Vector<type,1u>:: KPM_MOTOR<0u,false>(KPM_Vector<type,1u> * kpm_final, unsigned axis); \
   template void KPM_Vector<type,1u>:: KPM_MOTOR<1u,false>(KPM_Vector<type,1u> * kpm_final, unsigned axis); \
@@ -112,6 +145,4 @@ instantiateTYPE(long double)
 instantiateTYPE(std::complex<float>)
 instantiateTYPE(std::complex<double>)
 instantiateTYPE(std::complex<long double>)
-
-
-
+*/

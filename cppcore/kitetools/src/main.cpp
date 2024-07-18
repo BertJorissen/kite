@@ -10,7 +10,7 @@
 #include <complex>
 #include <string>
 #include <Eigen/Dense>
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"

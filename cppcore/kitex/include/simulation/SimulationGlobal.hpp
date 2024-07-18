@@ -16,7 +16,7 @@ private:
   Eigen::Array<double, -1, 1> singleshot_energies;
   double EnergyScale;
 public:
-  GlobalSimulation( char *);
+  explicit GlobalSimulation( char *);
 };
 
 

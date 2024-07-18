@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "Generic.hpp"
 #include "simulation/Global.hpp"
 #include "tools/ComplexTraits.hpp"
@@ -14,7 +13,6 @@
 #include "lattice/Coordinates.hpp"
 #include "lattice/LatticeStructure.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
-
 
 template <typename T, unsigned D>
 Defect_Operator<T,D>::Defect_Operator( Hamiltonian<T,D> & h1,  std::string & defect, H5::H5File *file ) : h(h1), r(h1.r), Global(h1.Global), position(h1.r.NStr), rnd(h.rnd)
@@ -427,10 +425,26 @@ void Defect_Operator<T,D>::build_velocity(std::vector<unsigned> & components, un
     }
 }
 
+template struct Defect_Operator<float,1u>;
+template struct Defect_Operator<double,1u>;
+template struct Defect_Operator<long double,1u>;
+template struct Defect_Operator<std::complex<float>,1u>;
+template struct Defect_Operator<std::complex<double>,1u>;
+template struct Defect_Operator<std::complex<long double>,1u>;
+template struct Defect_Operator<float,2u>;
+template struct Defect_Operator<double,2u>;
+template struct Defect_Operator<long double,2u>;
+template struct Defect_Operator<std::complex<float>,2u>;
+template struct Defect_Operator<std::complex<double>,2u>;
+template struct Defect_Operator<std::complex<long double>,2u>;
+template struct Defect_Operator<float,3u>;
+template struct Defect_Operator<double,3u>;
+template struct Defect_Operator<long double,3u>;
+template struct Defect_Operator<std::complex<float>,3u>;
+template struct Defect_Operator<std::complex<double>,3u>;
+template struct Defect_Operator<std::complex<long double>,3u>;
+
+/*
 #define instantiate(type, dim)  template struct Defect_Operator<type,dim>;
 #include "tools/instantiate.hpp"
-
-
-
-
-
+*/

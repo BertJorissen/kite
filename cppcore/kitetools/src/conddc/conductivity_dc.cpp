@@ -13,7 +13,7 @@
 #include <string>
 #include <omp.h>
 
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
 
@@ -150,7 +150,7 @@ void conductivity_dc<T, DIM>::set_energy_limits(){
 
     // Choose whether or not to use the limits of integration as
     // computed from the density of states. 
-    if(systemInfo.EnergyLimitsKnown and !full_range){
+    if(systemInfo.EnergyLimitsKnown && !full_range){
         minEnergy = systemInfo.minEnergy;
         maxEnergy = systemInfo.maxEnergy;
         default_energy_limits = false;
@@ -396,3 +396,73 @@ template class conductivity_dc<double, 3u>;
 template class conductivity_dc<long double, 1u>;
 template class conductivity_dc<long double, 2u>;
 template class conductivity_dc<long double, 3u>;
+
+template bool conductivity_dc<float, 1u>::is_required();
+template bool conductivity_dc<float, 2u>::is_required();
+template bool conductivity_dc<float, 3u>::is_required();
+template bool conductivity_dc<double, 1u>::is_required();
+template bool conductivity_dc<double, 2u>::is_required();
+template bool conductivity_dc<double, 3u>::is_required();
+template bool conductivity_dc<long double, 1u>::is_required();
+template bool conductivity_dc<long double, 2u>::is_required();
+template bool conductivity_dc<long double, 3u>::is_required();
+
+template void conductivity_dc<float, 1u>::set_default_parameters();
+template void conductivity_dc<float, 2u>::set_default_parameters();
+template void conductivity_dc<float, 3u>::set_default_parameters();
+template void conductivity_dc<double, 1u>::set_default_parameters();
+template void conductivity_dc<double, 2u>::set_default_parameters();
+template void conductivity_dc<double, 3u>::set_default_parameters();
+template void conductivity_dc<long double, 1u>::set_default_parameters();
+template void conductivity_dc<long double, 2u>::set_default_parameters();
+template void conductivity_dc<long double, 3u>::set_default_parameters();
+
+template void conductivity_dc<float, 1u>::set_energy_limits();
+template void conductivity_dc<float, 2u>::set_energy_limits();
+template void conductivity_dc<float, 3u>::set_energy_limits();
+template void conductivity_dc<double, 1u>::set_energy_limits();
+template void conductivity_dc<double, 2u>::set_energy_limits();
+template void conductivity_dc<double, 3u>::set_energy_limits();
+template void conductivity_dc<long double, 1u>::set_energy_limits();
+template void conductivity_dc<long double, 2u>::set_energy_limits();
+template void conductivity_dc<long double, 3u>::set_energy_limits();
+
+template bool conductivity_dc<float, 1u>::fetch_parameters();
+template bool conductivity_dc<float, 2u>::fetch_parameters();
+template bool conductivity_dc<float, 3u>::fetch_parameters();
+template bool conductivity_dc<double, 1u>::fetch_parameters();
+template bool conductivity_dc<double, 2u>::fetch_parameters();
+template bool conductivity_dc<double, 3u>::fetch_parameters();
+template bool conductivity_dc<long double, 1u>::fetch_parameters();
+template bool conductivity_dc<long double, 2u>::fetch_parameters();
+template bool conductivity_dc<long double, 3u>::fetch_parameters();
+
+template void conductivity_dc<float, 1u>::override_parameters();
+template void conductivity_dc<float, 2u>::override_parameters();
+template void conductivity_dc<float, 3u>::override_parameters();
+template void conductivity_dc<double, 1u>::override_parameters();
+template void conductivity_dc<double, 2u>::override_parameters();
+template void conductivity_dc<double, 3u>::override_parameters();
+template void conductivity_dc<long double, 1u>::override_parameters();
+template void conductivity_dc<long double, 2u>::override_parameters();
+template void conductivity_dc<long double, 3u>::override_parameters();
+
+template void conductivity_dc<float, 1u>::printDC();
+template void conductivity_dc<float, 2u>::printDC();
+template void conductivity_dc<float, 3u>::printDC();
+template void conductivity_dc<double, 1u>::printDC();
+template void conductivity_dc<double, 2u>::printDC();
+template void conductivity_dc<double, 3u>::printDC();
+template void conductivity_dc<long double, 1u>::printDC();
+template void conductivity_dc<long double, 2u>::printDC();
+template void conductivity_dc<long double, 3u>::printDC();
+
+template void conductivity_dc<float, 1u>::calculate2();
+template void conductivity_dc<float, 2u>::calculate2();
+template void conductivity_dc<float, 3u>::calculate2();
+template void conductivity_dc<double, 1u>::calculate2();
+template void conductivity_dc<double, 2u>::calculate2();
+template void conductivity_dc<double, 3u>::calculate2();
+template void conductivity_dc<long double, 1u>::calculate2();
+template void conductivity_dc<long double, 2u>::calculate2();
+template void conductivity_dc<long double, 3u>::calculate2();

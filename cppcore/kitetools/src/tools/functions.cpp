@@ -282,7 +282,7 @@ template std::function<std::complex<long double>(int, long double)> greenAscat(l
 template <typename TR>
 TR delta(int n, TR energy){
 	TR sq = sqrt(1.0 - energy*energy);
-	if(energy < 1 and energy > -1)
+	if(energy < 1 && energy > -1)
 		return 2.0/M_PI/sq*cos(n*acos(energy));
 	else
 		return 0;

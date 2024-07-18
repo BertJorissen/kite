@@ -18,7 +18,7 @@ class conductivity_dc{
     T beta;
     bool default_temp;
 
-		// Functions to calculate. They will require the objects present in
+    // Functions to calculate. They will require the objects present in
     // the configuration file
     int direction;
     int NumDisorder;
@@ -69,23 +69,21 @@ class conductivity_dc{
     Eigen::Array<std::complex<T>, -1, -1> Gamma_Padded;
 
 
-
-
     conductivity_dc(system_info<T, DIM>&, shell_input &);
     void printDC();
     void set_energy_limits();
     bool is_required();
     void set_default_parameters();
-	  bool fetch_parameters();
-	  void override_parameters();
+    bool fetch_parameters();
+    void override_parameters();
     void calculate();
     void calculate2();
     void calculate_imag();
     Eigen::Matrix<std::complex<T>, -1, -1, Eigen::ColMajor> fill_delta();
     Eigen::Matrix<std::complex<T>, -1, -1, Eigen::RowMajor> fill_dgreenR();
     Eigen::Matrix<std::complex<T>, -1, -1> triple_product(
-      Eigen::Matrix<std::complex<T>, -1, -1, Eigen::ColMajor>,
-      Eigen::Matrix<std::complex<T>, -1, -1, Eigen::RowMajor>);
+            Eigen::Matrix<std::complex<T>, -1, -1, Eigen::ColMajor>,
+            Eigen::Matrix<std::complex<T>, -1, -1, Eigen::RowMajor>);
 
     Eigen::Matrix<std::complex<T>, -1, 1> calc_cond(
         Eigen::Matrix<std::complex<T>, -1, -1>);

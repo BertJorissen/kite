@@ -24,7 +24,7 @@ dependencies = [
     "matplotlib>=3.5",
     "h5py==3.11.0",
     "pytest>=5.0",
-    "pybinding>=0.9.5"
+    "pybinding-dev>=0.9.5"
 ]
 requires-python = ">=3.8"
 license = {file = "LICENSE.md"}
