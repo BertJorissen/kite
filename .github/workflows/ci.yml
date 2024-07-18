@@ -82,11 +82,11 @@ jobs:
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
-            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libom/18.1.8"
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/opt/libomp"
             python-version: "3.10"
           - os: macos-14
             arch: arm64
-            options: "/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"
+            options: "/opt/homebrew/Cellar/boost/1.85.0;L/opt/homebrew/opt/libomp"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -116,7 +116,7 @@ jobs:
           #   OSX_ARCH=${{ matrix.cibw_archs }}
           #   OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT: >
-            QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
+            QK_CMAKE_PREFIX_PATH="${{ matrix.options }}"
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install scipy contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
