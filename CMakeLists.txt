@@ -85,16 +85,18 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     set(ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"
             "-DBUILD_SHARED_LIBS=ON"
-            "-DBUILD_STATIC_LIBS=ON"
+            "-DBUILD_STATIC_LIBS=OFF"
             "-DHDF5_BUILD_CPP_LIB=ON"
-            "-DHDF5_BUILD_C_LIB=ON"
-            "-DHDF5_BUILD_HL_LIB=ON"
+            "-DHDF5_BUILD_C_LIB=OFF"
+            "-DHDF5_BUILD_HL_LIB=OFF"
             "-DHDF5_BUILD_EXAMPLES=OFF"       # Skip building examples
             "-DHDF5_BUILD_TOOLS=OFF"          # Skip building tools
             "-DHDF5_BUILD_FORTRAN=OFF"        # Skip building Fortran API
             "-DHDF5_BUILD_JAVA=OFF"           # Skip building Java wrappers
             "-DHDF5_BUILD_TESTING=OFF"        # Skip building tests
             "-DCMAKE_CXX_FLAGS=-DH5_BUILT_AS_DYNAMIC_LIB"
+            "-DH5_BUILT_AS_DYNAMIC_LIB=ON"
+            "-DH5_ENABLE_SHARED_LIB=YES"
             )
 
     if(NOT HDF5_DOWNLOAD_VERSION)

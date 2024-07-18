@@ -63,7 +63,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     target_include_directories(cppcore_kitetools SYSTEM PRIVATE ${hdf5_includes})
     target_link_libraries(KITE-tools PRIVATE ${hdf5_libs})
     target_link_libraries(cppcore_kitetools PRIVATE ${hdf5_libs})
-    MESSAGE(STATUS "Using downloaded HDF5")
+    MESSAGE(STATUS "Using downloaded HDF5 for KITE-tools")
 else()
     target_include_directories(cppcore_kitetools SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
     target_include_directories(KITE-tools SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})

@@ -444,7 +444,7 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 #pragma omp parallel 
 {
 #pragma omp for schedule(static, 1) nowait
-  for(int j = 0; j < Nmax*Mmax; j++){
+  for(int j = 0; j < static_cast<int>(Nmax*Mmax); j++){
     // block index j = n + Nmax*m
     int n = j % Nmax;
     int m = j / Nmax;

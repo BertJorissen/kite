@@ -72,7 +72,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
     target_include_directories(cppcore_kitex SYSTEM PRIVATE ${hdf5_includes})
     target_link_libraries(KITEx PRIVATE ${hdf5_libs})
     target_link_libraries(cppcore_kitex PRIVATE ${hdf5_libs})
-    MESSAGE(STATUS "Using downloaded HDF5")
+    MESSAGE(STATUS "Using downloaded HDF5 for KITEx with includes ${hdf5_includes} and libs ${hdf5_libs}")
 else()
     target_include_directories(cppcore_kitex SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
     target_include_directories(KITEx SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
