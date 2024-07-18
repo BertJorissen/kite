@@ -134,24 +134,26 @@ template class Simulation<std::complex<float> ,2u>;
 template class Simulation<std::complex<double> ,2u>;
 template class Simulation<std::complex<long double> ,2u>;
 
-template std::vector<std::vector<unsigned>> Simulation<float ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<double ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<long double ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,1u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<float ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<double ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<long double ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,3u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<float ,2u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<double ,2u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<long double ,2u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,2u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,2u>::process_string(std::string indices_string);
-template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,2u>::process_string(std::string indices_string);
+// only for MSVC
+#ifdef _MSC_VER
+template std::vector<std::vector<unsigned>> Simulation<float ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<double ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<long double ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,1u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<float ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<double ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<long double ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,3u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<float ,2u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<double ,2u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<long double ,2u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<float> ,2u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<double> ,2u>::process_string(std::string);
+template std::vector<std::vector<unsigned>> Simulation<std::complex<long double> ,2u>::process_string(std::string);
 
 template double Simulation<float ,1u>::time_kpm(int);
 template double Simulation<double ,1u>::time_kpm(int);
@@ -171,3 +173,4 @@ template double Simulation<long double ,2u>::time_kpm(int);
 template double Simulation<std::complex<float> ,2u>::time_kpm(int);
 template double Simulation<std::complex<double> ,2u>::time_kpm(int);
 template double Simulation<std::complex<long double> ,2u>::time_kpm(int);
+#endif

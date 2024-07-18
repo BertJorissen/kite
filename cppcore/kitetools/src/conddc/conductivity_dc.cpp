@@ -388,15 +388,15 @@ void conductivity_dc<U, DIM>::calculate2(){
 template class conductivity_dc<float, 1u>;
 template class conductivity_dc<float, 2u>;
 template class conductivity_dc<float, 3u>;
-
 template class conductivity_dc<double, 1u>;
 template class conductivity_dc<double, 2u>;
 template class conductivity_dc<double, 3u>;
-
 template class conductivity_dc<long double, 1u>;
 template class conductivity_dc<long double, 2u>;
 template class conductivity_dc<long double, 3u>;
 
+// only for MSVC
+#ifdef _MSC_VER
 template bool conductivity_dc<float, 1u>::is_required();
 template bool conductivity_dc<float, 2u>::is_required();
 template bool conductivity_dc<float, 3u>::is_required();
@@ -466,3 +466,4 @@ template void conductivity_dc<double, 3u>::calculate2();
 template void conductivity_dc<long double, 1u>::calculate2();
 template void conductivity_dc<long double, 2u>::calculate2();
 template void conductivity_dc<long double, 3u>::calculate2();
+#endif

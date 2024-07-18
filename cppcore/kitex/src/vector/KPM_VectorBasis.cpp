@@ -207,7 +207,7 @@ template void KPM_VectorBasis<double,1u>::multiply_defect<0u,true>(std::size_t ,
 template void KPM_VectorBasis<long double,1u>::multiply_defect<0u,true>(std::size_t , long double* & , long double * & , unsigned );
 template void KPM_VectorBasis<std::complex<float>,1u>::multiply_defect<0u,true>(std::size_t , std::complex<float>* & , std::complex<float> * & , unsigned );
 template void KPM_VectorBasis<std::complex<double>,1u>::multiply_defect<0u,true>(std::size_t , std::complex<double>* & , std::complex<double> * & , unsigned );
-template void KPM_VectorBasis<std::complex<long double>,1u>::multiply_defect<0u,false>(std::size_t , std::complex<long double>* & , std::complex<long double> * & , unsigned );
+template void KPM_VectorBasis<std::complex<long double>,1u>::multiply_defect<0u,true>(std::size_t , std::complex<long double>* & , std::complex<long double> * & , unsigned );
 template void KPM_VectorBasis<float,2u>::multiply_defect<0u,true>(std::size_t , float* & , float * & , unsigned );
 template void KPM_VectorBasis<double,2u>::multiply_defect<0u,true>(std::size_t , double* & , double * & , unsigned );
 template void KPM_VectorBasis<long double,2u>::multiply_defect<0u,true>(std::size_t , long double* & , long double * & , unsigned );

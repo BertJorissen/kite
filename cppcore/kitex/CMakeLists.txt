@@ -58,7 +58,9 @@ add_library(cppcore_kitex STATIC
 
 add_library(kite::cppcore_kitex ALIAS cppcore_kitex)
 target_include_directories(cppcore_kitex SYSTEM PRIVATE include)
-target_link_libraries(cppcore_kitex PRIVATE Shlwapi)
+if (WIN32)
+    target_link_libraries(cppcore_kitex PRIVATE Shlwapi)
+endif ()
 
 add_executable(KITEx src/main.cpp)
 target_include_directories(KITEx SYSTEM PRIVATE include)

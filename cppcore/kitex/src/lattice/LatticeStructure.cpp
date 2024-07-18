@@ -268,17 +268,19 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
 template struct LatticeStructure<1u>;
 template struct LatticeStructure<2u>;
 template struct LatticeStructure<3u>;
+
 template void LatticeStructure<1u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 2u> &, Coordinates<std::size_t, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 3u> &, Coordinates<std::size_t, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 4u> &, Coordinates<std::size_t, 4u> &);
 template void LatticeStructure<1u>::convertCoordinates<long>(Coordinates<long, 2u> &, Coordinates<long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long>(Coordinates<long, 3u> &, Coordinates<long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long>(Coordinates<long, 4u> &, Coordinates<long, 4u> &);
+// only for MSVC
+#ifdef _MSC_VER
 template void LatticeStructure<1u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 2u> &, Coordinates<unsigned long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 3u> &, Coordinates<unsigned long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 4u> &, Coordinates<unsigned long, 4u> &);
+#endif
 template void LatticeStructure<1u>::convertCoordinates<long long>(Coordinates<long long, 2u> &, Coordinates<long long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long long>(Coordinates<long long, 3u> &, Coordinates<long long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long long>(Coordinates<long long, 4u> &, Coordinates<long long, 4u> &);
-
-

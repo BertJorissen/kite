@@ -5,7 +5,6 @@ add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 pybind11_add_module(kitecore src/main.cpp)
 
 if(${DOWNLOAD_HDF5})
-    MESSAGE(STATUS "kitecore ${hdf5_includes} ${hdf5_libs}")
     add_dependencies(kitecore hdf5_local)
     target_include_directories(kitecore SYSTEM PRIVATE ${hdf5_includes})
     target_link_libraries(kitecore PRIVATE ${hdf5_libs})

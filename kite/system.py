@@ -306,7 +306,11 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
         # find the minimum commensurate magnetic field
         hbar = 6.58211899 * 10 ** -16  #: [eV*s]
         phi0 = 2 * np.pi * hbar  #: [V*s] flux quantum
-        unit_cell_area = np.linalg.norm(np.cross(vectors[0, :], vectors[1, :])) * 1e-18
+        vector1_3d = np.zeros(3)
+        vector1_3d[:len(vectors[0, :])] = vectors[0, :]
+        vector2_3d = np.zeros(3)
+        vector2_3d[:len(vectors[1, :])] = vectors[1, :]
+        unit_cell_area = np.linalg.norm(np.cross(vector1_3d, vector2_3d)) * 1e-18
         magnetic_field_min = phi0 / (leng[1] * unit_cell_area)
         print('For a selected system size, minimum field is: ', magnetic_field_min)
 

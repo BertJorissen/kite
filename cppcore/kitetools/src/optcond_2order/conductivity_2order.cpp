@@ -567,6 +567,8 @@ template class conductivity_nonlinear<long double, 1u>;
 template class conductivity_nonlinear<long double, 2u>;
 template class conductivity_nonlinear<long double, 3u>;
 
+// only for MSVC
+#ifdef _MSC_VER
 template int conductivity_nonlinear<float, 1u>::fetch_gamma0();
 template int conductivity_nonlinear<float, 2u>::fetch_gamma0();
 template int conductivity_nonlinear<float, 3u>::fetch_gamma0();
@@ -676,3 +678,4 @@ template void conductivity_nonlinear<double, 3u>::calculate();
 template void conductivity_nonlinear<long double, 1u>::calculate();
 template void conductivity_nonlinear<long double, 2u>::calculate();
 template void conductivity_nonlinear<long double, 3u>::calculate();
+#endif
