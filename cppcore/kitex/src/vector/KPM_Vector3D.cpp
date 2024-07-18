@@ -180,7 +180,7 @@ void KPM_Vector <T, 3u>::initiate_vector(){
         for(std::size_t i2 = NGHOSTS; i2 < r.Ld[2] - NGHOSTS; i2++)
           for(std::size_t i1 = NGHOSTS; i1 < r.Ld[1] - NGHOSTS; i1++)
             for(std::size_t i0 = NGHOSTS; i0 < r.Ld[0] - NGHOSTS; i0++)
-              v(x.set({i0,i1,i2,io}).index, index) = static_cast<value_type>(1.0/static_cast<value_type>(sqrt(value_type(r.Sizet - r.SizetVacancies))));
+              v(x.set({i0,i1,i2,io}).index, index) = 1.0/static_cast<value_type>(sqrt(value_type(r.Sizet - r.SizetVacancies)));
 
   // Proceed normally
   } else {

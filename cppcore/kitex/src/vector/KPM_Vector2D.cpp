@@ -158,7 +158,7 @@ void KPM_Vector <T, 2>::initiate_vector() {
       for(std::size_t io = 0; io < r.Orb; io++)
         for(std::size_t i1 = NGHOSTS; i1 < r.Ld[1] - NGHOSTS; i1++)
           for(std::size_t i0 = NGHOSTS; i0 < r.Ld[0] - NGHOSTS; i0++)
-            v(x.set({i0,i1,io}).index, index) = static_cast<value_type>(1.0/(sqrt(value_type(r.Sizet - r.SizetVacancies))));
+            v(x.set({i0,i1,io}).index, index) = 1.0/static_cast<value_type>(sqrt(value_type(r.Sizet - r.SizetVacancies)));
 
 
   } else {

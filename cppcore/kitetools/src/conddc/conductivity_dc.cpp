@@ -376,22 +376,12 @@ void conductivity_dc<T, DIM>::calculate2(){
 
   // integrate over the whole energy range for each Fermi energy
   Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> condDC;
-  T den = static_cast<T>(-systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
+  T den = static_cast<T>(systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
   condDC = calc_cond(GammaE)*den;
 
   // save to a file
   save_to_file(condDC);
 }
-
-template<typename T, unsigned int DIM>
-void conductivity_dc<T, DIM>::calculate() {
-
-}
-
-template<typename T, unsigned int DIM>
-void conductivity_dc<T, DIM>::calculate_imag() {
-
-};
 
 
 // Instantiations

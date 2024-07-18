@@ -82,7 +82,7 @@ typename std::enable_if<is_tt<std::complex, U>::value, U>::type KPMRandom<T>::in
 template <typename T>
 template <typename U>
 typename std::enable_if<!is_tt<std::complex, U>::value, U>::type KPMRandom<T>::initA() {
-  return static_cast<typename std::enable_if<!is_tt<std::complex, U>::value, U>::type>((2*dist(rng) - 1.)*sqrt(3));
+    return (2*dist(rng) - 1.)*sqrt(3);
 }
 
 template <typename T>
