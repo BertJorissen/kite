@@ -192,7 +192,7 @@ shell_input::shell_input(int argc, char *argv[]){
 
     // First, find the position of each of the following functions:
     valid_keys = std::vector<std::string>{"--DOS", "--CondOpt","--CondDC", "--CondOpt2", "--LDOS", "--ARPES"};
-    len = valid_keys.size();   // length of valid_keys?
+    len = static_cast<int>(valid_keys.size());   // length of valid_keys?
     keys_pos = std::vector<int>(len, -1);
     keys_len = std::vector<int>(len, -1);
 
@@ -685,7 +685,7 @@ void shell_input::parse_ARPES(int argc, char* argv[]){
                       break;
                   n_args = ii;
               }
-              ARPES_vec = Eigen::Array<double, -1, 1>::Zero(n_args, 1);
+              ARPES_vec = Eigen::Array<double, Eigen::Dynamic, 1>::Zero(n_args, 1);
 
               if(n_args == 1){
                 v1 = atof(argv[k + pos + 1]);

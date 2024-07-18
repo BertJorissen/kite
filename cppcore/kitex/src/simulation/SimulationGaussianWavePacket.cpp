@@ -49,7 +49,7 @@ void Simulation<T, DIM>::calc_wavepacket(){
         int dummy_var;
         get_hdf5<int>(&dummy_var, file, (char *) "/Calculation/gaussian_wave_packet/NumDisorder");
         Global.calculate_wavepacket = 1;
-      } catch(H5::Exception& e) {debug_message("Wavepacket: no need to calculate.\n");}
+      } catch(H5::Exception&) {debug_message("Wavepacket: no need to calculate.\n");}
         file->close();  
         delete file;
     }
@@ -81,22 +81,22 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
   T one  = CT.assign_value(double(1),  double(0));
   std::vector<double> times;
   
-  Eigen::Array<T,-1,-1> avg_x, avg_y, avg_z, avg_ident;
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> avg_x, avg_y, avg_z, avg_ident;
   Eigen::Matrix<T, 2, 2> ident, spin_x, spin_y, spin_z;
 
-  Eigen::Map<Eigen::Matrix<T,-1,-1>> vket (sum_ket.v.data(), r.Sized/2, 2);
-  Eigen::Map<Eigen::Matrix<T,-1,-1>> vtmp (phi.v.data()    , r.Sized/2, 2);
-  Eigen::Map<Eigen::Matrix<T,-1,-1>> vtmp1(phi.v.data()    , r.Sized  , 1);
+  Eigen::Map<Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>> vket (sum_ket.v.data(), r.Sized/2, 2);
+  Eigen::Map<Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>> vtmp (phi.v.data()    , r.Sized/2, 2);
+  Eigen::Map<Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>> vtmp1(phi.v.data()    , r.Sized  , 1);
   float timestep;
   double width;
-  Eigen::Array<T, -1, -1> avg_results;
-  Eigen::Array<T, -1, -1> results(2*D, 1);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> avg_results;
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> results(2*D, 1);
   H5::DataSet * dataset;
   H5::DataSpace * dataspace;
   hsize_t dim[2];
-  Eigen::Matrix <double,-1, -1> k_vector;
+  Eigen::Matrix <double,Eigen::Dynamic, Eigen::Dynamic> k_vector;
   Eigen::Matrix <double ,1, 2> vb;
-  Eigen::Matrix <T,-1, -1>        spinor;
+  Eigen::Matrix <T,Eigen::Dynamic, Eigen::Dynamic>        spinor;
 
   ident <<  one, zero,
     zero, one;
@@ -120,8 +120,8 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
     dataspace->close(); delete dataspace;
     dataset->close();   delete dataset;
 
-    k_vector  = Eigen::Matrix<double,-1, -1>::Zero(dim[1],dim[0]);
-    spinor    = Eigen::Matrix<     T,-1, -1>::Zero(r.Orb,dim[0]);
+    k_vector  = Eigen::Matrix<double,Eigen::Dynamic, Eigen::Dynamic>::Zero(dim[1],dim[0]);
+    spinor    = Eigen::Matrix<     T,Eigen::Dynamic, Eigen::Dynamic>::Zero(r.Orb,dim[0]);
     vb = Eigen::Matrix<     double,1, 2>::Zero(2);
     get_hdf5    <int>(&NumDisorder,    file, (char *) "/Calculation/gaussian_wave_packet/NumDisorder");
     get_hdf5    <int>(&NumMoments,     file, (char *) "/Calculation/gaussian_wave_packet/NumMoments" );
@@ -135,24 +135,24 @@ void Simulation<T,D>::Gaussian_Wave_Packet(){
     file->close();  delete file;
   }
 #pragma omp barrier
-  avg_x       = Eigen::Matrix<T,-1,-1>::Zero(NumPoints,1);
-  avg_y       = Eigen::Matrix<T,-1,-1>::Zero(NumPoints,1);
-  avg_z       = Eigen::Matrix<T,-1,-1>::Zero(NumPoints,1);
-  avg_ident   = Eigen::Matrix<T,-1,-1>::Zero(NumPoints,1);
-  avg_results = Eigen::Array<T, -1,-1>::Zero(2*D, NumPoints);
+  avg_x       = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumPoints,1);
+  avg_y       = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumPoints,1);
+  avg_z       = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumPoints,1);
+  avg_ident   = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumPoints,1);
+  avg_results = Eigen::Array<T, Eigen::Dynamic,Eigen::Dynamic>::Zero(2*D, NumPoints);
     
 #pragma omp master
   {
-    Global.avg_x       = Eigen::Matrix<T,-1,1>::Zero(NumPoints,1);
-    Global.avg_y       = Eigen::Matrix<T,-1,1>::Zero(NumPoints,1);
-    Global.avg_z       = Eigen::Matrix<T,-1,1>::Zero(NumPoints,1);
-    Global.avg_ident   = Eigen::Matrix<T,-1,1>::Zero(NumPoints,1);
-    Global.avg_results = Eigen::Array<T,-1,-1>::Zero(2*D,NumPoints);
+    Global.avg_x       = Eigen::Matrix<T,Eigen::Dynamic,1>::Zero(NumPoints,1);
+    Global.avg_y       = Eigen::Matrix<T,Eigen::Dynamic,1>::Zero(NumPoints,1);
+    Global.avg_z       = Eigen::Matrix<T,Eigen::Dynamic,1>::Zero(NumPoints,1);
+    Global.avg_ident   = Eigen::Matrix<T,Eigen::Dynamic,1>::Zero(NumPoints,1);
+    Global.avg_results = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(2*D,NumPoints);
   }
     
     
   NumMoments = (NumMoments/2)*2;
-  Eigen::Matrix<T,-1,1> m(NumMoments);
+  Eigen::Matrix<T,Eigen::Dynamic,1> m(NumMoments);
   for(unsigned n = 0; n < unsigned(NumMoments); n++)
     #if USE_BOOST
     m(n) = value_type((n == 0 ? 1 : 2 )*boost::math::cyl_bessel_j(n, timestep )) * T(pow(-II,n));

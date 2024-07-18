@@ -8,7 +8,7 @@
 #include "tools/functions.hpp"
 
 template <typename T>	
-std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::complex<T>, -1, 1> integrand){
+std::complex<T> integrate(Eigen::Matrix<T, Eigen::Dynamic, 1> energies, Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> integrand){
     // Integration routine to be used in all the response functions. This is Simpson 1/3
 
 
@@ -19,7 +19,7 @@ std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::c
 	}
 	
     // Check that the number of integration points is odd for usage with Simpson
-	int N = energies.cols()*energies.rows();
+	int N = static_cast<int>(energies.cols()*energies.rows());
     if(N % 2 != 1) {
         std::cout << "Number of energies in the final integraton process must be odd. Exiting.\n";
         exit(1);
@@ -38,9 +38,9 @@ std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::c
 }
 
 // Instantiations
-template std::complex<float> integrate<float>(Eigen::Matrix<float, -1, 1>, Eigen::Matrix<std::complex<float>, -1, 1>);
-template std::complex<double> integrate<double>(Eigen::Matrix<double, -1, 1>, Eigen::Matrix<std::complex<double>, -1, 1>);
-template std::complex<long double> integrate<long double>(Eigen::Matrix<long double, -1, 1>, Eigen::Matrix<std::complex<long double>, -1, 1>);
+template std::complex<float> integrate<float>(Eigen::Matrix<float, Eigen::Dynamic, 1>, Eigen::Matrix<std::complex<float>, Eigen::Dynamic, 1>);
+template std::complex<double> integrate<double>(Eigen::Matrix<double, Eigen::Dynamic, 1>, Eigen::Matrix<std::complex<double>, Eigen::Dynamic, 1>);
+template std::complex<long double> integrate<long double>(Eigen::Matrix<long double, Eigen::Dynamic, 1>, Eigen::Matrix<std::complex<long double>, Eigen::Dynamic, 1>);
 
 template <typename T>
 T fermi_function(T energy, T mu, T beta){
@@ -146,15 +146,15 @@ std::string num2str2f(int dir_num){
 template <typename T>
 std::complex<T> contract1(
     std::function<T(int, T)> f0, int N_moments, 
-    const Eigen::Array<std::complex<T>, -1, -1>& Gamma, 
-    const Eigen::Matrix<T, -1, 1>& energies){
+    const Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>& Gamma,
+    const Eigen::Matrix<T, Eigen::Dynamic, 1>& energies){
     debug_message("Entered contract1\n");
 
-    int N_energies = energies.rows();
+    int N_energies = static_cast<int>(energies.rows());
 
     T energy;
-    Eigen::Matrix<std::complex<T>, -1, 1> GammaE;
-    GammaE = Eigen::Matrix<std::complex<T>, -1, 1>::Zero(N_energies, 1);
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> GammaE;
+    GammaE = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>::Zero(N_energies, 1);
     
     for(int e = 0; e < N_energies; e++){
       energy = energies(e);
@@ -166,9 +166,9 @@ std::complex<T> contract1(
     return integrate(energies, GammaE);
 }
 
-template std::complex<float> contract1( std::function<float(int, float)>, int, const Eigen::Array<std::complex<float>, -1, -1>&, const Eigen::Matrix<float, -1, 1>&);
-template std::complex<double> contract1( std::function<double(int, double)>, int, const Eigen::Array<std::complex<double>, -1, -1>&, const Eigen::Matrix<double, -1, 1>&);
-template std::complex<long double> contract1( std::function<long double(int, long double)>, int, const Eigen::Array<std::complex<long double>, -1, -1>&, const Eigen::Matrix<long double, -1, 1>&);
+template std::complex<float> contract1( std::function<float(int, float)>, int, const Eigen::Array<std::complex<float>, Eigen::Dynamic, Eigen::Dynamic>&, const Eigen::Matrix<float, Eigen::Dynamic, 1>&);
+template std::complex<double> contract1( std::function<double(int, double)>, int, const Eigen::Array<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic>&, const Eigen::Matrix<double, Eigen::Dynamic, 1>&);
+template std::complex<long double> contract1( std::function<long double(int, long double)>, int, const Eigen::Array<std::complex<long double>, Eigen::Dynamic, Eigen::Dynamic>&, const Eigen::Matrix<long double, Eigen::Dynamic, 1>&);
 
 
 int int_pow(int base, int exp){
@@ -185,7 +185,7 @@ int int_pow(int base, int exp){
 
 template <typename T>
 T kernel_jackson(int n, int M){
-	T f = M_PI/(M+1);
+	T f = static_cast<T>(M_PI/(M+1));
 	return ((M+1-n)*cos(n*f) + sin(n*f)/tan(f))/(M+1);
 }
 
@@ -217,7 +217,7 @@ template <typename TC>
 TC green(int n, int sigma, TC energy){
 	const TC i(0.0,1.0); 
 	TC sq = sqrt(TC(1.0) - energy*energy);
-	return -TC(2.0*sigma)/sq*i*exp(-TC(sigma*n)*acos(energy)*i);
+	return -TC(2.0*sigma)/sq*i*exp(-static_cast<TC>(sigma*n)*acos(energy)*i);
 }
 
 template std::complex<float> green(int, int, std::complex<float>);
@@ -281,9 +281,9 @@ template std::function<std::complex<long double>(int, long double)> greenAscat(l
 
 template <typename TR>
 TR delta(int n, TR energy){
-	TR sq = sqrt(1.0 - energy*energy);
+	TR sq = static_cast<TR>(sqrt(1.0 - energy*energy));
 	if(energy < 1 && energy > -1)
-		return 2.0/M_PI/sq*cos(n*acos(energy));
+		return static_cast<TR>(2.0/M_PI/sq*cos(n*acos(energy)));
 	else
 		return 0;
 }

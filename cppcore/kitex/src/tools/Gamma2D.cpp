@@ -51,8 +51,8 @@ void Simulation<T,D>::Gamma2D(int NRandomV, int NDisorder, std::vector<int> N_mo
   typedef typename extract_value_type<T>::value_type value_type;
 
   int num_velocities = 0;
-  for(int i = 0; i < int(indices.size()); i++)
-    num_velocities += indices.at(i).size();
+  for(auto & indice : indices)
+    num_velocities += static_cast<int>(indice.size());
   int factor = 1 - (num_velocities % 2)*2;
 
   //  --------- INITIALIZATIONS --------------
@@ -72,7 +72,7 @@ void Simulation<T,D>::Gamma2D(int NRandomV, int NDisorder, std::vector<int> N_mo
     size_gamma *= N_moments.at(i);
   }
 
-  Eigen::Array<T, -1, -1> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
  
   // finished initializations
 
@@ -151,15 +151,15 @@ void Simulation<T,D>::Gamma2D(int NRandomV, int NDisorder, std::vector<int> N_mo
 
 
 template <typename T,unsigned D>
-void Simulation<T,D>::store_gamma(Eigen::Array<T, -1, -1> *gamma, std::vector<int> N_moments, 
+void Simulation<T,D>::store_gamma(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *gamma, std::vector<int> N_moments,
                                   std::vector<std::vector<unsigned>> indices, std::string name_dataset){
   debug_message("Entered store_gamma\n");
   // The whole purpose of this function is to take the Gamma matrix calculated by
 
 
 
-  long int size_gamma = gamma->cols();
-  int dim = indices.size();
+  long int size_gamma = static_cast<long int>(gamma->cols());
+  int dim = static_cast<int>(indices.size());
 
 		
   // Number of commutators inside the Gamma matrix. 
@@ -167,15 +167,15 @@ void Simulation<T,D>::store_gamma(Eigen::Array<T, -1, -1> *gamma, std::vector<in
   // V^{xy} = [x,[y,H]]	-> two commutators
   // This is important because the commutator is anti-hermitian. So, an odd number of commutators
   int num_velocities = 0;
-  for(int i = 0; i < int(indices.size()); i++)
-    num_velocities += indices.at(i).size();
+  for(auto & indice : indices)
+    num_velocities += static_cast<int>(indice.size());
   int factor = 1 - (num_velocities % 2)*2;
 		
   switch(dim){
   case 2: {
-    Eigen::Array<T,-1,-1> general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), N_moments.at(0), N_moments.at(1));
+    Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), N_moments.at(0), N_moments.at(1));
 #pragma omp master
-    Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(N_moments.at(0), N_moments.at(1));
+    Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(N_moments.at(0), N_moments.at(1));
 #pragma omp barrier
 #pragma omp critical
     Global.general_gamma.matrix() += (general_gamma.matrix() + factor*general_gamma.matrix().adjoint())/2.0;
@@ -183,9 +183,9 @@ void Simulation<T,D>::store_gamma(Eigen::Array<T, -1, -1> *gamma, std::vector<in
     break;
   }
   case 1: {
-    Eigen::Array<T,-1,-1> general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), 1, size_gamma);
+    Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), 1, size_gamma);
 #pragma omp master
-    Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(1, size_gamma);
+    Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(1, size_gamma);
 #pragma omp barrier
 #pragma omp critical
     Global.general_gamma += general_gamma;
@@ -251,6 +251,6 @@ template void Simulation<std::complex<long double>,3u>::store_gamma(Eigen::Array
 
 /*
 #define instantiate(type, dim)  template void Simulation<type,dim>::Gamma2D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string); \
-  template void Simulation<type,dim>::store_gamma(Eigen::Array<type, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+  template void Simulation<type,dim>::store_gamma(Eigen::Array<type, Eigen::Dynamic, Eigen::Dynamic>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
 #include "tools/instantiate.hpp"
 */

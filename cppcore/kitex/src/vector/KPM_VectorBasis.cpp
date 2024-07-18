@@ -140,7 +140,7 @@ void KPM_VectorBasis<T,D>::multiply_defect(std::size_t istr, T* & phi0, T* & phi
 }
 
 template <typename T,unsigned D>
-void KPM_VectorBasis<T,D>::build_defect_planewave(Eigen::Matrix<double,-1,1> & k , Eigen::Matrix<T,-1,1> & weight )
+void KPM_VectorBasis<T,D>::build_defect_planewave(Eigen::Matrix<double,Eigen::Dynamic,1> & k , Eigen::Matrix<T,Eigen::Dynamic,1> & weight )
 {
 }
 

@@ -12,9 +12,9 @@ class system_info{
 		int dim;
 		int num_orbitals;
     int isComplex;
-		Eigen::Array<int,1,-1> size;
-		Eigen::Array<double,-1,-1> vectors;
-		Eigen::Array<double, -1, -1> orbital_positions;
+		Eigen::Array<int,1,Eigen::Dynamic> size;
+		Eigen::Array<double,Eigen::Dynamic,Eigen::Dynamic> vectors;
+		Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> orbital_positions;
 			
 		double unit_cell_area;
 		double spin_degeneracy;

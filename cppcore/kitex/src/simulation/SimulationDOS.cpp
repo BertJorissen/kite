@@ -25,14 +25,14 @@ class KPM_Vector;
 #include "vector/KPM_Vector.hpp"
 
 template <typename T,unsigned D>
-void Simulation<T,D>::store_MU(Eigen::Array<T, -1, -1> *gamma){
+void Simulation<T,D>::store_MU(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *gamma){
     debug_message("Entered store_mu\n");
 
-    long int nMoments   = gamma->rows();
-    long int nPositions = gamma->cols();
+    auto nMoments   = static_cast<long int>(gamma->rows());
+    auto nPositions = static_cast<long int>(gamma->cols());
 
 #pragma omp master
-	Global.general_gamma = Eigen::Array<T, -1, -1 > :: Zero(nMoments, nPositions);
+	Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > :: Zero(nMoments, nPositions);
 #pragma omp barrier
 #pragma omp critical
 	Global.general_gamma += *gamma;
@@ -41,7 +41,7 @@ void Simulation<T,D>::store_MU(Eigen::Array<T, -1, -1> *gamma){
     
 #pragma omp master
 {
-    H5::H5File * file = new H5::H5File(name, H5F_ACC_RDWR);
+    auto *file = new H5::H5File(name, H5F_ACC_RDWR);
     write_hdf5(Global.general_gamma, file, "/Calculation/dos/MU");
     file->close();
     delete file;
@@ -64,13 +64,13 @@ void Simulation<T,D>::calc_DOS(){
   bool local_calculate_dos = false;
 #pragma omp master
 {
-  auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
+  auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
   Global.calculate_dos = false;
   try{
     int dummy_variable;
     get_hdf5<int>(&dummy_variable,  file, (char *)   "/Calculation/dos/NumMoments");
     Global.calculate_dos = true;
-  } catch(H5::Exception& e) {debug_message("DOS: no need to calculate DOS.\n");}
+  } catch(H5::Exception&) {debug_message("DOS: no need to calculate DOS.\n");}
   file->close();
   delete file;
 }
@@ -88,7 +88,7 @@ if(local_calculate_dos){
 #pragma omp barrier
 #pragma omp critical
 {
-    auto * file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
 
     debug_message("DOS: checking if we need to calculate DOS.\n");
     get_hdf5<int>(&NMoments,  file, (char *)   "/Calculation/dos/NumMoments");

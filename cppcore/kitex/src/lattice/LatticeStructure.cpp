@@ -37,7 +37,7 @@ LatticeStructure<D>::LatticeStructure(char *name )
       H5::Exception::dontPrint();
       get_hdf5<int>(&MagneticField, file, (char *) "/Hamiltonian/MagneticFieldMul");
     }
-    catch (H5::Exception& e){}
+    catch (H5::Exception&){}
     file->close();
   }
 
@@ -45,8 +45,8 @@ LatticeStructure<D>::LatticeStructure(char *name )
   // The vector potential always changes in the direction of the slow coordinate
   // which is 1 in 2D and 2 in 3D
   ghost_pot.setZero();
-  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 /Lt[1]*M_PI;
-  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 /Lt[2]*M_PI;
+  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 / Lt[1] * M_PI;
+  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 / Lt[2] * M_PI;
 
 
   test_divisibility();
@@ -254,7 +254,7 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
   
   bool teste = true;
   
-  for(int j = 0; j < int(D); j++)
+  for(int j = 0; j < static_cast<int>(D); j++)
     if(teste && (Latt.coord[j] < NGHOSTS || Latt.coord[j] >= std::ptrdiff_t(Ld[j] - NGHOSTS)) )
       teste = false;                                        // node is in the ghosts!
     else  if(Latt.coord[j] < 0 || Latt.coord[j] > std::ptrdiff_t(Ld[j] - 1))
@@ -284,3 +284,4 @@ template void LatticeStructure<3u>::convertCoordinates<unsigned long>(Coordinate
 template void LatticeStructure<1u>::convertCoordinates<long long>(Coordinates<long long, 2u> &, Coordinates<long long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long long>(Coordinates<long long, 3u> &, Coordinates<long long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long long>(Coordinates<long long, 4u> &, Coordinates<long long, 4u> &);
+

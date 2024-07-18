@@ -7,7 +7,7 @@
 
 
 template <typename U, unsigned DIM>
-Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Contract_RRandAAblocks(){
+Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonlinear<U, DIM>::Gamma3Contract_RRandAAblocks(){
   // Calculation of the second and third three-velocity terms. These have the 
   // product of two functions which do not depend on the frequency
   //
@@ -21,10 +21,10 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
   int local_NumMoments;
   
 
-  Eigen::Matrix<std::complex<U>, -1, -1> global_omega_energies;
-  Eigen::Matrix<std::complex<U>, -1, -1> omega_energies;
-  global_omega_energies = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
-  omega_energies = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> global_omega_energies;
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> omega_energies;
+  global_omega_energies = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
+  omega_energies = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
 
   // Functions that are going to be used by the contractor
   int NumMoments1 = NumMoments; U beta1 = beta; U e_fermi1 = e_fermi;
@@ -43,10 +43,10 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
 
 
   for(int block = 0; block < N_blocks; block ++){
-    Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaGreenRMatrix;
-    Eigen::Matrix<std::complex<U>,-1, -1, Eigen::RowMajor> DeltaGreenAMatrix;
-    DeltaGreenRMatrix = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
-    DeltaGreenAMatrix = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> DeltaGreenRMatrix;
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> DeltaGreenAMatrix;
+    DeltaGreenRMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
+    DeltaGreenAMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, N0*N2/N_blocks);
     for(int n = 0; n < N0; n++)
       for(int p = 0; p < N2/N_blocks; p++)
         for(int e = 0; e < N_energies; e++){
@@ -82,8 +82,8 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
       // as much as possible. For that reason, this block aligns the matrix entries in thememory so
       // that the matrix multiplication that follows is as fast as possible. This operation is
       // of order NumMoments^3
-      Eigen::Matrix<std::complex<U>, -1, -1, Eigen::ColMajor> Gamma3Aligned;
-      Gamma3Aligned = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::ColMajor>::Zero(N0*N2/N_blocks, local_NumMoments);
+      Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> Gamma3Aligned;
+      Gamma3Aligned = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>::Zero(N0*N2/N_blocks, local_NumMoments);
       for(long int p = 0; p < N2/N_blocks; p++)
         for(long int m = i*local_NumMoments; m < (i+1)*local_NumMoments; m++)
           for(long int n = 0; n < N0; n++)
@@ -92,16 +92,16 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
       
       // Perform the matrix product of Gamma3Aligned with the matrix of 
       // Green functions and Dirac Deltas
-      Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> Gamma3NER;
-      Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> Gamma3NEA;
+      Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Gamma3NER;
+      Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Gamma3NEA;
 
       Gamma3NER = DeltaGreenRMatrix*Gamma3Aligned;
       Gamma3NEA = DeltaGreenAMatrix*Gamma3Aligned;
       
       // Matrix of Green's functions
-      Eigen::Matrix<std::complex<U>, -1, -1> GreenR, GreenA;
-      GreenR = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(local_NumMoments, N_energies);
-      GreenA = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(local_NumMoments, N_energies);
+      Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> GreenR, GreenA;
+      GreenR = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(local_NumMoments, N_energies);
+      GreenA = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(local_NumMoments, N_energies);
       
       for(int w = 0; w < N_omegas; w++){
         // The scat term is the same in both cases because greenRscat and greenAscat already
@@ -112,7 +112,7 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
             GreenA(m, e) = greenAscat<U>(scat)(m + i*local_NumMoments, energies(e) - frequencies(w)); 
           }
         
-        Eigen::Matrix<std::complex<U>, -1, -1> temp;
+        Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> temp;
         for(int e = 0; e < N_energies; e++){
           temp  = Gamma3NER.row(e)*GreenR.col(e); 
           temp += Gamma3NEA.row(e)*GreenA.col(e); 
@@ -129,7 +129,7 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
 }
 
 template <typename U, unsigned DIM>
-Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Contract_RA(){
+Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> conductivity_nonlinear<U, DIM>::Gamma3Contract_RA(){
   // Calculate the first of the three three-velocity terms.
   // this is the term with two Green's functions that depend on the 
   // frequency, making it more difficult to calculate.
@@ -152,11 +152,11 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
     return delta(n, energy)*U(1.0/(1.0 + U(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<U>(n, NumMoments1);
   };
   
-  Eigen::Matrix<std::complex<U>, -1, -1> global_omega_energies;
-  Eigen::Matrix<std::complex<U>, -1, -1> omega_energies;
-  global_omega_energies = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> global_omega_energies;
+  Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> omega_energies;
+  global_omega_energies = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
 
-  omega_energies = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, N_omegas);
+  omega_energies = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, N_omegas);
   
   // Start the parallelization. It is done in the direction p
   omp_set_num_threads(systemInfo.NumThreads);
@@ -179,29 +179,29 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
   for(int i = 0; i < N_threads; i++){
     local_NumMoments = N2/N_threads;
     
-    Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> Gamma3Aligned;
-    Gamma3Aligned = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N0*local_NumMoments, N1);
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> Gamma3Aligned;
+    Gamma3Aligned = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N0*local_NumMoments, N1);
     for(long int p = i*local_NumMoments; p < local_NumMoments*(i+1); p++)
       for(long int m = 0; m < N1; m++)
         for(long int n = 0; n < N0; n++)
           Gamma3Aligned((p-i*local_NumMoments)*N0 + n, m) = Gamma3(N0*N1*p + N0*m + n);
       
     // Delta matrix of chebyshev moments and energies
-    Eigen::Matrix<std::complex<U>,-1, -1> DeltaMatrix;
+    Eigen::Matrix<std::complex<U>,Eigen::Dynamic, Eigen::Dynamic> DeltaMatrix;
     
-    DeltaMatrix = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::ColMajor>::Zero(N1, N_energies);
+    DeltaMatrix = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>::Zero(N1, N_energies);
     for(int n = 0; n < NumMoments; n++)
       for(int e = 0; e < N_energies; e++)
         DeltaMatrix(n,e) = deltaF(n, energies(e)); 
 
-    Eigen::Matrix<std::complex<U>, -1, -1> Gamma3NNE;
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> Gamma3NNE;
     Gamma3NNE = Gamma3Aligned*DeltaMatrix;
     
     
     // Matrix of Green's functions
-    Eigen::Matrix<std::complex<U>, -1, -1> GreenR, GreenA;
-    GreenR = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N_energies, N0);
-    GreenA = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(N_energies, local_NumMoments);
+    Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> GreenR, GreenA;
+    GreenR = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, N0);
+    GreenA = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(N_energies, local_NumMoments);
 
 
 
@@ -219,8 +219,8 @@ Eigen::Matrix<std::complex<U>, -1, -1> conductivity_nonlinear<U, DIM>::Gamma3Con
         for(int e = 0; e < N_energies; e++)
           GreenA(e, p) = greenAscat<U>(scat)(i*local_NumMoments + p, energies(e) + frequencies(w)); 
 
-      Eigen::Matrix<std::complex<U>, -1, -1> temp;
-      temp = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(1,1);
+      Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic> temp;
+      temp = Eigen::Matrix<std::complex<U>, Eigen::Dynamic, Eigen::Dynamic>::Zero(1,1);
       for(int col = 0; col < N_energies; col++){
         for(int p = 0; p < local_NumMoments; p++){
           temp = GreenR.row(col)*Gamma3NNE.block(p*N0, col, N0, 1);

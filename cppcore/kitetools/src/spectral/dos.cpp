@@ -21,6 +21,10 @@
 #include "tools/functions.hpp"
 
 #include "macros.hpp"
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 template <typename T, unsigned DIM>
 dos<T, DIM>::dos(system_info<T, DIM>& sysinfo, shell_input & vari){
@@ -37,7 +41,7 @@ dos<T, DIM>::dos(system_info<T, DIM>& sysinfo, shell_input & vari){
         set_default_parameters();
         isPossible = fetch_parameters();
         override_parameters();      // overrides parameters with the ones from the shell input
-        energies = Eigen::Matrix<T, -1, 1>::LinSpaced(NEnergies, Emin, Emax);
+        energies = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(NEnergies, Emin, Emax);
       if(isPossible){
           printDOS();
           calculate();
@@ -71,7 +75,7 @@ bool dos<T, DIM>::is_required(){
     try{
         get_hdf5(&NumMoments, &file, (char*)(dirName+"NumMoments").c_str());
         result = true;
-    } catch(H5::Exception& e){}
+    } catch(H5::Exception&){}
 
 
     file.close();
@@ -185,21 +189,21 @@ bool dos<T, DIM>::fetch_parameters(){
     std::string MatrixName = dirName + "MU";
     try{
 		debug_message("Filling the MU matrix.\n");
-		MU = Eigen::Array<std::complex<T>,-1,-1>::Zero(1, MaxMoments);
+		MU = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, MaxMoments);
 		
 		if(complex)
 			get_hdf5(MU.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> MUReal;
-			MUReal = Eigen::Array<T,-1,-1>::Zero(1, MaxMoments);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> MUReal;
+			MUReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(1, MaxMoments);
 			get_hdf5(MUReal.data(), &file, (char*)MatrixName.c_str());
 			
 			MU = MUReal.template cast<std::complex<T>>();
 		}				
 
         result = true;
-    } catch(H5::Exception& e) {debug_message("DOS: There is no MU matrix.\n");}
+    } catch(H5::Exception&) {debug_message("DOS: There is no MU matrix.\n");}
     NumMoments = MaxMoments;
 
     // Check if the energy window has been specified
@@ -211,7 +215,7 @@ bool dos<T, DIM>::fetch_parameters(){
 		get_hdf5(&Emax, &file, (char*)(dirName+"dos_Emax").c_str());
         Emin = (Emin-shift)/scale;
         Emax = (Emax-shift)/scale;
-    } catch(H5::Exception& e) {debug_message("DOS: Energy window was not specified.\n");}
+    } catch(H5::Exception&) {debug_message("DOS: Energy window was not specified.\n");}
 
 
 	file.close();
@@ -219,8 +223,8 @@ bool dos<T, DIM>::fetch_parameters(){
     return result;
 }
 
-template <typename U, unsigned DIM>
-void dos<U, DIM>::printDOS(){
+template <typename T, unsigned DIM>
+void dos<T, DIM>::printDOS(){
     // Prints all the information about the parameters
     
     double scale = systemInfo->energy_scale;
@@ -240,38 +244,38 @@ void dos<U, DIM>::printDOS(){
 }
 
 
-template <typename U, unsigned DIM>
-void dos<U, DIM>::calculate(){
+template <typename T, unsigned DIM>
+void dos<T, DIM>::calculate(){
   
   using namespace std::placeholders;  // for _1, _2, _3...
   
   // First perform the part of the product that only depends on the
   // chebyshev polynomial of the first kind
-  GammaE = Eigen::Array<std::complex<U>, -1, -1>::Zero(NEnergies, 1);
+  GammaE = Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NEnergies, 1);
   
-  U scale = systemInfo->energy_scale;
-  U mult = 1.0/scale;
-  U factor;
-  U shift = systemInfo->energy_shift;
+  T scale = static_cast<T>(systemInfo->energy_scale);
+  T mult = static_cast<T>(1.0/scale);
+  T factor;
+  T shift = static_cast<T>(systemInfo->energy_shift);
   
   // Choosing the kernel/exact green expansion
   
   if(kernel == "jackson"){
     for(int i = 0; i < NEnergies; i++){
       for(int m = 0; m < NumMoments; m++){
-        factor = 1.0/(1.0 + U(m==0));
-        GammaE(i) += MU(m)*delta(m,energies(i))*kernel_jackson<U>(m, NumMoments)*factor*mult;
+        factor = static_cast<T>(1.0/(1.0 + static_cast<T>(m==0)));
+        GammaE(i) += MU(m)*delta(m,energies(i))*kernel_jackson<T>(m, NumMoments)*factor*mult;
       }
     }
   }
   
-  std::complex<U> c_energy;
+  std::complex<T> c_energy;
   if(kernel == "green"){
     for(int i = 0; i < NEnergies; i++){
-      c_energy = std::complex<U>(energies(i), kernel_parameter);
+      c_energy = std::complex<T>(energies(i), kernel_parameter);
       for(int m = 0; m < NumMoments; m++){
-        factor = 1.0/(1.0 + U(m==0))/M_PI;
-        GammaE(i) += -MU(m)*factor*mult*green<std::complex<U>>(m, 1, c_energy).imag();
+        factor = static_cast<T>(1.0/(1.0 + static_cast<T>(m==0))/M_PI);
+        GammaE(i) += -MU(m)*factor*mult*green<std::complex<T>>(m, 1, c_energy).imag();
       }
     }
   }
@@ -303,7 +307,7 @@ void dos<T,DIM>::find_limits(){
             max = GammaE(i).real();
     }
   
-    T threshold = max*0.01;
+    T threshold = static_cast<T>(max*0.01);
     T lowest = 2, highest = -2, a, b;
     bool founda = false, foundb = false;
     for(int i = 0; i < NEnergies; i++){

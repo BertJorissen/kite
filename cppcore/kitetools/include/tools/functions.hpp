@@ -12,7 +12,7 @@
 #include "../macros.hpp"
 
 template <typename T>	
-std::complex<T> integrate(Eigen::Matrix<T, -1, 1> energies, Eigen::Matrix<std::complex<T>, -1, 1> integrand);
+std::complex<T> integrate(Eigen::Matrix<T, Eigen::Dynamic, 1> energies, Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> integrand);
 
 
 template <typename T>
@@ -24,8 +24,8 @@ std::string num2str2f(int dir_num);
 template <typename T>
 std::complex<T> contract1(
     std::function<T(int, T)> f0, int N_moments, 
-    const Eigen::Array<std::complex<T>, -1, -1>& Gamma, 
-    const Eigen::Matrix<T, -1, 1>& energies);
+    const Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>& Gamma,
+    const Eigen::Matrix<T, Eigen::Dynamic, 1>& energies);
 
 int int_pow(int base, int exp);
 

@@ -31,10 +31,10 @@ std::complex<double> green(int n, int sigma, std::complex<double> energy){
 
 template <typename T, unsigned D>
 void Simulation<T,D>::calc_singleshot() {
-  Eigen::Array<double, -1, 1> energies;
-  Eigen::Array<double, -1, 1> gammas;
-  Eigen::Array<int, -1, 1> preserve_disorders;
-  Eigen::Array<int, -1, 1> moments;
+  Eigen::Array<double, Eigen::Dynamic, 1> energies;
+  Eigen::Array<double, Eigen::Dynamic, 1> gammas;
+  Eigen::Array<int, Eigen::Dynamic, 1> preserve_disorders;
+  Eigen::Array<int, Eigen::Dynamic, 1> moments;
   int NDisorder, NRandom, direction;
   std::string direction_string;
 
@@ -52,7 +52,7 @@ void Simulation<T,D>::calc_singleshot() {
     get_hdf5<int>(&direction, file1, (char *)   "/Calculation/singleshot_conductivity_dc/Direction");
     Global.calculate_singleshot = true;
     
-  } catch(H5::Exception& e) {debug_message("singleshot dc: no need to calculate it.\n");}
+  } catch(H5::Exception&) {debug_message("singleshot dc: no need to calculate it.\n");}
   file1->close();
   delete file1;
   
@@ -133,10 +133,10 @@ void Simulation<T,D>::calc_singleshot() {
 }
 
 template <typename T, unsigned D>
-void Simulation<T,D>::singleshot(Eigen::Array<double, -1, 1> energies,
-  Eigen::Array<double, -1, 1> gammas,
-  Eigen::Array<int, -1, 1> preserve_disorders,
-  Eigen::Array<int, -1, 1> moments,
+void Simulation<T,D>::singleshot(Eigen::Array<double, Eigen::Dynamic, 1> energies,
+  Eigen::Array<double, Eigen::Dynamic, 1> gammas,
+  Eigen::Array<int, Eigen::Dynamic, 1> preserve_disorders,
+  Eigen::Array<int, Eigen::Dynamic, 1> moments,
   int NDisorder, int NRandomV, std::string direction_string){
   // Calculate the longitudinal dc conductivity for a single value of the energy
     
@@ -203,8 +203,8 @@ void Simulation<T,D>::singleshot(Eigen::Array<double, -1, 1> energies,
 #endif
   // iteration over disorder and the number of random vectors
   // initialize the conductivity array
-  Eigen::Array<T, -1, -1> cond_array;
-  cond_array = Eigen::Array<T, -1, -1>::Zero(1, N_energies);
+  Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> cond_array;
+  cond_array = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(1, N_energies);
 #if (SSPRINT != 0)
 #pragma omp master
   {
@@ -379,7 +379,7 @@ void Simulation<T,D>::singleshot(Eigen::Array<double, -1, 1> energies,
   
 #pragma omp master
   { 
-    Global.singleshot_cond = Eigen::Matrix<T, -1, -1> :: Zero(1, N_energies);
+    Global.singleshot_cond = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> :: Zero(1, N_energies);
   }
 #pragma omp barrier
   
@@ -396,11 +396,11 @@ void Simulation<T,D>::singleshot(Eigen::Array<double, -1, 1> energies,
 #pragma omp master
   {
     
-    Global.singleshot_cond *= factor;
+    Global.singleshot_cond *= static_cast<T>(factor);
       
     // Create array to store the data
-    Eigen::Array<double, -1, -1> store_data;
-    store_data = Eigen::Array<double, -1, -1>::Zero(4, energies.rows());
+    Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> store_data;
+    store_data = Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(4, energies.rows());
     
     for(int ener = 0; ener < N_energies; ener++)
       {

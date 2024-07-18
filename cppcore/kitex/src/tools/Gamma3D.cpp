@@ -92,8 +92,8 @@ void Simulation<T,D>::Gamma3D(int NRandomV, int NDisorder, std::vector<int> N_mo
   }
 #pragma omp master
   {
-    Global.general_gamma = Eigen::Array<T, -1, -1>::Zero(1, size_gamma);
-    Global.smaller_gamma = Eigen::Array<T, -1, -1>::Zero(MEMORY, MEMORY);
+    Global.general_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(1, size_gamma);
+    Global.smaller_gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(MEMORY, MEMORY);
   }
 #pragma omp barrier
     
@@ -188,14 +188,14 @@ void Simulation<T,D>::Gamma3D(int NRandomV, int NDisorder, std::vector<int> N_mo
 }
 
 template <typename T,unsigned D>
-void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<int> N_moments, 
+void Simulation<T,D>::store_gamma3D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *gamma, std::vector<int> N_moments,
                                     std::vector<std::vector<unsigned>> indices, std::string name_dataset){
   debug_message("Entered store_gamma3d\n");
   // The whole purpose of this function is to take the Gamma matrix calculated by
   // Gamma3D, check if there are any symmetries among the 
   // matrix elements and then store the matrix in an HDF file.
     
-  int dim = indices.size();
+  int dim = static_cast<int>(indices.size());
 
 		
   // Number of commutators inside the Gamma matrix. 
@@ -204,16 +204,16 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
   // This is important because the commutator is anti-hermitian. So, an odd number of commutators
   // means that the conjugate of the Gamma matrix has an overall minus sign
   int num_velocities = 0;
-  for(int i = 0; i < int(indices.size()); i++)
-    num_velocities += indices.at(i).size();
+  for(auto & indice : indices)
+    num_velocities += static_cast<int>(indice.size());
   int factor = 1 - (num_velocities % 2)*2;
   int N0 = N_moments.at(0);
   int N1 = N_moments.at(1);
   int N2 = N_moments.at(2);
-  Eigen::Array<T,-1,-1> general_gamma;
-  general_gamma = Eigen::Map<Eigen::Array<T,-1,-1>>(gamma->data(), N0*N1, N2);
-  Eigen::Array<T,-1,-1> storage_gamma; 
-  storage_gamma = Eigen::Array<T,-1,-1>::Zero(N0*N1, N2);
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> general_gamma;
+  general_gamma = Eigen::Map<Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>>(gamma->data(), N0*N1, N2);
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> storage_gamma;
+  storage_gamma = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(N0*N1, N2);
     
   switch(dim){
   case 3:{
@@ -229,9 +229,9 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
             storage_gamma(n + N0*m,p) += general_gamma(m + N0*p,n)/T(6.0);
             storage_gamma(n + N0*m,p) += general_gamma(p + N0*n,m)/T(6.0);
 
-            storage_gamma(n + N0*m,p) += T(factor/6.0)*myconj(general_gamma(p + N0*m,n));
-            storage_gamma(n + N0*m,p) += T(factor/6.0)*myconj(general_gamma(n + N0*p,m));
-            storage_gamma(n + N0*m,p) += T(factor/6.0)*myconj(general_gamma(m + N0*n,p));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/6.0)*myconj(general_gamma(p + N0*m,n));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/6.0)*myconj(general_gamma(n + N0*p,m));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/6.0)*myconj(general_gamma(m + N0*n,p));
           }
         }
       }
@@ -245,7 +245,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
             storage_gamma(n + N0*m,p) += general_gamma(n + N0*m,p)/T(2.0);
-            storage_gamma(n + N0*m,p) += T(factor/2.0)*myconj(general_gamma(n + N0*p,m));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/2.0)*myconj(general_gamma(n + N0*p,m));
           }
         }
       }
@@ -257,7 +257,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
             storage_gamma(n + N0*m,p) += general_gamma(n + N0*m,p)/T(2.0);
-            storage_gamma(n + N0*m,p) += T(factor/2.0)*myconj(general_gamma(m + N0*n,p));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/2.0)*myconj(general_gamma(m + N0*n,p));
           }
         }
       }
@@ -269,7 +269,7 @@ void Simulation<T,D>::store_gamma3D(Eigen::Array<T, -1, -1> *gamma, std::vector<
         for(int m = 0; m < N1; m++){
           for(int p = 0; p < N2; p++){
             storage_gamma(n + N0*m,p) += general_gamma(n + N0*m,p)/T(2.0);
-            storage_gamma(n + N0*m,p) += T(factor/2.0)*myconj(general_gamma(p + N0*m, n));
+            storage_gamma(n + N0*m,p) += static_cast<T>(factor/2.0)*myconj(general_gamma(p + N0*m, n));
           }
         }
       }
@@ -338,7 +338,7 @@ template void Simulation<std::complex<long double>,3u>::store_gamma3D(Eigen::Arr
 
 /*
 #define instantiate(type,dim) template void Simulation<type,dim>::Gamma3D(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string); \
-  template void Simulation<type,dim>::store_gamma3D(Eigen::Array<type, -1, -1>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
+  template void Simulation<type,dim>::store_gamma3D(Eigen::Array<type, Eigen::Dynamic, Eigen::Dynamic>* , std::vector<int>, std::vector<std::vector<unsigned>>, std::string);
 
 #include "tools/instantiate.hpp"
  */

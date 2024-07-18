@@ -43,7 +43,7 @@ public:
   void initiate_vector();
   void initiate_phases();
   T get_point();
-  void build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen::Matrix<T,-1,-1> & psi0, double & sigma,
+  void build_wave_packet(Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> & k, Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> & psi0, double & sigma,
                          Eigen::Matrix<double,1,2> & vb);
   template < unsigned MULT,bool VELOCITY> 
   void build_regular_phases(int i1, unsigned axis);
@@ -59,6 +59,6 @@ public:
   void test_boundaries_system();
   void empty_ghosts(int mem_index);
   void build_site(unsigned long R);
-  void build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::Matrix<T,-1,1> & weight);
+  void build_planewave(Eigen::Matrix<double,Eigen::Dynamic,1> & k, Eigen::Matrix<T,Eigen::Dynamic,1> & weight);
 };
       

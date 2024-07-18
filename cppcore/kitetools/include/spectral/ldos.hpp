@@ -23,10 +23,10 @@ class ldos{
     unsigned NumPositions;                                  // Number of lattice sites in which to compute the LDoS
     int NumEnergies;                                   // Number of energies
     std::string filename;                          // Saving results to file with this name
-    Eigen::Matrix<unsigned long, -1, -1> global_positions;
-    Eigen::Matrix<unsigned long, -1, -1> ldos_Orbitals;     // Position of the lattice sites
-    Eigen::Matrix<unsigned long, -1, -1> ldos_Positions;     // Position of the lattice sites
-    Eigen::Matrix<float, -1, -1> energies;                  // Energies specified to be calculated
+    Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic> global_positions;
+    Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic> ldos_Orbitals;     // Position of the lattice sites
+    Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic> ldos_Positions;     // Position of the lattice sites
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> energies;                  // Energies specified to be calculated
     std::string dirName;                                    // Name of the hdf5 dataset where the ldos moments are saved
 
     std::string kernel;
@@ -39,7 +39,7 @@ class ldos{
     shell_input variables;                      // Input from the shell to override the configuration file
 
     // Objects required to successfully calculate the conductivity
-    Eigen::Matrix<std::complex<T>, -1, -1> lMU;
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> lMU;
 
     std::string name;
 

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(kite CXX)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
 MESSAGE(STATUS "compiler is ${CMAKE_CXX_COMPILER_ID}")
@@ -18,14 +19,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
     set(CMAKE_SKIP_BUILD_RPATH FALSE)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 else()
-    set(CMAKE_BUILD_RPATH "$ORIGIN")
+    set(CMAKE_BUILD_RPATH "$ORIGIN") # For the RPATH, just look in the same folder as the executable
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake")
-option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON)
-option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON)
-option(QK_CCACHE "Use CCache" ON)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake") # include the copy and download scripts
+option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON) # option to use machine HDF5
+option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON) # option to use machine EIGEN
+option(QK_CCACHE "Use CCache" ON) # option to use CCache. Python builds give problems when compiling different versions.
 
 
 MESSAGE(STATUS "QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5}")
@@ -39,7 +40,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
 endif()
 
-if(QK_CCACHE)
+if(QK_CCACHE) # configure CCache
     find_program(ccache_found ccache)
     if(ccache_found)
         MESSAGE(STATUS "CCache found, using it.")
@@ -52,13 +53,13 @@ include(download)
 include(ExternalProject)
 
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP)
 MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
 
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
-    find_package(HDF5 COMPONENTS CXX HL)
+    find_package(HDF5 COMPONENTS CXX)
     if(${HDF5_FOUND})
         set(HDF5_USE_STATIC_LIBRARIES ON)
         set(DOWNLOAD_HDF5 False)
@@ -81,9 +82,13 @@ if(QK_NATIVE_HDF5)
 endif()
 
 
-if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
+if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
+    set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
+    set(hdf5_INSTALL_DIR ${HDF5_DIR}/install)
+    set(hdf5_build_bin "${HDF5_DIR}/build/bin")
     set(ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"
+            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
             "-DBUILD_SHARED_LIBS=ON"
             "-DBUILD_STATIC_LIBS=OFF"
             "-DHDF5_BUILD_CPP_LIB=ON"
@@ -160,7 +165,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
             ${HDF5_DIR}/build
             )
     include_directories(${hdf5_includes})
-
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
     if (WIN32)
         set(hdf5_libs ${hdf5_libs_folder}/hdf5${HDF5_BTP}.lib ${hdf5_libs_folder}/hdf5_cpp${HDF5_BTP}.lib)

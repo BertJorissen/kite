@@ -43,7 +43,7 @@ void Simulation<T,D>::calc_conddc(){
     int dummy_variable;
     get_hdf5<int>(&dummy_variable,  file, (char *)   "/Calculation/conductivity_dc/NumMoments");
     Global.calculate_conddc = true;
-  } catch(H5::Exception& e) {debug_message("CondDC: no need to calculate CondDC.\n");}
+  } catch(H5::Exception&) {debug_message("CondDC: no need to calculate CondDC.\n");}
   file->close();
   delete file;
 }

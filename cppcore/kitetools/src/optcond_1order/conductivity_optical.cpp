@@ -95,7 +95,7 @@ void conductivity_optical<T, DIM>::set_default_parameters(){
 
     // Temperature
     temperature = 0.001/scale;
-    beta = 1.0/temperature;
+    beta = static_cast<T>(1.0/temperature);
     default_temperature = true;
 
     Convergence_G = systemInfo.NumThreads;
@@ -104,10 +104,10 @@ void conductivity_optical<T, DIM>::set_default_parameters(){
     default_Convergence_G = true;
 
 
-    e_fermi = (0.2 - shift)/scale;
+    e_fermi = static_cast<T>((0.2 - shift)/scale);
     default_efermi = true;
 
-    scat = 0.0166/scale;
+    scat = static_cast<T>(0.0166/scale);
     default_scat = true;
 
     N_energies = 513; // Has to be odd for usage with Simpson integration
@@ -123,7 +123,7 @@ void conductivity_optical<T, DIM>::set_default_parameters(){
     filename  = "optcond.dat";      // Filename to save final result
     default_filename = true;
 
-    lim = 0.99;
+    lim = static_cast<T>(0.99);
 }
 
 template <typename T, unsigned DIM>
@@ -145,7 +145,7 @@ bool conductivity_optical<T, DIM>::is_required(){
     try{
         get_hdf5(&NumMoments, &file, (char*)(dirName+"NumMoments").c_str());
         result = true;
-    } catch(H5::Exception& e){}
+    } catch(H5::Exception&){}
 
 
     file.close();
@@ -197,21 +197,21 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
   bool possibleGamma = false;
   try{
 		debug_message("Filling the Gamma matrix.\n");
-		Gamma = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, NumMoments);
+		Gamma = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 		
 		if(complex)
 			get_hdf5(Gamma.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> GammaReal;
-			GammaReal = Eigen::Array<T,-1,-1>::Zero(NumMoments, NumMoments);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> GammaReal;
+			GammaReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, NumMoments);
 			get_hdf5(GammaReal.data(), &file, (char*)MatrixName.c_str());
 			
 			Gamma = GammaReal.template cast<std::complex<T>>();
 		}				
 
     possibleGamma = true;
-  } catch(H5::Exception& e) {
+  } catch(H5::Exception&) {
     debug_message("Conductivity optical: There is no Gamma matrix.\n");
   }
 
@@ -222,21 +222,21 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
   bool possibleLambda = false;
   try{
 		debug_message("Filling the Lambda matrix.\n");
-		Lambda = Eigen::Array<std::complex<T>,-1,-1>::Zero(NumMoments, 1);
+		Lambda = Eigen::Array<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, 1);
 		
 		if(complex)
 			get_hdf5(Lambda.data(), &file, (char*)MatrixName.c_str());
 		
 		if(!complex){
-			Eigen::Array<T,-1,-1> LambdaReal;
-			LambdaReal = Eigen::Array<T,-1,-1>::Zero(NumMoments, 1);
+			Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> LambdaReal;
+			LambdaReal = Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(NumMoments, 1);
 			get_hdf5(LambdaReal.data(), &file, (char*)MatrixName.c_str());
 			
 			Lambda = LambdaReal.template cast<std::complex<T>>();
 		}				
 
     possibleLambda = true;
-  } catch(H5::Exception& e) {
+  } catch(H5::Exception&) {
     debug_message("Conductivity optical: There is no Lambda matrix.\n");
   }
 
@@ -248,8 +248,8 @@ bool conductivity_optical<T, DIM>::fetch_parameters(){
 }
 
 
-template <typename U, unsigned DIM>
-void conductivity_optical<U, DIM>::override_parameters(){
+template <typename T, unsigned DIM>
+void conductivity_optical<T, DIM>::override_parameters(){
   debug_message("Entered override_parameters");
   double scale = systemInfo.energy_scale;
   double shift = systemInfo.energy_shift;
@@ -257,7 +257,7 @@ void conductivity_optical<U, DIM>::override_parameters(){
     if(variables.CondOpt_Temp != -8888){
       debug_message("Overriding temperature");
       temperature = variables.CondOpt_Temp/scale;
-      beta = 1.0/temperature;
+      beta = static_cast<T>(1.0/temperature);
       default_temperature = false;
     }
 
@@ -311,13 +311,13 @@ void conductivity_optical<U, DIM>::override_parameters(){
 
     if(variables.CondOpt_Fermi != -8888){
       debug_message("Overriding e_fermi");
-      e_fermi     = (variables.CondOpt_Fermi - shift)/scale;
+      e_fermi     = static_cast<T>((variables.CondOpt_Fermi - shift)/scale);
       default_efermi = false;
     }
 
     if(variables.CondOpt_Scat != -8888){
       debug_message("Overriding scat");
-      scat        = variables.CondOpt_Scat/scale;
+      scat        = static_cast<T>(variables.CondOpt_Scat/scale);
       default_scat = false;
     }
 
@@ -341,26 +341,26 @@ void conductivity_optical<U, DIM>::override_parameters(){
     Moments_divisible = false;
     Moments_G = NumMoments + Convergence_G - NumMoments%Convergence_G;
   }
-  //Eigen::Matrix<std::complex<U>, -1, -1> Gamma_Padded;
+  //Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Gamma_Padded;
   debug_message("Padding Gamma");
-  Gamma_Padded = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(Moments_D, Moments_G);
+  Gamma_Padded = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(Moments_D, Moments_G);
   Gamma_Padded.block(0,0,NumMoments, NumMoments) = Gamma.block(0,0,NumMoments, NumMoments);
 
   debug_message("Padding Lambda");
-  Lambda_Padded = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(Moments_D, 1);
+  Lambda_Padded = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(Moments_D, 1);
   Lambda_Padded.block(0,0,NumMoments,1) = Lambda.block(0,0,NumMoments,1);
   debug_message("Left override_parameters");
 }
 
-template <typename U, unsigned DIM>
-void conductivity_optical<U, DIM>::calculateBlocks(){
+template <typename T, unsigned DIM>
+void conductivity_optical<T, DIM>::calculateBlocks(){
   /* Calculate the optical conductivity by blocks. Instead of using the whole
    * Gamma matrix to perform the calculations, split it into several blocks and 
    * compute the contribution to the conductivity of each individual block. This
    * has the potential to slow down the calculation, but allows for assessment of
    * convergence.*/
 	debug_message("Entered conductivity_optical::calculateBlocks.\n");
-	std::complex<U> imaginary(0.0, 1.0);
+	std::complex<T> imaginary(0.0, 1.0);
     omp_set_num_threads(systemInfo.NumThreads);
 
     unsigned Nmax, Mmax;
@@ -379,27 +379,27 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
   // Array of energies to use in the integration, and frequencies at which to
   // evaluate the optical conductivity
-  Eigen::Matrix<U, -1, 1> energies;
-  Eigen::Matrix<U, -1, 1> frequencies;
-  energies    = Eigen::Matrix<U, -1, 1>::LinSpaced(N_energies, -lim, lim);
-  frequencies = Eigen::Matrix<U, -1, 1>::LinSpaced(N_omegas, minFreq, maxFreq);
+  Eigen::Matrix<T, Eigen::Dynamic, 1> energies;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> frequencies;
+  energies    = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_energies, -lim, lim);
+  frequencies = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_omegas, minFreq, maxFreq);
 
 
   
   // Function that is going to be used by the contractor
   int NumMoments1 = Moments_D;
-  U beta1 = beta;
-  U e_fermi1 = e_fermi;
-  std::function<U(int, U)> deltaF = [beta1, e_fermi1, NumMoments1](int n, U energy)->U{
-    return delta(n, energy)*U(1.0/(1.0 + U(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<U>(n, NumMoments1);
+  T beta1 = beta;
+  T e_fermi1 = e_fermi;
+  std::function<T(int, T)> deltaF = [beta1, e_fermi1, NumMoments1](int n, T energy)->T{
+    return delta(n, energy)*static_cast<T>(1.0/(1.0 + T(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<T>(n, NumMoments1);
   };
 
 
   // The Dirac delta d(e - H) can be expanded in a series of Chebyshev polynomials. The
   // coefficient of this expansion depends on the Chebyshev index and on the energy, and
   // so it can be cast as a matrix. This is what we call the DeltaMatrix
-  Eigen::Matrix<std::complex<U>, -1, -1> DeltaMatrix;
-  DeltaMatrix = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, Moments_D);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> DeltaMatrix;
+  DeltaMatrix = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, Moments_D);
   for(int n = 0; n < Moments_D; n++)
     for(int e = 0; e < N_energies; e++)
       DeltaMatrix(e,n) = deltaF(n, energies(e)); 
@@ -407,23 +407,23 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
 
   // declarations and memory allocations
-  Eigen::Matrix<std::complex<U>, -1, -1>** matrices;
-  Eigen::Matrix<std::complex<U>, -1, -1>** deltas;
-  Eigen::Matrix<std::complex<U>, -1, -1>** gammas_EN;
-  Eigen::Matrix<std::complex<U>, -1, 1>**  gammas_E;
-  Eigen::Matrix<std::complex<U>, -1, -1>** cond;
-  matrices  = new Eigen::Matrix<std::complex<U>, -1, -1>*[Nmax*Mmax];
-  deltas    = new Eigen::Matrix<std::complex<U>, -1, -1>*[Nmax];
-  gammas_EN = new Eigen::Matrix<std::complex<U>, -1, -1>*[Nmax*Mmax];
-  gammas_E  = new Eigen::Matrix<std::complex<U>, -1,  1>*[Nmax*Mmax];
-  cond      = new Eigen::Matrix<std::complex<U>, -1, -1>*[Nmax*Mmax];
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>** matrices;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>** deltas;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>** gammas_EN;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>**  gammas_E;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>** cond;
+  matrices  = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>*[Nmax*Mmax];
+  deltas    = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>*[Nmax];
+  gammas_EN = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>*[Nmax*Mmax];
+  gammas_E  = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic,  1>*[Nmax*Mmax];
+  cond      = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>*[Nmax*Mmax];
 
   // Copy the Gamma matrix into several different blocks 
   // that will be used later for parallelization. Each thread will be
   // assigned a block. The Gamma matrix is padded with zeros when the number
   // of polynomials does not divide Mmax and Nmax.
   for(unsigned j = 0; j < Nmax*Mmax; j++){
-    matrices[j]  = new Eigen::Matrix<std::complex<U>, -1, -1>;
+    matrices[j]  = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
 
     // block index j = n + Nmax*m
     int n = j % Nmax;
@@ -435,7 +435,7 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
   // Copy the DeltaMatrix into blocks
   for(unsigned j = 0; j < Nmax; j++){
-    deltas[j]  = new Eigen::Matrix<std::complex<U>, -1, -1>;
+    deltas[j]  = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
     *deltas[j] = DeltaMatrix.block(0, j*nmax, N_energies, nmax);
   }
 
@@ -450,18 +450,18 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
     int m = j / Nmax;
 
     // Matrix product of Gamma and Delta
-    gammas_EN[j] = new Eigen::Matrix<std::complex<U>, -1, -1>;
+    gammas_EN[j] = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
     *gammas_EN[j] = (*deltas[n])*(*matrices[j]);
 
 
-    gammas_E[j]  = new Eigen::Matrix<std::complex<U>, -1, 1>;
-    cond[j]      = new Eigen::Matrix<std::complex<U>, -1, -1>;
-    *gammas_E[j] = Eigen::Matrix<std::complex<U>, -1, 1>::Zero(N_energies, 1);
-    *cond[j]     = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_omegas, 1);
+    gammas_E[j]  = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>;
+    cond[j]      = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
+    *gammas_E[j] = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    *cond[j]     = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_omegas, 1);
 
 
-    U freq_p, freq_n;
-    std::complex<U> GammaEp, GammaEn;
+    T freq_p, freq_n;
+    std::complex<T> GammaEp, GammaEn;
     for(unsigned w = 0; w < N_omegas; w++){
       freq_p =  frequencies(w);
       freq_n = -frequencies(w);
@@ -470,8 +470,8 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
         GammaEp = 0;
         GammaEn = 0;
         for(unsigned int p = 0; p < mmax; p++){
-          GammaEp += (*gammas_EN[j])(e, p)*greenAscat<U>(scat)(m*mmax + p, energies(e) - freq_p);      // contracting with the positive frequencies
-          GammaEn += (*gammas_EN[j])(e, p)*greenAscat<U>(scat)(m*mmax + p, energies(e) - freq_n);      // contracting with the negative frequencies
+          GammaEp += (*gammas_EN[j])(e, p)*greenAscat<T>(scat)(m*mmax + p, energies(e) - freq_p);      // contracting with the positive frequencies
+          GammaEn += (*gammas_EN[j])(e, p)*greenAscat<T>(scat)(m*mmax + p, energies(e) - freq_n);      // contracting with the negative frequencies
         }
         (*gammas_E[j])(e) = GammaEp + std::conj(GammaEn);
       }
@@ -496,25 +496,25 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
 
   // divide by the frequency
-  std::complex<U> freq;
+  std::complex<T> freq;
   for(unsigned j = 0; j < Mmax*Nmax; j++){
     for(unsigned i = 0; i < N_omegas; i++){
-      freq = std::complex<U>(frequencies(i), scat);  
+      freq = std::complex<T>(frequencies(i), scat);
       (*cond[j])(i) /= freq;
     }
   }
   
-  Eigen::Matrix<std::complex<U>, -1, -1> total_cond;
-  total_cond = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_omegas, 1);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> total_cond;
+  total_cond = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_omegas, 1);
 
-  Eigen::Matrix<std::complex<U>, -1, -1>** partial_cond;
-  partial_cond = new Eigen::Matrix<std::complex<U>, -1, -1>*[Nmax*Mmax];
-  std::complex<U> factor = -imaginary*U(systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>** partial_cond;
+  partial_cond = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>*[Nmax*Mmax];
+  std::complex<T> factor = -imaginary * static_cast<T>(systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
   
   for(unsigned n = 0; n < Nmax; n++){
     for(unsigned m = 0; m < Mmax; m++){
-      partial_cond[n + m*Nmax] = new Eigen::Matrix<std::complex<U>, -1, -1>;
-      (*partial_cond[n + m*Nmax]) = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_omegas, 1);
+      partial_cond[n + m*Nmax] = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>;
+      (*partial_cond[n + m*Nmax]) = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_omegas, 1);
       for(unsigned n1 = 0; n1 <= n; n1++){
         for(unsigned m1 = 0; m1 <= m; m1++){
           (*partial_cond[n + m*Nmax]) += (*cond[n1 + m1*Nmax])*factor;
@@ -525,13 +525,13 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
   
 
   // Second part of the conductivity
-  std::complex<U>* temp3;
-  Eigen::Matrix<std::complex<U>, -1, 1>** Lambda_E;
-  temp3    = new std::complex<U>[Nmax];
-  Lambda_E = new Eigen::Matrix<std::complex<U>, -1, 1>*[Nmax];
+  std::complex<T>* temp3;
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>** Lambda_E;
+  temp3    = new std::complex<T>[Nmax];
+  Lambda_E = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>*[Nmax];
 
   for(unsigned j = 0; j < Nmax; j++){
-    Lambda_E[j] = new Eigen::Matrix<std::complex<U>, -1, 1>;
+    Lambda_E[j] = new Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>;
     (*Lambda_E[j]) = (*deltas[j])*Lambda_Padded.matrix().block(nmax*j,0,nmax,1);
     temp3[j] = integrate(energies, *Lambda_E[j]);
   }  
@@ -544,8 +544,8 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
   delete deltas;
   delete Lambda_E;
 
-  std::complex<U>* partial_temp3;
-  partial_temp3 = new std::complex<U>[Nmax];
+  std::complex<T>* partial_temp3;
+  partial_temp3 = new std::complex<T>[Nmax];
   partial_temp3[0] = temp3[0];
   for(unsigned j = 1; j < Nmax; j++){
     partial_temp3[j] = temp3[j] + partial_temp3[j-1];
@@ -556,7 +556,7 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
   for(unsigned j = 0; j < Mmax*Nmax; j++){
     for(unsigned i = 0; i < N_omegas; i++){
-      freq = std::complex<U>(frequencies(i), scat);  
+      freq = std::complex<T>(frequencies(i), scat);
       (*partial_cond[j])(i) += partial_temp3[j%Nmax]/freq*factor;
     }
   }
@@ -565,12 +565,12 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
   delete partial_temp3;
 
   std::ofstream myfile;
-  std::complex<U> cn;
+  std::complex<T> cn;
   for(unsigned n = 0; n < Nmax; n++){
     for(unsigned m = 0; m < Mmax; m++){
       myfile.open("g" + std::to_string(mmax*(m+1)) + "_d" + std::to_string(nmax*(n+1)) + "_" + filename);
       for(unsigned int i=0; i < N_omegas; i++){
-        freq = std::complex<U>(frequencies(i), scat);  
+        freq = std::complex<T>(frequencies(i), scat);
         cn = (*partial_cond[n + m*Nmax])(i);
         myfile << frequencies.real()(i)*systemInfo.energy_scale << " " << cn.real() << " " << cn.imag() << "\n";
       }
@@ -593,8 +593,8 @@ void conductivity_optical<U, DIM>::calculateBlocks(){
 
 
 
-template <typename U, unsigned DIM>
-void conductivity_optical<U, DIM>::calculate(){
+template <typename T, unsigned DIM>
+void conductivity_optical<T, DIM>::calculate(){
 	debug_message("Entered calc_optical_cond.\n");
 	//the temperature is already in the KPM scale, but not the broadening or the Fermi Energy
 
@@ -609,32 +609,32 @@ void conductivity_optical<U, DIM>::calculate(){
         N_energies += 1;
 
 
-    Eigen::Matrix<U, -1, 1> energies;
-    Eigen::Matrix<U, -1, 1> frequencies;
-    energies  = Eigen::Matrix<U, -1, 1>::LinSpaced(N_energies, -lim, lim);
-    frequencies = Eigen::Matrix<U, -1, 1>::LinSpaced(N_omegas, minFreq, maxFreq);
+    Eigen::Matrix<T, Eigen::Dynamic, 1> energies;
+    Eigen::Matrix<T, Eigen::Dynamic, 1> frequencies;
+    energies  = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_energies, -lim, static_cast<T>(lim));
+    frequencies = Eigen::Matrix<T, Eigen::Dynamic, 1>::LinSpaced(N_omegas, minFreq, static_cast<T>(maxFreq));
 
-	std::complex<U> imaginary(0.0, 1.0);
+	std::complex<T> imaginary(0.0, 1.0);
 
 
   
     // Functions that are going to be used by the contractor
     int NumMoments1 = Moments_D;
-    U beta1 = beta;
-    U e_fermi1 = e_fermi;
-    std::function<U(int, U)> deltaF = [beta1, e_fermi1, NumMoments1](int n, U energy)->U{
-        return delta(n, energy)*U(1.0/(1.0 + U(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<U>(n, NumMoments1);
+    T beta1 = beta;
+    T e_fermi1 = e_fermi;
+    std::function<T(int, T)> deltaF = [beta1, e_fermi1, NumMoments1](int n, T energy)->T{
+        return delta(n, energy)*static_cast<T>(1.0/(1.0 + static_cast<T>(n==0)))*fermi_function(energy, e_fermi1, beta1)*kernel_jackson<T>(n, NumMoments1);
     };
 
 
-    Eigen::Matrix<std::complex<U>, -1, 1> cond; 
-    cond = Eigen::Matrix<std::complex<U>, -1, 1>::Zero(N_omegas, 1);
-    std::complex<U> temp3 = 0; 
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> cond;
+    cond = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>::Zero(N_omegas, 1);
+    std::complex<T> temp3 = 0;
 
 
   // Delta matrix of chebyshev moments and energies
-  Eigen::Matrix<std::complex<U>,-1, -1> DeltaMatrix;
-  DeltaMatrix = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(N_energies, Moments_D);
+  Eigen::Matrix<std::complex<T>,Eigen::Dynamic, Eigen::Dynamic> DeltaMatrix;
+  DeltaMatrix = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(N_energies, Moments_D);
   for(int n = 0; n < Moments_D; n++)
     for(int e = 0; e < N_energies; e++)
       DeltaMatrix(e,n) = deltaF(n, energies(e)); 
@@ -666,25 +666,25 @@ void conductivity_optical<U, DIM>::calculate(){
 
     // The Gamma matrix has been divided among the threads
     // Each thread has one section of that matrix, called local_Gamma
-    Eigen::Matrix<std::complex<U>, -1, -1> local_Gamma;
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> local_Gamma;
     local_Gamma = Gamma.matrix().block(0, local_NumMoments*thread_num, 
         Moments_D, local_NumMoments);
 
     // Result of contracting the indices with the delta function
-    Eigen::Matrix<std::complex<U>, -1, -1> GammaEM;
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaEM;
     GammaEM = DeltaMatrix*local_Gamma;
 
-    Eigen::Matrix<std::complex<U>,-1, 1> GammaEp;
-    Eigen::Matrix<std::complex<U>,-1, 1> GammaEn;
-    Eigen::Matrix<std::complex<U>,-1, 1> GammaE;
-    Eigen::Matrix<std::complex<U>, -1, 1> local_cond; 
-    GammaEp = Eigen::Matrix<std::complex<U>,-1, 1>::Zero(N_energies, 1);
-    GammaEn = Eigen::Matrix<std::complex<U>,-1, 1>::Zero(N_energies, 1);
-    GammaE  = Eigen::Matrix<std::complex<U>,-1, 1>::Zero(N_energies, 1);
-    local_cond = Eigen::Matrix<std::complex<U>, -1, 1>::Zero(N_omegas, 1);
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaEp;
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaEn;
+    Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1> GammaE;
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1> local_cond;
+    GammaEp = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    GammaEn = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    GammaE  = Eigen::Matrix<std::complex<T>,Eigen::Dynamic, 1>::Zero(N_energies, 1);
+    local_cond = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, 1>::Zero(N_omegas, 1);
 
     // Loop over the frequencies
-    U freq_p, freq_n;
+    T freq_p, freq_n;
     for(unsigned int w = 0; w < N_omegas; w++){
       freq_p =  frequencies(w);
       freq_n = -frequencies(w);
@@ -693,8 +693,8 @@ void conductivity_optical<U, DIM>::calculate(){
         GammaEp(e) = 0;
         GammaEn(e) = 0;
         for(int m = 0; m < local_NumMoments; m++){
-          GammaEp(e) += GammaEM(e, m)*greenAscat<U>(scat)(local_NumMoments*thread_num + m, energies(e) - freq_p);      // contracting with the positive frequencies
-          GammaEn(e) += GammaEM(e, m)*greenAscat<U>(scat)(local_NumMoments*thread_num + m, energies(e) - freq_n);      // contracting with the negative frequencies
+          GammaEp(e) += GammaEM(e, m)*greenAscat<T>(scat)(local_NumMoments*thread_num + m, energies(e) - freq_p);      // contracting with the positive frequencies
+          GammaEn(e) += GammaEM(e, m)*greenAscat<T>(scat)(local_NumMoments*thread_num + m, energies(e) - freq_n);      // contracting with the negative frequencies
         }
       }
     
@@ -712,18 +712,18 @@ void conductivity_optical<U, DIM>::calculate(){
 }
 
   
-  temp3 = contract1<U>(deltaF, Moments_D, Lambda, energies);
+  temp3 = contract1<T>(deltaF, Moments_D, Lambda, energies);
 
   
   //std::cout << "temp3 regular:" << temp3 << "\n";
 
-  std::complex<U> freq;
+  std::complex<T> freq;
   for(unsigned int i = 0; i < N_omegas; i++){
-    freq = std::complex<U>(frequencies(i), scat);  
+    freq = std::complex<T>(frequencies(i), scat);
     cond(i) += temp3;
     cond(i) /= freq;
   }
-  cond *= -imaginary*U(systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
+  cond *= -imaginary * static_cast<T>(systemInfo.num_orbitals*systemInfo.spin_degeneracy/systemInfo.unit_cell_area/units);
 
 	
   
@@ -731,7 +731,7 @@ void conductivity_optical<U, DIM>::calculate(){
   std::ofstream myfile;
   myfile.open(filename);
   for(unsigned int i=0; i < N_omegas; i++){
-    freq = std::complex<U>(frequencies(i), scat);  
+    freq = std::complex<T>(frequencies(i), scat);
     myfile << frequencies.real()(i)*systemInfo.energy_scale << " " << cond.real()(i) << " " << cond.imag()(i) << "\n";
   }
   myfile.close();

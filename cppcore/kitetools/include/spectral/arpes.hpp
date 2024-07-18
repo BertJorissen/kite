@@ -30,7 +30,7 @@ class arpes{
     double freq;
     bool default_freq;
 
-    Eigen::Array<double, -1, -1> incident_vector;
+    Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> incident_vector;
     bool default_incident;
 
     double fermi;
@@ -49,8 +49,8 @@ class arpes{
     bool default_kernel_parameter;
 
     std::string filename;                          // Saving results to file with this name
-    Eigen::Matrix<double, -1, -1> arpes_k_vectors;     // Position of the lattice sites
-    Eigen::Matrix<float, -1, -1> energies;                  // Energies specified to be calculated
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> arpes_k_vectors;     // Position of the lattice sites
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> energies;                  // Energies specified to be calculated
     std::string dirName;                                    // Name of the hdf5 dataset where the arpes moments are saved
 
     // Aditional variables
@@ -58,7 +58,7 @@ class arpes{
     shell_input variables;                      // Input from the shell to override the configuration file
 
     // Objects required to successfully calculate the conductivity
-    Eigen::Matrix<std::complex<T>, -1, -1> kMU;
+    Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> kMU;
 
     std::string name;
 

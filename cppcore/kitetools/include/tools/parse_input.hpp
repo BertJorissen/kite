@@ -73,7 +73,7 @@ class shell_input{
         double ARPES_Temp;
         double ARPES_Fermi;
         double ARPES_freq;
-        Eigen::Array<double, -1, 1> ARPES_vec;
+        Eigen::Array<double, Eigen::Dynamic, 1> ARPES_vec;
 
 
         // 2nd order optical conductivity

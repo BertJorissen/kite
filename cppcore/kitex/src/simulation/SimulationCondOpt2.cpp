@@ -44,7 +44,7 @@ void Simulation<T,D>::calc_condopt2(){
     int dummy_variable;
     get_hdf5<int>(&dummy_variable,  file, (char *)   "/Calculation/conductivity_optical_nonlinear/NumMoments");
     Global.calculate_condopt2 = true;
-  } catch(H5::Exception& e) {debug_message("Condopt2: no need to calculate Condopt2.\n");}
+  } catch(H5::Exception&) {debug_message("Condopt2: no need to calculate Condopt2.\n");}
   file->close();
   delete file;
 }
@@ -80,7 +80,6 @@ if(local_calculate_condopt2){
 
 }
 template <typename T,unsigned D>
-
 void Simulation<T,D>::CondOpt2(int NMoments, int NRandom, int NDisorder, int direction, int special){
     std::string dir(num2str3(direction));                                                // xxx Gamma0
     std::string dirc1 = dir.substr(0,1) + "," + dir.substr(1,2);                         // x,xx Gamma1
