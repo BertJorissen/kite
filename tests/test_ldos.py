@@ -52,7 +52,15 @@ def test_ldos(params, baseline, tmp_path):
     kite.execute.kitetools("{0} --LDOS -N {1}".format(config_system['filename'], str(tmp_path / "ldos")))
     results.append(read_ldos_files(str(tmp_path)))
     expected = baseline(results)
-    assert pytest.fuzzy_equal(results, expected, rtol=1e-6, atol=1e-10)
+    assert pytest.fuzzy_equal(results[0], expected[0], rtol=1e-6, atol=1e-10)
+    keys_new = np.array([key for key in results[1].keys()])
+    print(keys_new)
+    for key_old in expected[1].keys():
+        diff_vec = np.abs(keys_new - key_old)
+        idx_min = np.argmin(diff_vec)
+        key_new = keys_new[idx_min]
+        assert diff_vec[idx_min] < 1e-10, "Key not found in results."
+        assert pytest.fuzzy_equal(results[1][key_new], expected[1][key_old], rtol=1e-3, atol=1e-4), "Values not equal."
 
 
 

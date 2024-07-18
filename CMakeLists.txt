@@ -153,8 +153,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5${HDF5_BTP}.${HDF_SL_EXT_WILD} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5_cpp${HDF5_BTP}.${HDF_SL_EXT_WILD} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=1 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5${HDF5_BTP}.lib -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=1 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5_cpp${HDF5_BTP}.lib -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
             COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
     )
     set(hdf5_includes
@@ -167,8 +165,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
     include_directories(${hdf5_includes})
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
     if (WIN32)
-        set(hdf5_libs ${hdf5_libs_folder}/hdf5${HDF5_BTP}.lib ${hdf5_libs_folder}/hdf5_cpp${HDF5_BTP}.lib)
-        set(hdf5_libs ${hdf5_libs} ${hdf5_libs_folder}/hdf5${HDF5_BTP}.${HDF_SL_EXT} ${hdf5_libs_folder}/hdf5_cpp${HDF5_BTP}.${HDF_SL_EXT})
+        set(hdf5_libs ${HDF_BUILD_DIR}/hdf5${HDF5_BTP}.lib ${HDF_BUILD_DIR}/hdf5_cpp${HDF5_BTP}.lib)
     else()
         set(hdf5_libs ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5.${HDF_SL_EXT} ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5_cpp.${HDF_SL_EXT})
     endif()
