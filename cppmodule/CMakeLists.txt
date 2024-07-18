@@ -5,14 +5,14 @@ add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 pybind11_add_module(kitecore src/main.cpp)
 
 if(${DOWNLOAD_HDF5})
-    add_dependencies(cppcore_kitex hdf5_local)
-    add_dependencies(cppcore_kitetools hdf5_local)
-    add_dependencies(kitecore hdf5_local)
+    add_dependencies(kitecore hdf5_local cppcore_kitex cppcore_kitetools)
     target_include_directories(kitecore SYSTEM PRIVATE ${hdf5_includes})
     target_link_libraries(kitecore PRIVATE ${hdf5_libs})
 else()
     target_include_directories(kitecore SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
     target_link_libraries(kitecore PRIVATE ${HDF5_CXX_LIBRARIES})
+    add_dependencies(kitecore cppcore_kitex cppcore_kitetools)
+
 endif()
 target_include_directories(kitecore SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
@@ -26,9 +26,6 @@ if(NOT MSVC)  # match default visibility of core library and extension module
     target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
     target_compile_options(cppcore_kitetools PRIVATE -fvisibility=hidden)
 endif()
-add_dependencies(kitecore cppcore_kitex)
-add_dependencies(kitecore cppcore_kitetools)
-
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 

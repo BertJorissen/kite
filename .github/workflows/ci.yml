@@ -22,7 +22,7 @@ jobs:
             options: ""
             python-version: "3.10"
           - os: macos-12
-            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libom/18.1.8p"
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libom/18.1.8"
             python-version: "3.10"
           - os: macos-14
             options: "/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"
@@ -57,6 +57,7 @@ jobs:
           mkdir build_tests
           cd build_tests
           cmake .. -DQK_CMAKE_PREFIX_PATH=${{ matrix.options }}
+          cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
       - name: Test Python
@@ -81,11 +82,11 @@ jobs:
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
-            options: "/usr/local/Cellar/boost/1.85.0;/opt/homebrew/opt/libomp"
+            options: "/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libom/18.1.8"
             python-version: "3.10"
           - os: macos-14
             arch: arm64
-            options: "/usr/local/Cellar/boost/1.85.0;/opt/homebrew/opt/libomp"
+            options: "/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +104,7 @@ jobs:
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_ARCHS_LINUX: x86_64
           CIBW_BEFORE_ALL_MACOS: |
-            pip install scipy contourpy --prefer-binary
+            pip install scipy contourpy pybinding-dev --prefer-binary
             brew install libomp
             brew info libomp
             brew install boost@1.85
