@@ -63,7 +63,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
-      QK_CMAKE_PREFIX_PATH: "."
     strategy:
       fail-fast: false
       matrix:
@@ -193,8 +192,6 @@ jobs:
         run: |
           python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja build numpy setuptools pybinding-dev h5py==3.11.0
           python -m pip install --find-links=dist quantum-kite --no-binary quantum-kite
-        env:
-          QK_CMAKE_PREFIX_PATH: ${{ matrix.options }}
       - name: Test Python
         run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
 
