@@ -14,10 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - matrix:
-              os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-              python-version: "3.10"
+        os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
+        python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,10 +60,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - matrix:
-              os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-              python-version: "3.10"
+        os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
+        python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -140,10 +136,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - matrix:
-              os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-              python-version: "3.10"
+        os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
+        python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
