@@ -10,7 +10,7 @@ jobs:
     name: Test Build on ${{ matrix.os }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
     env:
-      PB_BUILD_TYPE: Release
+      QK_BUILD_TYPE: Release
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +31,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - uses: actions/setup-python@v5
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Set up MSVC
@@ -45,12 +46,8 @@ jobs:
           brew install boost@1.85
           brew info boost
           clang --version
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Install dependencies for Quantum-KITE
-        run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja h5py==3.11.0 pybinding-dev
+        run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build with CMake and test Python / C++
         timeout-minutes: 30
         run: |
@@ -65,11 +62,13 @@ jobs:
 
   build-wheels:
     name: Build wheels on ${{ matrix.os }} for ${{ matrix.arch }} and Python ${{ matrix.python-version }}
-    environment: actions
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ test-compile ]
     runs-on: ${{ matrix.os }}
+    env:
+      QK_BUILD_TYPE: Release
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -110,15 +109,10 @@ jobs:
             brew install boost@1.85
             brew info boost
             clang --version
-          # CIBW_ENVIRONMENT:
-          #   CC="/usr/local/bin/gcc-13"
-          #   CXX="/usr/local/bin/g++-13"
-          #   OSX_ARCH=${{ matrix.cibw_archs }}
-          #   OSX_FLAGS=' -arch ${{ matrix.arch }} -O3' # set compiler, don't use AppleClang
           CIBW_ENVIRONMENT: >
-            QK_CMAKE_PREFIX_PATH="${{ matrix.options }}"
+            QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
           CIBW_BUILD_VERBOSITY: 1
-          CIBW_BEFORE_TEST: pip install scipy contourpy h5py==3.11.0 pybinding-dev --prefer-binary
+          CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
           CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *aarch64
@@ -129,14 +123,16 @@ jobs:
 
   build-sdist:
     name: Create sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    environment: ci
+    runs-on: ${{ matrix.os }}
+    env:
+      QK_BUILD_TYPE: Release
     strategy:
+      fail-fast: false
       matrix:
         os: [ ubuntu-latest]
         python-version: [ "3.10" ]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ test-compile ]
-    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -145,8 +141,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies Quantum-Kite
-        run: python -m pip install wheel scipy matplotlib pytest cmake ninja build pybinding-dev h5py==3.11.0
+      - name: Install dependencies for Quantum-KITE
+        run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build wheel
         run: python -m build --sdist --outdir dist/
       - name: Upload Artifact
@@ -157,25 +153,46 @@ jobs:
 
   test-sdist:
     name: Test sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    environment: ci
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ build-sdist ]
     runs-on: ${{ matrix.os }}
+    env:
+      QK_BUILD_TYPE: Release
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-        python-version: [ "3.10" ]
+        include:
+          - os: ubuntu-latest
+            options: ""
+            python-version: "3.10"
+          - os: windows-latest
+            options: ""
+            python-version: "3.10"
+          - os: macos-12
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
+            python-version: "3.10"
+          - os: macos-14
+            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
+            python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Set up MSVC
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: MacOS install BOOST and LIBOMP
+        if: runner.os == 'macOS'
+        run: |
+          brew install libomp
+          brew info libomp
+          brew install boost@1.85
+          brew info boost
+          clang --version
       - name: Download artefacts
         uses: actions/download-artifact@v4
         with:
@@ -185,7 +202,9 @@ jobs:
         run: |
           python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja build numpy setuptools pybinding-dev h5py==3.11.0
           python -m pip install --find-links=dist quantum-kite --no-binary quantum-kite
-      - name: Run tests
+        env:
+          QK_CMAKE_PREFIX_PATH: ${{ matrix.options }}
+      - name: Test Python
         run: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
 
   merge-artifacts:
