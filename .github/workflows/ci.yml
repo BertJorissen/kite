@@ -11,6 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
+      QK_CMAKE_PREFIX_PATH: ""
     strategy:
       fail-fast: false
       matrix:
@@ -62,6 +63,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
+      QK_CMAKE_PREFIX_PATH: ""
     strategy:
       fail-fast: false
       matrix:
@@ -109,6 +111,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
+      QK_CMAKE_PREFIX_PATH: ""
     strategy:
       fail-fast: false
       matrix:
@@ -141,6 +144,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
+      QK_CMAKE_PREFIX_PATH: ""
     strategy:
       fail-fast: false
       matrix:
