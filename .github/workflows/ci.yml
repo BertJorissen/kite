@@ -34,6 +34,8 @@ jobs:
           brew info libomp
           brew info boost
           clang --version
+          brew --prefix libomp
+          brew --prefix boost
           echo "LDFLAGS=-L$(brew --prefix libomp)/lib -L$(brew --prefix boost)/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I$(brew --prefix libomp)/include -I$(brew --prefix boost)/include" >> $GITHUB_ENV}
       - name: Install dependencies for Quantum-KITE
