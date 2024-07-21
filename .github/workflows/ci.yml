@@ -63,6 +63,7 @@ jobs:
         run: |
           mkdir build_tests
           cd build_tests
+          cmake ..
           cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
