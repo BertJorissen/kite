@@ -104,6 +104,8 @@ jobs:
             echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
             echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
             echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
+            QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH
+            echo $QK_CMAKE_PREFIX_PATH
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
