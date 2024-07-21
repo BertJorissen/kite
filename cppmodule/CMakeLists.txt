@@ -30,7 +30,7 @@ set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(${OPENMP_FOUND})
-    message(STATUS "kitecore - OpenMP found at ${OpenMP_CXX_LIB_NAMES}")
+    message(STATUS "kitecore - OpenMP")
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
     set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
     if(MSVC)

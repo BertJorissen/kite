@@ -52,10 +52,7 @@ endif()
 include(download)
 include(ExternalProject)
 
-
 find_package(OpenMP)
-MESSAGE(STATUS "OPENMP:  ${OpenMP_CXX}")
-
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)

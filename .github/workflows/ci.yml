@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
-      QK_CMAKE_PREFIX_PATH: ""
+      QK_CMAKE_PREFIX_PATH: '""'
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +42,7 @@ jobs:
           echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
           echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
-      - name: Install dependencies for Quantum-KITE
+      - name: Install dependenecies for Quantum-KITE
         run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build with CMake and test Python / C++
         timeout-minutes: 30
@@ -63,7 +63,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
-      QK_CMAKE_PREFIX_PATH: ""
+      QK_CMAKE_PREFIX_PATH: '""'
     strategy:
       fail-fast: false
       matrix:
@@ -111,7 +111,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
-      QK_CMAKE_PREFIX_PATH: ""
+      QK_CMAKE_PREFIX_PATH: '""'
     strategy:
       fail-fast: false
       matrix:
@@ -144,7 +144,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
-      QK_CMAKE_PREFIX_PATH: ""
+      QK_CMAKE_PREFIX_PATH: '""'
     strategy:
       fail-fast: false
       matrix:
