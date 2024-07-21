@@ -67,8 +67,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-        python-version: [ "3.10" ]
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+            python-version: "3.10"
+          - os: windows-latest
+            arch: x86_64
+            python-version: "3.10"
+          - os: macos-12
+            arch: x86_64
+            python-version: "3.10"
+          - os: macos-14
+            arch: arm64
+            python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,8 +105,6 @@ jobs:
             echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
             echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
             echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
-          CIBW_ENVIRONMENT: >
-            QK_CMAKE_PREFIX_PATH=$QK_CMAKE_PREFIX_PATH
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
@@ -161,6 +170,11 @@ jobs:
       - name: Set up MSVC
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
+      - name: Download artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sources
+          path: dist
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
@@ -168,19 +182,15 @@ jobs:
           brew info libomp
           brew info boost
           clang --version
+          brew --prefix libomp
+          brew --prefix boost
           LIBOMP_PATH=$(brew --prefix libomp)
           BOOST_PATH=$(brew --prefix boost)
           echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
           echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
-      - name: Download artefacts
-        uses: actions/download-artifact@v4
-        with:
-          name: sources
-          path: dist
       - name: Install Quantum-Kite
         run: |
-          QK_CMAKE_PREFIX_PATH=${QK_CMAKE_PREFIX_PATH}
           python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja build numpy setuptools pybinding-dev h5py==3.11.0
           python -m pip install --find-links=dist quantum-kite --no-binary quantum-kite
         env:
