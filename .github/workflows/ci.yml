@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir build_tests
           cd build_tests
-          cmake .. -DCMAKE_BUILD_TYPE=${QK_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${QK_CMAKE_PREFIX_PATH}
+          cmake .. -DCMAKE_PREFIX_PATH=${QK_CMAKE_PREFIX_PATH}
           cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
@@ -93,7 +93,7 @@ jobs:
             echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
             echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
           CIBW_ENVIRONMENT: >
-            QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
+            QK_CMAKE_PREFIX_PATH=$QK_CMAKE_PREFIX_PATH
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
@@ -176,6 +176,7 @@ jobs:
           path: dist
       - name: Install Quantum-Kite
         run: |
+          CMAKE_PREFIX_PATH=${QK_CMAKE_PREFIX_PATH}
           python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja build numpy setuptools pybinding-dev h5py==3.11.0
           python -m pip install --find-links=dist quantum-kite --no-binary quantum-kite
         env:
