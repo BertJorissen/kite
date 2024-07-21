@@ -78,6 +78,7 @@ target_include_directories(KITE-tools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 
 if(${OPENMP_FOUND})
+    message(STATUS "KITE-tools - OpenMP found at ${OpenMP_CXX_LIB_NAMES}")
     target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
     target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
     set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")

@@ -16,16 +16,24 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             python-version: "3.10"
           - os: windows-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             python-version: "3.10"
           - os: macos-12
-            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
+            ldflags: '"-L/usr/local/opt/libomp/lib -L/usr/local/opt/boost/lib"'
+            cppflags: '"-I/usr/local/opt/libomp/include -I/usr/local/opt/libomp/boost"'
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8:$PATH"'
             python-version: "3.10"
           - os: macos-14
-            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
+            ldflags: "-L/opt/homebrew/opt/libomp/lib -L/opt/homebrew/opt/boost/lib"
+            cppflags: "-I/opt/homebrew/opt/libomp/include -I/opt/homebrew/opt/boost/include"
+            path: "/opt/homebrew/opt/libomp/bin:/opt/homebrew/opt/boost/bin:$PATH"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -41,11 +49,13 @@ jobs:
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
-          brew install libomp
+          brew install libomp boost
           brew info libomp
-          brew install boost@1.85
           brew info boost
           clang --version
+          export LDFLAGS=${{ matrix.ldflags }}
+          export CPPFLAGS=${{ matrix.cppflags }}
+          export PATH=${{ matrix.path }}
       - name: Install dependencies for Quantum-KITE
         run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build with CMake and test Python / C++
@@ -53,7 +63,6 @@ jobs:
         run: |
           mkdir build_tests
           cd build_tests
-          cmake .. -DQK_CMAKE_PREFIX_PATH=${{ matrix.options }}
           cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
@@ -72,20 +81,28 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             arch: x86_64
             python-version: "3.10"
           - os: windows-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             arch: x86_64
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
-            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
+            ldflags: '"-L/usr/local/opt/libomp/lib -L/usr/local/opt/boost/lib"'
+            cppflags: '"-I/usr/local/opt/libomp/include -I/usr/local/opt/libomp/boost"'
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8:$PATH"'
             python-version: "3.10"
           - os: macos-14
             arch: arm64
-            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
+            ldflags: "-L/opt/homebrew/opt/libomp/lib -L/opt/homebrew/opt/boost/lib"
+            cppflags: "-I/opt/homebrew/opt/libomp/include -I/opt/homebrew/opt/boost/include"
+            path: "/opt/homebrew/opt/libomp/bin:/opt/homebrew/opt/boost/bin:$PATH"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -104,18 +121,20 @@ jobs:
           CIBW_ARCHS_LINUX: x86_64
           CIBW_BEFORE_ALL_MACOS: |
             pip install scipy contourpy pybinding-dev --prefer-binary
-            brew install libomp
+            brew install libomp boost
             brew info libomp
-            brew install boost@1.85
             brew info boost
             clang --version
+            export LDFLAGS=${{ matrix.ldflags }}
+            export CPPFLAGS=${{ matrix.cppflags }}
+            export PATH=${{ matrix.path }}
           CIBW_ENVIRONMENT: >
             QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: python -c "import pybinding as pb; pb.tests(); import kite; exit(kite.tests())"
-          CIBW_SKIP: cp36-* cp37-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *aarch64
+          CIBW_SKIP: cp36-* cp37-* cp38-* pp* *win32 *i686 *musllinux* *ppc64le *s390x *aarch64
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-wheels
@@ -163,16 +182,24 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             python-version: "3.10"
           - os: windows-latest
-            options: ""
+            ldflags: ""
+            cppflags: ""
+            path: ""
             python-version: "3.10"
           - os: macos-12
-            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8"'
+            ldflags: '"-L/usr/local/opt/libomp/lib -L/usr/local/opt/boost/lib"'
+            cppflags: '"-I/usr/local/opt/libomp/include -I/usr/local/opt/libomp/boost"'
+            options: '"/usr/local/Cellar/boost/1.85.0;/usr/local/Cellar/libomp/18.1.8:$PATH"'
             python-version: "3.10"
           - os: macos-14
-            options: '"/opt/homebrew/Cellar/boost/1.85.0;/opt/homebrew/Cellar/libomp/18.1.8"'
+            ldflags: "-L/opt/homebrew/opt/libomp/lib -L/opt/homebrew/opt/boost/lib"
+            cppflags: "-I/opt/homebrew/opt/libomp/include -I/opt/homebrew/opt/boost/include"
+            path: "/opt/homebrew/opt/libomp/bin:/opt/homebrew/opt/boost/bin:$PATH"
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -188,11 +215,13 @@ jobs:
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
-          brew install libomp
+          brew install libomp boost
           brew info libomp
-          brew install boost@1.85
           brew info boost
           clang --version
+          export LDFLAGS=${{ matrix.ldflags }}
+          export CPPFLAGS=${{ matrix.cppflags }}
+          export PATH=${{ matrix.path }}
       - name: Download artefacts
         uses: actions/download-artifact@v4
         with:

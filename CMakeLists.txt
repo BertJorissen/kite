@@ -54,7 +54,7 @@ include(ExternalProject)
 
 
 find_package(OpenMP)
-MESSAGE(STATUS "OPENMP:  ${OPENMP_FOUND}")
+MESSAGE(STATUS "OPENMP:  ${OpenMP_CXX}")
 
 
 set(DOWNLOAD_HDF5 True)
