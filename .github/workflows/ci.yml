@@ -36,8 +36,11 @@ jobs:
           clang --version
           brew --prefix libomp
           brew --prefix boost
-          echo "LDFLAGS=-L$(brew --prefix libomp)/lib -L$(brew --prefix boost)/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$(brew --prefix libomp)/include -I$(brew --prefix boost)/include" >> $GITHUB_ENV
+          LIBOMP_PATH=$(brew --prefix libomp)
+          BOOST_PATH=$(brew --prefix boost)
+          echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+          echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
       - name: Install dependencies for Quantum-KITE
         run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build with CMake and test Python / C++
@@ -84,8 +87,11 @@ jobs:
             brew info libomp
             brew info boost
             clang --version
-            echo "LDFLAGS=-L$(brew --prefix libomp)/lib -L$(brew --prefix boost)/lib" >> $GITHUB_ENV
-            echo "CPPFLAGS=-I$(brew --prefix libomp)/include -I$(brew --prefix boost)/include" >> $GITHUB_ENV
+            LIBOMP_PATH=$(brew --prefix libomp)
+            BOOST_PATH=$(brew --prefix boost)
+            echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+            echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+            echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
           CIBW_ENVIRONMENT: >
             QK_CMAKE_PREFIX_PATH=${{ matrix.options }}
           CIBW_BUILD_VERBOSITY: 1
@@ -158,8 +164,11 @@ jobs:
           brew info libomp
           brew info boost
           clang --version
-          echo "LDFLAGS=-L$(brew --prefix libomp)/lib -L$(brew --prefix boost)/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$(brew --prefix libomp)/include -I$(brew --prefix boost)/include" >> $GITHUB_ENV
+          LIBOMP_PATH=$(brew --prefix libomp)
+          BOOST_PATH=$(brew --prefix boost)
+          echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+          echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
       - name: Download artefacts
         uses: actions/download-artifact@v4
         with:
