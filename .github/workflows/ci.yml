@@ -48,7 +48,7 @@ jobs:
         run: |
           mkdir build_tests
           cd build_tests
-          cmake ..
+          cmake .. -DCMAKE_BUILD_TYPE=${QK_BUILD_TYPE} -DCMAKE_PREFIX_PATH=${QK_CMAKE_PREFIX_PATH}
           cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
