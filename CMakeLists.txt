@@ -99,7 +99,7 @@ if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version
             )
 
     if(NOT OPENMP_DOWNLOAD_VERSION)
-        set(OPENMP_DOWNLOAD_VERSION "11.0.0")
+        set(OPENMP_DOWNLOAD_VERSION "18.1.8")
     endif()
     MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
@@ -121,7 +121,6 @@ if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version
             BINARY_DIR ${OPENMP_DIR}/build
             STAMP_DIR  ${OPENMP_DIR}/stamp
             TMP_DIR    ${OPENMP_DIR}/tmp
-            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
 	    POST_BUILD
