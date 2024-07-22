@@ -29,12 +29,15 @@ option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON) # 
 option(QK_CCACHE "Use CCache" ON) # option to use CCache. Python builds give problems when compiling different versions.
 
 
-MESSAGE(STATUS "QK_NATIVE_HDF5:  ${QK_NATIVE_HDF5}")
-MESSAGE(STATUS "QK_NATIVE_EIGEN: ${QK_NATIVE_EIGEN}")
-MESSAGE(STATUS "QK_CCACHE:       ${QK_CCACHE}")
+MESSAGE(STATUS "QK_NATIVE_HDF5:   ${QK_NATIVE_HDF5}")
+MESSAGE(STATUS "QK_NATIVE_EIGEN:  ${QK_NATIVE_EIGEN}")
+MESSAGE(STATUS "QK_NATIVE_OPENMP: ${QK_NATIVE_OPENMP}")
+MESSAGE(STATUS "QK_CCACHE:        ${QK_CCACHE}")
 
 set(CMAKE_PREFIX_PATH ${QK_CMAKE_PREFIX_PATH} ${CMAKE_PREFIX_PATH})
 MESSAGE(STATUS "CMAKE PREFIX PATH ${CMAKE_PREFIX_PATH}")
+set(CMAKE_OSX_DEPLOYMENT_TARGET ${QK_CMAKE_OSX_DEPLOYMENT_TARGET} ${CMAKE_OSX_DEPLOYMENT_TARGET})
+MESSAGE(STATUS "CMAKE_OSX_DEPLOYMENT_TARGET: ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 MESSAGE(STATUS "OpenMP Root Dir ${OpenMP_ROOT_DIR}")
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build" FORCE)
@@ -52,7 +55,76 @@ endif()
 include(download)
 include(ExternalProject)
 
-find_package(OpenMP)
+
+if(QK_NATIVE_OPENMP)
+    # going through the cases:
+    #   We can install OpenMP with Clang, the user can ask this by turning the 'native' flag off.
+    #   However, if they are not using Clang, the installation method will not work.
+    #   We also have a fallback if there is no OpenMP detected on the system if Clang is used.
+    #   However, if we ask it to be native and it is not found, we will fail.
+    #   Also, if we ask for an installation, and we are not using Clang, we will check the native system and fail if not found.
+    find_package(OpenMP QUIET)
+    if(OpenMP_FOUND)
+        set(DOWNLOAD_OPENMP False)
+        MESSAGE(STATUS "Using native machine OpenMP.")
+    else()
+        if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+            set(DOWNLOAD_OPENMP True)
+            MESSAGE(STATUS "OpenMP not found, installing it for you (Clang).")
+        else()
+            set(DOWNLOAD_OPENMP False)
+            MESSAGE(FATAL_ERROR "OpenMP not found, not installing it for you (no Clang).")
+        endif()
+    endif()
+else()
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+        set(DOWNLOAD_OPENMP True)
+        MESSAGE(STATUS "Requested OpenMP download, installing it for you (Clang).")
+    else()
+        set(DOWNLOAD_OPENMP False)
+        MESSAGE(STATUS "Requested OpenMP download, I'm not gonna do that because you're not using Clang.")
+        find_package(OpenMP REQUIRED)
+    endif()
+endif()
+
+
+#if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
+#    set(OPENMP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/openmp)
+#    set(OPENMP_INSTALL_DIR ${OPENMP_DIR}/install)
+#    set(OPENMP_ExternalProjectCMakeArgs
+#            "-DCMAKE_INSTALL_PREFIX=${OPENMP_INSTALL_DIR}"
+#            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+#            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+#            )
+#
+#    if(NOT OPENMP_DOWNLOAD_VERSION)
+#        set(OPENMP_DOWNLOAD_VERSION "11.0.0")
+#    endif()
+#    MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
+#    ExternalProject_Add(openmp_local
+#            URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${OPENMP_DOWNLOAD_VERSION}/openmp-${OPENMP_DOWNLOAD_VERSION}.src.tar.xz"
+#            CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
+#            SOURCE_DIR ${OPENMP_DIR}/src/openmp-${OPENMP_DOWNLOAD_VERSION}
+#            BINARY_DIR ${OPENMP_DIR}/build
+#            STAMP_DIR  ${OPENMP_DIR}/stamp
+#            TMP_DIR    ${OPENMP_DIR}/tmp
+#            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+#            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+#            INSTALL_COMMAND ""
+#    )
+#    set(OPENMP_includes
+#            ${OPENMP_DIR}/build/runtime/src
+#            )
+#    include_directories(${OPENMP_includes})
+#    set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
+#    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+#        set(OPENMP_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
+#    else()
+#        set(OPENMP_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+#    endif()
+#    MESSAGE(STATUS "OPENMP_INCLUDES: ${OPENMP_includes}")
+#    MESSAGE(STATUS "OPENMP_LIBS: ${OPENMP_libs}")
+#endif()
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
@@ -62,17 +134,16 @@ if(QK_NATIVE_HDF5)
         set(DOWNLOAD_HDF5 False)
         MESSAGE(STATUS "Using native machine HDF5, version: ${HDF5_VERSION}")
         MESSAGE(STATUS "Hdf5-CXX Library:  ${HDF5_CXX_LIBRARIES}")
-
-        find_package(Python3 QUIET)
-        if(${Python3_FOUND})
-            execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; print(h5py.version.hdf5_version)" OUTPUT_VARIABLE HDF5_PYTHON_VERSION)
-            MESSAGE(STATUS "HDF5 h5py Version: ${HDF5_PYTHON_VERSION}")
-            if (HDF5_PYTHON_VERSION VERSION_EQUAL HDF5_VERSION)
-                MESSAGE(STATUS "HDF5 Python Version matches HDF5 C++ Version, code will run correctly.")
-            else()
-                MESSAGE(WARNING "HDF5 Python Version does not match HDF5 C++ Version, do NOT use the python interface. Unexpected behavior may occur.")
-            endif()
-        endif()
+        # find_package(Python3 QUIET)
+        # if(${Python3_FOUND})
+        #     execute_process(COMMAND ${Python3_EXECUTABLE} -c "import h5py; print(h5py.version.hdf5_version)" OUTPUT_VARIABLE HDF5_PYTHON_VERSION)
+        #     MESSAGE(STATUS "HDF5 h5py Version: ${HDF5_PYTHON_VERSION}")
+        #     if (HDF5_PYTHON_VERSION VERSION_EQUAL HDF5_VERSION)
+        #         MESSAGE(STATUS "HDF5 Python Version matches HDF5 C++ Version, code will run correctly.")
+        #     else()
+        #         MESSAGE(WARNING "HDF5 Python Version does not match HDF5 C++ Version, do NOT use the python interface. Unexpected behavior may occur.")
+        #     endif()
+        # endif()
     else()
         MESSAGE(STATUS "Couldn't find HDF5, installing it instead.")
     endif()
@@ -82,8 +153,7 @@ endif()
 if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
     set(hdf5_INSTALL_DIR ${HDF5_DIR}/install)
-    set(hdf5_build_bin "${HDF5_DIR}/build/bin")
-    set(ExternalProjectCMakeArgs
+    set(HDF_ExternalProjectCMakeArgs
             "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"
             "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
             "-DBUILD_SHARED_LIBS=ON"
@@ -107,7 +177,6 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
     set(HDF5_USE_STATIC_LIBRARIES OFF)
     major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
     MESSAGE(STATUS "HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version}")
-    set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
         set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
     else()
@@ -140,7 +209,7 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
     endif()
     ExternalProject_Add(hdf5_local
             URL "https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-${_hdf5_mm_version}/hdf5-${HDF5_DOWNLOAD_VERSION}/src/hdf5-${HDF5_DOWNLOAD_VERSION}.tar.gz"
-            CMAKE_ARGS ${ExternalProjectCMakeArgs}
+            CMAKE_ARGS ${HDF_ExternalProjectCMakeArgs}
             SOURCE_DIR ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}
             BINARY_DIR ${HDF5_DIR}/build
             STAMP_DIR  ${HDF5_DIR}/stamp

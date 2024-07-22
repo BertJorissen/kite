@@ -82,7 +82,15 @@ endif()
 
 target_include_directories(cppcore_kitex SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-if(${OPENMP_FOUND})
+if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
+    MESSAGE(FATAL_ERROR "No download yet")
+    #add_dependencies(cppcore_kitex openmp_local)
+    #target_include_directories(KITEx SYSTEM PRIVATE ${OPENMP_includes})
+    #target_include_directories(cppcore_kitex SYSTEM PRIVATE ${OPENMP_includes})
+    #target_link_libraries(KITEx PRIVATE ${OPENMP_libs})
+    #target_link_libraries(cppcore_kitex PRIVATE ${OPENMP_libs})
+    #MESSAGE(STATUS "Using downloaded HDF5 for KITEx with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
+else ()
     message(STATUS "KITEx - OpenMP")
     target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
     target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
@@ -95,8 +103,6 @@ if(${OPENMP_FOUND})
         set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-else()
-    message(FATAL_ERROR "OpenMP not found")
 endif()
 
 

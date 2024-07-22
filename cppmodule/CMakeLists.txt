@@ -1,8 +1,8 @@
-set(PYBIND11_PYTHON_VERSION 3.8 CACHE STRING "Minimum required Python version")
-find_package(Python COMPONENTS Interpreter Development)
+set(PYBIND11_PYTHON_VERSION 3.9 CACHE STRING "Minimum required Python version")
+set(PYBIND11_FINDPYTHON ON)
 add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
-pybind11_add_module(kitecore src/main.cpp)
+pybind11_add_module(kitecore THIN_LTO src/main.cpp)
 
 if(${DOWNLOAD_HDF5})
     add_dependencies(kitecore hdf5_local cppcore_kitex cppcore_kitetools)
@@ -29,7 +29,13 @@ endif()
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-if(${OPENMP_FOUND})
+if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
+    MESSAGE(FATAL_ERROR "no download yet")
+    #add_dependencies(kitecore openmp_local)
+    #target_include_directories(kitecore SYSTEM PRIVATE ${OPENMP_includes})
+    #target_link_libraries(kitecore PRIVATE ${OPENMP_libs})
+    #MESSAGE(STATUS "Using downloaded HDF5 for KITE-tools with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
+else()
     message(STATUS "kitecore - OpenMP")
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
     set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
@@ -41,8 +47,6 @@ if(${OPENMP_FOUND})
         set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-else()
-    message(FATAL_ERROR "OpenMP not found")
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")  # similar as in the first parts; don't ask me why this works lol

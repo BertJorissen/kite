@@ -70,15 +70,19 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x86_64
+            dt: 0.0
             python-version: "3.10"
           - os: windows-latest
             arch: x86_64
+            dt: 0.0
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
+            dt: 10.9
             python-version: "3.10"
           - os: macos-14
             arch: arm64
+            dt: 11.0
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -107,9 +111,11 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.dt }}
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_ARCHS_LINUX: x86_64
-          CIBW_BEFORE_ALL_MACOS: echo "$QK_CMAKE_PREFIX_PATH"
+          CIBW_BEFORE_ALL_MACOS: |
+            echo "$QK_CMAKE_PREFIX_PATH"
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
