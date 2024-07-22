@@ -1,5 +1,4 @@
-set(PYBIND11_PYTHON_VERSION 3.9 CACHE STRING "Minimum required Python version")
-set(PYBIND11_FINDPYTHON ON)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
 pybind11_add_module(kitecore THIN_LTO src/main.cpp)
@@ -30,11 +29,10 @@ set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
-    MESSAGE(FATAL_ERROR "no download yet")
-    #add_dependencies(kitecore openmp_local)
-    #target_include_directories(kitecore SYSTEM PRIVATE ${OPENMP_includes})
-    #target_link_libraries(kitecore PRIVATE ${OPENMP_libs})
-    #MESSAGE(STATUS "Using downloaded HDF5 for KITE-tools with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
+    add_dependencies(kitecore openmp_local)
+    target_include_directories(kitecore SYSTEM PRIVATE ${OPENMP_includes})
+    target_link_libraries(kitecore PRIVATE ${OPENMP_libs})
+    MESSAGE(STATUS "Using downloaded OpenMP for kitecore with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
 else()
     message(STATUS "kitecore - OpenMP")
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)

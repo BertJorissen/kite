@@ -69,63 +69,65 @@ if(QK_NATIVE_OPENMP)
         set(DOWNLOAD_OPENMP False)
         MESSAGE(STATUS "Using native machine OpenMP.")
     else()
-        if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+        if ((${CMAKE_CXX_COMPILER_ID} MATCHES ".*Clang.*") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
             set(DOWNLOAD_OPENMP True)
-            MESSAGE(STATUS "OpenMP not found, installing it for you (Clang).")
+            MESSAGE(STATUS "OpenMP not found, installing it for you (Clang/GCC).")
         else()
             set(DOWNLOAD_OPENMP False)
-            MESSAGE(FATAL_ERROR "OpenMP not found, not installing it for you (no Clang).")
+            MESSAGE(FATAL_ERROR "OpenMP not found, not installing it for you (no Clang/GCC).")
         endif()
     endif()
 else()
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")
+    if ((${CMAKE_CXX_COMPILER_ID} MATCHES ".*Clang.*") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
         set(DOWNLOAD_OPENMP True)
-        MESSAGE(STATUS "Requested OpenMP download, installing it for you (Clang).")
+        MESSAGE(STATUS "Requested OpenMP download, installing it for you (Clang/GCC).")
     else()
         set(DOWNLOAD_OPENMP False)
-        MESSAGE(STATUS "Requested OpenMP download, I'm not gonna do that because you're not using Clang.")
+        MESSAGE(STATUS "Requested OpenMP download, I'm not gonna do that because you're not using Clang/GCC.")
         find_package(OpenMP REQUIRED)
     endif()
 endif()
 
 
-#if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
-#    set(OPENMP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/openmp)
-#    set(OPENMP_INSTALL_DIR ${OPENMP_DIR}/install)
-#    set(OPENMP_ExternalProjectCMakeArgs
-#            "-DCMAKE_INSTALL_PREFIX=${OPENMP_INSTALL_DIR}"
-#            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-#            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
-#            )
-#
-#    if(NOT OPENMP_DOWNLOAD_VERSION)
-#        set(OPENMP_DOWNLOAD_VERSION "11.0.0")
-#    endif()
-#    MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
-#    ExternalProject_Add(openmp_local
-#            URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${OPENMP_DOWNLOAD_VERSION}/openmp-${OPENMP_DOWNLOAD_VERSION}.src.tar.xz"
-#            CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
-#            SOURCE_DIR ${OPENMP_DIR}/src/openmp-${OPENMP_DOWNLOAD_VERSION}
-#            BINARY_DIR ${OPENMP_DIR}/build
-#            STAMP_DIR  ${OPENMP_DIR}/stamp
-#            TMP_DIR    ${OPENMP_DIR}/tmp
-#            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-#            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-#            INSTALL_COMMAND ""
-#    )
-#    set(OPENMP_includes
-#            ${OPENMP_DIR}/build/runtime/src
-#            )
-#    include_directories(${OPENMP_includes})
-#    set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
-#    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-#        set(OPENMP_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
-#    else()
-#        set(OPENMP_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-#    endif()
-#    MESSAGE(STATUS "OPENMP_INCLUDES: ${OPENMP_includes}")
-#    MESSAGE(STATUS "OPENMP_LIBS: ${OPENMP_libs}")
-#endif()
+if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
+    set(OPENMP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/openmp)
+    set(OPENMP_INSTALL_DIR ${OPENMP_DIR}/install)
+    set(OPENMP_ExternalProjectCMakeArgs
+            "-DCMAKE_INSTALL_PREFIX=${OPENMP_INSTALL_DIR}"
+            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+            )
+
+    if(NOT OPENMP_DOWNLOAD_VERSION)
+        set(OPENMP_DOWNLOAD_VERSION "11.0.0")
+    endif()
+    MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
+    ExternalProject_Add(openmp_local
+            URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${OPENMP_DOWNLOAD_VERSION}/openmp-${OPENMP_DOWNLOAD_VERSION}.src.tar.xz"
+            CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
+            SOURCE_DIR ${OPENMP_DIR}/src/openmp-${OPENMP_DOWNLOAD_VERSION}
+            BINARY_DIR ${OPENMP_DIR}/build
+            STAMP_DIR  ${OPENMP_DIR}/stamp
+            TMP_DIR    ${OPENMP_DIR}/tmp
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+            INSTALL_COMMAND ""
+    )
+    set(OPENMP_includes ${OPENMP_DIR}/build/runtime/src)
+    include_directories(${OPENMP_includes})
+    set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        if (APPLE)
+            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.dylib)
+        elif (WIN32)
+            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.lib)
+        else()
+            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.so)
+        endif ()
+    endif()
+    MESSAGE(STATUS "OPENMP_INCLUDES: ${OPENMP_includes}")
+    MESSAGE(STATUS "OPENMP_LIBS: ${OPENMP_libs}")
+endif()
 
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
