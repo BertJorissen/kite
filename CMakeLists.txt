@@ -26,6 +26,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake") # include the copy and download scripts
 option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found" ON) # option to use machine HDF5
 option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found" ON) # option to use machine EIGEN
+option(QK_NATIVE_EIGEN "Use installed machine version of OpenMP, if found" OFF) # option to use machine EIGEN
 option(QK_CCACHE "Use CCache" ON) # option to use CCache. Python builds give problems when compiling different versions.
 
 
