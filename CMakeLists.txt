@@ -102,6 +102,18 @@ if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version
         set(OPENMP_DOWNLOAD_VERSION "11.0.0")
     endif()
     MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
+    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+	set(openmp_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
+    else()
+	set(openmp_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    endif()
+    if(APPLE)
+	set(OPENMP_EXT "dylib")
+    elseif(WIN32)
+	set(OPENMP_EXT "dll")
+    else()
+	set(OPENMP_EXT "so")
+    endif()
     ExternalProject_Add(openmp_local
             URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${OPENMP_DOWNLOAD_VERSION}/openmp-${OPENMP_DOWNLOAD_VERSION}.src.tar.xz"
             CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
@@ -112,17 +124,17 @@ if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
+	    POST_BUILD
+	    COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${OPENMP_DIR}/build/runtime/src/libomp.${OPENMP_EXT} -DFILES_MOVE_DESTINATION=${openmp_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
     )
     set(OPENMP_includes ${OPENMP_DIR}/build/runtime/src)
     include_directories(${OPENMP_includes})
     set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-        if (APPLE)
-            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.dylib)
-        elseif (WIN32)
+	if (WIN32)
             set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.lib)
         else()
-            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.so)
+	    set(OPENMP_libs ${openmp_libs_folder}/libomp.${OPENMP_EXT})
         endif ()
     endif()
     MESSAGE(STATUS "OPENMP_INCLUDES: ${OPENMP_includes}")
