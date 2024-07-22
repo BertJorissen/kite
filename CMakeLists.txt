@@ -119,7 +119,7 @@ if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version
     if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
         if (APPLE)
             set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.dylib)
-        elif (WIN32)
+        elseif (WIN32)
             set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.lib)
         else()
             set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.so)
