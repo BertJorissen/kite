@@ -90,7 +90,7 @@ else ()
     target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-set(CORRECT_CODING_FLAGS "-Wall")
+set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 else()
