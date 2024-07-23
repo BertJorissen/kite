@@ -88,58 +88,6 @@ else()
     endif()
 endif()
 
-
-if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
-    set(OPENMP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/openmp)
-    set(OPENMP_INSTALL_DIR ${OPENMP_DIR}/install)
-    set(OPENMP_ExternalProjectCMakeArgs
-            "-DCMAKE_INSTALL_PREFIX=${OPENMP_INSTALL_DIR}"
-            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
-            )
-
-    if(NOT OPENMP_DOWNLOAD_VERSION)
-        set(OPENMP_DOWNLOAD_VERSION "18.1.8")
-    endif()
-    MESSAGE(STATUS "OPENMP VERSION-${OPENMP_DOWNLOAD_VERSION}")
-    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-	set(openmp_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
-    else()
-	set(openmp_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-    endif()
-    if(APPLE)
-	set(OPENMP_EXT "dylib")
-    elseif(WIN32)
-	set(OPENMP_EXT "dll")
-    else()
-	set(OPENMP_EXT "so")
-    endif()
-    ExternalProject_Add(openmp_local
-            URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${OPENMP_DOWNLOAD_VERSION}/openmp-${OPENMP_DOWNLOAD_VERSION}.src.tar.xz"
-            CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
-            SOURCE_DIR ${OPENMP_DIR}/src/openmp-${OPENMP_DOWNLOAD_VERSION}
-            BINARY_DIR ${OPENMP_DIR}/build
-            STAMP_DIR  ${OPENMP_DIR}/stamp
-            TMP_DIR    ${OPENMP_DIR}/tmp
-            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-            INSTALL_COMMAND ""
-	    POST_BUILD
-	    COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${OPENMP_DIR}/build/runtime/src/libomp.${OPENMP_EXT} -DFILES_MOVE_DESTINATION=${openmp_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-    )
-    set(OPENMP_includes ${OPENMP_DIR}/build/runtime/src)
-    include_directories(${OPENMP_includes})
-    set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-	if (WIN32)
-            set(OPENMP_libs ${OPENMP_DIR}/build/runtime/src/libomp.lib)
-        else()
-	    set(OPENMP_libs ${openmp_libs_folder}/libomp.${OPENMP_EXT})
-        endif ()
-    endif()
-    MESSAGE(STATUS "OPENMP_INCLUDES: ${OPENMP_includes}")
-    MESSAGE(STATUS "OPENMP_LIBS: ${OPENMP_libs}")
-endif()
-
 set(DOWNLOAD_HDF5 True)
 if(QK_NATIVE_HDF5)
     find_package(HDF5 COMPONENTS CXX)
@@ -163,12 +111,92 @@ if(QK_NATIVE_HDF5)
     endif()
 endif()
 
+if (${DOWNLOAD_OPENMP} OR ${DOWNLOAD_HDF5})
+    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(KITECORE_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
+    else()
+        set(KITECORE_LIBS_DIR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+    endif()
+    MESSAGE(STATUS "KITECORE_LIBS_DIR: ${KITECORE_LIBS_DIR}")
+    if(APPLE)
+        set(SHARED_LIB_EXT "dylib")
+    elseif(WIN32)
+        set(SHARED_LIB_EXT "dll")
+    else()
+        set(SHARED_LIB_EXT "so")
+    endif()
+    message(STATUS "SHARED_LIB_EXT: ${SHARED_LIB_EXT}")
+endif()
+
+if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
+    if(NOT LLVM_DOWNLOAD_VERSION)
+        set(LLVM_DOWNLOAD_VERSION "18.1.8")
+    endif()
+    MESSAGE(STATUS "OPENMP/LLVM VERSION-${LLVM_DOWNLOAD_VERSION}")
+
+    set(LLVM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/llvm)
+    set(OPENMP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/openmp)
+
+    set(LLVM_ExternalProjectCMakeArgs
+            "-DCMAKE_INSTALL_PREFIX=${LLVM_DIR}/install"
+            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+            "-DLLVM_INSTALL_UTILS=ON")
+    set(OPENMP_ExternalProjectCMakeArgs
+            "-DCMAKE_INSTALL_PREFIX=$${OPENMP_DIR}/install"
+            "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+            "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+            "-DLIBOMP_ENABLE_SHARED=ON"
+            "-DLLVM_EXTERNAL_LIT=${LLVM_DIR}/build/utils/lit"
+            "-DLLVM_ROOT=${LLVM_DIR}/install")
+
+    ExternalProject_Add(llvm_local
+            URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_DOWNLOAD_VERSION}/llvm-project-${LLVM_DOWNLOAD_VERSION}.src.tar.xz"
+            CMAKE_ARGS ${LLVM_ExternalProjectCMakeArgs}
+            SOURCE_DIR ${LLVM_DIR}/src/llvm-project-${LLVM_DOWNLOAD_VERSION}
+            SOURCE_SUBDIR llvm
+            BINARY_DIR ${LLVM_DIR}/build
+            STAMP_DIR  ${LLVM_DIR}/stamp
+            TMP_DIR    ${LLVM_DIR}/tmp
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    message(${LLVM_DIR}/src/llvm-project-${LLVM_DOWNLOAD_VERSION}/openmp/src)
+    file(MAKE_DIRECTORY ${LLVM_DIR}/src/llvm-project-${LLVM_DOWNLOAD_VERSION}/openmp/src)
+    ExternalProject_Add(openmp_local
+            CMAKE_ARGS ${OPENMP_ExternalProjectCMakeArgs}
+            SOURCE_DIR ${LLVM_DIR}/src/llvm-project-${LLVM_DOWNLOAD_VERSION}/openmp
+            BINARY_DIR ${OPENMP_DIR}/build
+            STAMP_DIR  ${OPENMP_DIR}/stamp
+            TMP_DIR    ${OPENMP_DIR}/tmp
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+            INSTALL_COMMAND ""
+	    POST_BUILD
+	    COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${OPENMP_DIR}/build/runtime/src/libomp.${SHARED_LIB_EXT} -DFILES_MOVE_DESTINATION=${KITECORE_LIBS_DIR} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+    )
+    add_dependencies(openmp_local llvm_local)
+    set(openmp_includes ${OPENMP_DIR}/build/runtime/src)
+    set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
+    if (WIN32)
+        set(openmp_libs ${OPENMP_DIR}/build/runtime/src/libomp.lib)
+    else()
+        set(openmp_libs ${KITECORE_LIBS_DIR}/libomp.${SHARED_LIB_EXT})
+    endif()
+    set(OpenMP_CXX_FLAGS "-fopenmp")
+    MESSAGE(STATUS "OPENMP_INCLUDES: ${openmp_includes}")
+    MESSAGE(STATUS "OPENMP_LIBS: ${openmp_libs}")
+endif()
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
+    if(NOT HDF5_DOWNLOAD_VERSION)
+        set(HDF5_DOWNLOAD_VERSION "1.14.2")
+    endif()
+    major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
+    MESSAGE(STATUS "HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version}")
+
     set(HDF5_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/hdf5)
-    set(hdf5_INSTALL_DIR ${HDF5_DIR}/install)
+
     set(HDF_ExternalProjectCMakeArgs
-            "-DCMAKE_INSTALL_PREFIX=${hdf5_INSTALL_DIR}"
+            "-DCMAKE_INSTALL_PREFIX=${HDF5_DIR}/install"
             "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
             "-DBUILD_SHARED_LIBS=ON"
             "-DBUILD_STATIC_LIBS=OFF"
@@ -185,40 +213,14 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             "-DH5_ENABLE_SHARED_LIB=YES"
             )
 
-    if(NOT HDF5_DOWNLOAD_VERSION)
-        set(HDF5_DOWNLOAD_VERSION "1.14.2")
-    endif()
-    set(HDF5_USE_STATIC_LIBRARIES OFF)
-    major_minor_version(${HDF5_DOWNLOAD_VERSION} _hdf5_mm_version)
-    MESSAGE(STATUS "HDF5 VERSION-${HDF5_DOWNLOAD_VERSION}-${_hdf5_mm_version}")
-    if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-        set(hdf5_libs_folder ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
-    else()
-        set(hdf5_libs_folder ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-    endif()
     set(HDF5_BTP "")
-    if(APPLE)
-        set(HDF_SL_PRE "lib")
-        set(HDF_SL_EXT "dylib")
-        set(HDF_SL_EXT_WILD "*${HDF_SL_EXT}*")
-        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
-    elseif(WIN32)
-        set(HDF_SL_PRE "")
-        set(HDF_SL_EXT "dll")
-        set(HDF_SL_EXT_WILD ${HDF_SL_EXT})
-        string(TOUPPER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_UPPER)
-        if (BUILD_TYPE_UPPER STREQUAL "DEBUG")
-            set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Debug)
-            set(HDF5_BTP "_D")
-        elseif (BUILD_TYPE_UPPER STREQUAL "RELEASE")
-            set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Release)
-        else ()
-            MESSAGE(FATAL_ERROR "Unknown build type: ${CMAKE_BUILD_TYPE}")
-        endif ()
+    if(WIN32)
+        set(HDF5_PRE "")
+        set(HDF5_EXT ${SHARED_LIB_EXT})
+        set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin/Release)
     else()
-        set(HDF_SL_PRE "lib")
-        set(HDF_SL_EXT "so")
-        set(HDF_SL_EXT_WILD "*${HDF_SL_EXT}*")
+        set(HDF5_PRE "lib")
+        set(HDF5_EXT "*${SHARED_LIB_EXT}*")
         set(HDF_BUILD_DIR ${HDF5_DIR}/build/bin)
     endif()
     ExternalProject_Add(hdf5_local
@@ -231,9 +233,9 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             DOWNLOAD_EXTRACT_TIMESTAMP TRUE
             INSTALL_COMMAND ""
             POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5${HDF5_BTP}.${HDF_SL_EXT_WILD} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF_SL_PRE}hdf5_cpp${HDF5_BTP}.${HDF_SL_EXT_WILD} -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DWIN=0 -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${hdf5_libs_folder} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF5_PRE}hdf5.${HDF5_EXT} -DFILES_MOVE_DESTINATION=${KITECORE_LIBS_DIR} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF_BUILD_DIR}/${HDF5_PRE}hdf5_cpp.${HDF5_EXT} -DFILES_MOVE_DESTINATION=${KITECORE_LIBS_DIR} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
+            COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/COPYING  -DFILES_MOVE_DESTINATION=${KITECORE_LIBS_DIR} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
     )
     set(hdf5_includes
             ${HDF5_DIR}/src/hdf5-${HDF5_DOWNLOAD_VERSION}/src
@@ -242,12 +244,11 @@ if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so
             ${HDF5_DIR}/build/src
             ${HDF5_DIR}/build
             )
-    include_directories(${hdf5_includes})
     set_target_properties(hdf5_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
     if (WIN32)
-        set(hdf5_libs ${HDF_BUILD_DIR}/hdf5${HDF5_BTP}.lib ${HDF_BUILD_DIR}/hdf5_cpp${HDF5_BTP}.lib)
+        set(hdf5_libs ${HDF_BUILD_DIR}/hdf5.lib ${HDF_BUILD_DIR}/hdf5_cpp.lib)
     else()
-        set(hdf5_libs ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5.${HDF_SL_EXT} ${hdf5_libs_folder}/${HDF_SL_PRE}hdf5_cpp.${HDF_SL_EXT})
+        set(hdf5_libs ${KITECORE_LIBS_DIR}/${HDF5_PRE}hdf5.${SHARED_LIB_EXT} ${KITECORE_LIBS_DIR}/${HDF5_PRE}hdf5_cpp.${SHARED_LIB_EXT})
     endif()
     MESSAGE(STATUS "HDF5_INCLUDES: ${hdf5_includes}")
     MESSAGE(STATUS "HDF5_LIBS: ${hdf5_libs}")

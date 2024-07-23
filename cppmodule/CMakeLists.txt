@@ -36,15 +36,14 @@ if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
 else()
     message(STATUS "kitecore - OpenMP")
     target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
-    set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
-    if(MSVC)
-        set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    else()
-        set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    endif()
     set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
+endif()
+
+set(CORRECT_CODING_FLAGS "-Wall")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()
+    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES ".*Clang.*")  # similar as in the first parts; don't ask me why this works lol
