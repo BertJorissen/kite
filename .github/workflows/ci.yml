@@ -8,6 +8,7 @@ permissions:
 jobs:
   test-compile:
     name: Test Build on ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
@@ -236,7 +237,7 @@ jobs:
 
   testpypi:
     name: Test upload on PyPi
-    environment: actions
+    environment: ci
     permissions:
       id-token: write
     needs: [ merge-artifacts ]
