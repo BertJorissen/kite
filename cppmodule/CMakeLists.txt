@@ -1,4 +1,4 @@
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 add_subdirectory(deps/pybind11 EXCLUDE_FROM_ALL)
 
 pybind11_add_module(kitecore THIN_LTO src/main.cpp)
