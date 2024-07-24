@@ -248,7 +248,7 @@ jobs:
           name: pythonfiles
           path: dist
       - name: Publish distribution 📦 to Test PyPI
-        if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'quantum-kite')
+        if: (github.ref == 'refs/heads/master') # && (github.repository_owner == 'quantum-kite')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
@@ -267,7 +267,7 @@ jobs:
           name: pythonfiles
           path: dist
       - name: Publish distribution 📦 to PyPI
-        if: (github.ref == 'refs/heads/master') && (github.repository_owner == 'quantum-kite')
+        if: (github.ref == 'refs/heads/master') # && (github.repository_owner == 'quantum-kite')
         uses: pypa/gh-action-pypi-publish@release/v1
 
   deploy:
