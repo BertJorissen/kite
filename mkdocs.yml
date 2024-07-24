@@ -10,7 +10,7 @@ edit_uri: https://github.com/quantum-kite/kite/tree/master/docs
 # Copyright
 copyright:  "KITE is a free software: you can redistribute it and/or modify it under the terms of the GNU
               General Public License as published by the Free Software Foundation - version 3. Copyright ©
-              2023 KITE"
+              2024 KITE"
 
 plugins:
   - mkdocstrings:
@@ -140,8 +140,8 @@ markdown_extensions:
   - attr_list
   - meta
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 extra:
   team:
