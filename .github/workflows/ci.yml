@@ -44,7 +44,7 @@ jobs:
           echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
           echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
           LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
-          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oE '[0-9]+\.[0-9]+' | head -n 1)
           echo $MIN_VERSION
           echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Install dependenecies for Quantum-KITE
@@ -110,7 +110,7 @@ jobs:
           echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
           echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
           LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
-          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oE '[0-9]+\.[0-9]+' | head -n 1)
           echo $MIN_VERSION
           echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Build wheels
@@ -206,7 +206,7 @@ jobs:
           echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
           echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
           LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
-          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oE '[0-9]+\.[0-9]+' | head -n 1)
           echo $MIN_VERSION
           echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Install Quantum-Kite
