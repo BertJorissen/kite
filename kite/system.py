@@ -799,6 +799,94 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
         grpc_p.create_dataset('Direction', data=np.asarray(direction), dtype=np.int32)
         grpc_p.create_dataset('PreserveDisorder', data=np.asarray(preserve_disorder).astype(int), dtype=np.int32)
 
+    if calculation.get_operators:
+        # TODO: check with João about concrete examples
+        #  Definition of Spectral Operator
+        #   Atributes:
+        #   Type: ‘SingleShot’ or ‘FullSpectrum’
+        #   NMoments: Number of moments
+        #   MeasurementType: 0 or 1
+        #   Measurements: Table of numbers;
+        #   MeasurementType = 0 :
+        #   - Each line will be a measurement.
+        #   - The format of a line is: [Energy, gamma, NMoments]
+        #    MeasurementType = 1:
+        #   - Each line will be a measurement.
+        #   - Each line has the coefficients of the Tchebychev
+        #   expansion of some function.
+        #   Definition of Local Operator: Matrix of complex numbers
+        #  HDF5 - One vertex Measurement:
+        #   /Calculation/Custom1v/SpectralOperator/
+        #   /Calculation/Custom1v/SpectralOperator/Type
+        #   /Calculation/Custom1v/SpectralOperator/MeasurementType
+        #   /Calculation/Custom1v/SpectralOperator/Measurements
+        #   /Calculation/Custom1v/LocalOperators/
+        #   /Calculation/Custom1v/LocalOperators/Names (* [‘Name1’, Name2] *)
+        #   /Calculation/Custom1v/LocalOperators/0
+        #   /Calculation/Custom1v/LocalOperators/1 (*You can have many*)
+        #   /Calculation/Custom1v/NumDisorder
+        #   /Calculation/Custom1v/NumRandoms
+        #   /Calcularion/Custom1v/ParallelSequences (* [[number_Name1,number_vx], number_Name2, number_vy]*)
+        #  Python Code:
+        #   Sop1 = SpectralOperatorSingleShot(NMoments= array, Energy= array, Gamma= array)
+        #   Sop2 = SpectralOperatorSingleShot(coef=array)
+        #   Sop3 = SpectralOperatorFullSpectrum(NMoments)
+        #   Lop1 = LocalOperator(‘a’, array)
+        #   Lop2 = LocalOperator(‘b’, array)
+        #  calculation.OneVertexOperator([[‘a’, ‘x’], [‘x’,’b’,’y’]], op1)
+
+        grpc_p = grpc.create_group('Custom1v')
+
+        moments, random, dis, energies, eta, direction, preserve_disorder = [], [], [], [], [], [], []
+
+        for operator in calculation.get_operators:
+
+            energy_ = operator['energy']
+            eta_ = operator['eta']
+            preserve_disorder_ = operator['preserve_disorder']
+            moments_ = operator['num_moments']
+
+            # get the lengts
+            len_en = energy_.size
+            len_eta = eta_.size
+            len_moments = moments_.size
+
+            lengths = np.array([len_en, len_eta, len_moments])
+
+            # find the max length
+            max_length = np.max(lengths)
+
+            # check if lenghts are consistent
+            if (len_en != max_length and len_en != 1) or (len_eta != max_length and len_eta != 1) or \
+                    (len_moments != max_length and len_moments != 1):
+                raise SystemExit('Number of moments, eta, energy and preserve_disorder should either have the same '
+                                 'length or specified as a single value! Choose them accordingly.')
+
+            # make all lists equal in length
+            if len_en == 1:
+                energy_ = np.repeat(energy_, max_length)
+            if len_eta == 1:
+                eta_ = np.repeat(eta_, max_length)
+            if len_moments == 1:
+                moments_ = np.repeat(moments_, max_length)
+
+            moments.append(moments_)
+            energies.append(energy_)
+            eta.append(eta_)
+            random.append(operator['num_random'])
+            dis.append(operator['num_disorder'])
+
+        if len(calculation.get_singleshot_conductivity_dc) > 1:
+            raise SystemExit('Only a single function request of each type is currently allowed. Please use another '
+                             'configuration file for the same functionality.')
+
+        grpc_p.create_dataset('NumMoments', data=np.asarray(moments), dtype=np.int32)
+        grpc_p.create_dataset('NumRandoms', data=np.asarray(random), dtype=np.int32)
+        grpc_p.create_dataset('NumDisorder', data=np.asarray(dis), dtype=np.int32)
+        grpc_p.create_dataset('Energy', data=(np.asarray(energies) - config.energy_shift) / config.energy_scale,
+                              dtype=np.float64)
+        grpc_p.create_dataset('Gamma', data=np.asarray(eta) / config.energy_scale, dtype=np.float64)
+
     print('\n##############################################################################\n')
     print('OUTPUT:\n')
     print('\nExporting of KITE configuration to {} finished.\n'.format(filename))

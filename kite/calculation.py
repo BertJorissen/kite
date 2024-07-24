@@ -1,74 +1,84 @@
 """Calculation specification"""
 import numpy as np
 from .configuration import Configuration
+from typing import Optional, List, Dict
 
 __all__ = ['Calculation']
 
 
 class Calculation:
     """TODO: add a docstring"""
-    def __init__(self, configuration=None):
+    def __init__(self, configuration: Optional[Configuration] = None):
 
         if configuration is not None and not isinstance(configuration, Configuration):
             raise TypeError("You're forwarding a wrong type!")
 
-        self._scaling_factor = configuration.energy_scale
-        self._energy_shift = configuration.energy_shift
-        self._dos = []
-        self._ldos = []
-        self._arpes = []
-        self._conductivity_dc = []
-        self._conductivity_optical = []
-        self._conductivity_optical_nonlinear = []
-        self._gaussian_wave_packet = []
-        self._singleshot_conductivity_dc = []
+        self._scaling_factor: Optional[float] = configuration.energy_scale
+        self._energy_shift: Optional[float] = configuration.energy_shift
+        self._dos: List[dict] = []
+        self._ldos: List[dict] = []
+        self._arpes: List[dict] = []
+        self._conductivity_dc: List[dict] = []
+        self._conductivity_optical: List[dict] = []
+        self._conductivity_optical_nonlinear: List[dict] = []
+        self._gaussian_wave_packet: List[dict] = []
+        self._singleshot_conductivity_dc: List[dict] = []
+        self._operators: List[dict] = []
 
-        self._avail_dir_full = {'xx': 0, 'yy': 1, 'zz': 2, 'xy': 3, 'xz': 4, 'yx': 5, 'yz': 6, 'zx': 7, 'zy': 8}
-        self._avail_dir_nonl = {'xxx': 0, 'xxy': 1, 'xxz': 2, 'xyx': 3, 'xyy': 4, 'xyz': 5, 'xzx': 6, 'xzy': 7,
-                                'xzz': 8, 'yxx': 9, 'yxy': 10, 'yxz': 11, 'yyx': 12, 'yyy': 13, 'yyz': 14, 'yzx': 15,
-                                'yzy': 16, 'yzz': 17, 'zxx': 18, 'zxy': 19, 'zxz': 20, 'zyx': 21, 'zyy': 22, 'zyz': 23,
-                                'zzx': 24, 'zzy': 25, 'zzz': 26}
-        self._avail_dir_sngl = {'xx': 0, 'yy': 1, 'zz': 2}
+        self._avail_dir_full: Dict[str, int] = {
+            'xx': 0, 'yy': 1, 'zz': 2, 'xy': 3, 'xz': 4, 'yx': 5, 'yz': 6, 'zx': 7, 'zy': 8}
+        self._avail_dir_nonl_avail_dir_full = {
+            'xxx': 0, 'xxy': 1, 'xxz': 2, 'xyx': 3, 'xyy': 4, 'xyz': 5, 'xzx': 6, 'xzy': 7,
+            'xzz': 8, 'yxx': 9, 'yxy': 10, 'yxz': 11, 'yyx': 12, 'yyy': 13, 'yyz': 14, 'yzx': 15,
+            'yzy': 16, 'yzz': 17, 'zxx': 18, 'zxy': 19, 'zxz': 20, 'zyx': 21, 'zyy': 22, 'zyz': 23,
+            'zzx': 24, 'zzy': 25, 'zzz': 26}
+        self._avail_dir_sngl: Dict[str, int] = {'xx': 0, 'yy': 1, 'zz': 2}
+
     @property
-    def get_dos(self):
+    def get_dos(self) -> List[dict]:
         """Returns the requested DOS functions."""
         return self._dos
 
     @property
-    def get_ldos(self):
+    def get_ldos(self) -> List[dict]:
         """Returns the requested LDOS functions."""
         return self._ldos
 
     @property
-    def get_arpes(self):
+    def get_arpes(self) -> List[dict]:
         """Returns the requested ARPES functions."""
         return self._arpes
 
     @property
-    def get_gaussian_wave_packet(self):
+    def get_gaussian_wave_packet(self) -> List[dict]:
         """Returns the requested wave packet time evolution function, with a gaussian wavepacket mutiplied with different
         plane waves."""
         return self._gaussian_wave_packet
 
     @property
-    def get_conductivity_dc(self):
+    def get_conductivity_dc(self) -> List[dict]:
         """Returns the requested DC conductivity functions."""
         return self._conductivity_dc
 
     @property
-    def get_conductivity_optical(self):
+    def get_conductivity_optical(self) -> List[dict]:
         """Returns the requested optical conductivity functions."""
         return self._conductivity_optical
 
     @property
-    def get_conductivity_optical_nonlinear(self):
+    def get_conductivity_optical_nonlinear(self) -> List[dict]:
         """Returns the requested nonlinear optical conductivity functions."""
         return self._conductivity_optical_nonlinear
 
     @property
-    def get_singleshot_conductivity_dc(self):
+    def get_singleshot_conductivity_dc(self) -> List[dict]:
         """Returns the requested singleshot DC conductivity functions."""
         return self._singleshot_conductivity_dc
+
+    @property
+    def get_operators(self) -> List[dict]:
+        """Returns the requested operators."""
+        return self._operators
 
     def dos(self, num_points, num_moments, num_random, num_disorder=1):
         """Calculate the density of states as a function of energy
@@ -287,3 +297,10 @@ class Calculation:
                  'eta': np.atleast_1d(eta), 'num_moments': np.atleast_1d(num_moments),
                  'num_random': num_random, 'num_disorder': num_disorder,
                  'preserve_disorder': np.atleast_1d(preserve_disorder)})
+
+    def one_vertex_operator(self, energy, eta, num_moments, num_random, num_disorder=1):
+        self._operators.append(
+            {'energy': (np.atleast_1d(energy)),
+             'eta': np.atleast_1d(eta), 'num_moments': np.atleast_1d(num_moments),
+             'num_random': num_random, 'num_disorder': num_disorder}
+        )
