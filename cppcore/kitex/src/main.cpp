@@ -5,11 +5,11 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "Generic.hpp"
 
 template<typename T, unsigned D>
 class Simulation;
+
 #include "simulation/Global.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
@@ -25,8 +25,6 @@ class Simulation;
 #include "tools/messages.hpp"
 
 typedef int indextype;
-
-
 
 int main(int argc, char *argv[]){  
   //(void) argc;

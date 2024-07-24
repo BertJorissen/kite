@@ -42,11 +42,11 @@ public:
   // Custom user-defined local potential. This can be read from the
   // HDF file, or defined in runtime with a function in the ../lib
   // directory
-  Eigen::Array<T,-1,-1> custom_local;
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> custom_local;
   bool is_custom_local_set;
   bool print_custom;
   void generate_custom_local();
-  Eigen::Array<T,-1,-1> fetch_type1();
+  Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> fetch_type1();
 
   /*   Structural disorder    */
   std::vector <bool>                   cross_mozaic;

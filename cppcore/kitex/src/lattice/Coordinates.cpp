@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "lattice/Coordinates.hpp"
 
 template <typename T, unsigned D>
@@ -100,3 +99,16 @@ template struct Coordinates<unsigned,1u>;
 template struct Coordinates<unsigned,2u>;
 template struct Coordinates<unsigned,3u>;
 template struct Coordinates<unsigned,4u>;
+
+// only for MSVC
+#ifdef _MSC_VER
+template struct Coordinates<unsigned long,1u>;
+template struct Coordinates<unsigned long,2u>;
+template struct Coordinates<unsigned long,3u>;
+template struct Coordinates<unsigned long,4u>;
+#endif
+
+template struct Coordinates<long long,1u>;
+template struct Coordinates<long long,2u>;
+template struct Coordinates<long long,3u>;
+template struct Coordinates<long long,4u>;

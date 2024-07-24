@@ -13,7 +13,7 @@
 #include <string>
 #include <omp.h>
 
-#include "H5Cpp.h"
+#include <H5Cpp.h>
 #include "tools/ComplexTraits.hpp"
 #include "tools/myHDF5.hpp"
 
@@ -76,7 +76,7 @@ bool ldos<T, DIM>::is_required(){
         H5::Exception::dontPrint();
         get_hdf5(&NumMoments, &file, (char*)(dirName+"NumMoments").c_str());									
         result = true;
-    } catch(H5::Exception& e){}
+    } catch(H5::Exception&){}
   
 
     file.close();
@@ -154,18 +154,18 @@ bool ldos<T, DIM>::fetch_parameters(){
   dataspace -> getSimpleExtentDims(dim, NULL);
   dataspace->close(); delete dataspace;
   dataset->close();   delete dataset;
-  NumPositions = dim[0];
+  NumPositions = static_cast<unsigned>(dim[0]);
   
   dataset            = new H5::DataSet(file.openDataSet("/Calculation/ldos/Energy")  );
   dataspace          = new H5::DataSpace(dataset->getSpace());
   dataspace -> getSimpleExtentDims(dim, NULL);
   dataspace->close(); delete dataspace;
   dataset->close();   delete dataset;
-  NumEnergies = dim[0];
+  NumEnergies = static_cast<int>(dim[0]);
   
-  ldos_Orbitals = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,1);
-  ldos_Positions = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,1);
-  energies = Eigen::Matrix<float, -1, -1>::Zero(NumEnergies,1);
+  ldos_Orbitals = Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumPositions,1);
+  ldos_Positions = Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumPositions,1);
+  energies = Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies,1);
   
   //Fetch the relevant parameters from the hdf file
   get_hdf5(&MaxMoments, &file, (char*)(dirName+"NumMoments").c_str());	
@@ -174,16 +174,16 @@ bool ldos<T, DIM>::fetch_parameters(){
   get_hdf5(energies.data(), &file, (char*)"/Calculation/ldos/Energy");
   
   if(DIM == 2){
-    global_positions = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,3);
-    for(long i = 0; i < NumPositions; i++){
+    global_positions = Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumPositions,3);
+    for(long i = 0; i < static_cast<long>(NumPositions); i++){
       int Lx = systemInfo->size[0];
       global_positions(i,0) = ldos_Positions(i)%Lx;
       global_positions(i,1) = ldos_Positions(i)/Lx;
       global_positions(i,2) = ldos_Orbitals(i);
     }
   } else if(DIM ==3){
-    global_positions = Eigen::Matrix<unsigned long, -1, -1>::Zero(NumPositions,4);
-    for(long i = 0; i < NumPositions; i++){
+    global_positions = Eigen::Matrix<unsigned long, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumPositions,4);
+    for(long i = 0; i < static_cast<long>(NumPositions); i++){
       int Lx = systemInfo->size[0];
       int Ly = systemInfo->size[1];
       
@@ -202,20 +202,20 @@ bool ldos<T, DIM>::fetch_parameters(){
   std::string MatrixName = dirName + "lMU";
   try{
     debug_message("Filling the lMU matrix.\n");
-    lMU = Eigen::Matrix<std::complex<T>,-1,-1>::Zero(MaxMoments, NumPositions);
+    lMU = Eigen::Matrix<std::complex<T>,Eigen::Dynamic,Eigen::Dynamic>::Zero(MaxMoments, NumPositions);
     
     if(complex)
       get_hdf5(lMU.data(), &file, (char*)MatrixName.c_str());
     if(!complex){
-      Eigen::Matrix<T,-1,-1> lMUReal; 
-      lMUReal = Eigen::Matrix<T,-1,-1>::Zero(MaxMoments, NumPositions); 
+      Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> lMUReal;
+      lMUReal = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>::Zero(MaxMoments, NumPositions);
       get_hdf5(lMUReal.data(), &file, (char*)MatrixName.c_str()); 
       
       lMU = lMUReal.template cast<std::complex<T>>();
     }				
     
     result = true;
-  } catch(H5::Exception& e) {debug_message("lDOS: There is no lMU matrix.\n");}
+  } catch(H5::Exception&) {debug_message("lDOS: There is no lMU matrix.\n");}
   
   
   NumMoments = MaxMoments;
@@ -226,14 +226,14 @@ bool ldos<T, DIM>::fetch_parameters(){
 }
 
 
-template <typename U, unsigned DIM>
-void ldos<U, DIM>::calculate(){
+template <typename T, unsigned DIM>
+void ldos<T, DIM>::calculate(){
   
-  Eigen::Matrix<std::complex<U>, -1, -1> LDOS;
-  LDOS = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(NumEnergies, NumPositions);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> LDOS;
+  LDOS = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, NumPositions);
   
-  Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor> OrderedMU;
-  OrderedMU = Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>::Zero(NumEnergies, NumPositions);
+  Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> OrderedMU;
+  OrderedMU = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Zero(NumEnergies, NumPositions);
   OrderedMU = lMU;
   
   omp_set_num_threads(systemInfo->NumThreads);
@@ -249,32 +249,32 @@ void ldos<U, DIM>::calculate(){
       //std::cout << "NumMoments: " << localN << "\n";
       //thread_id = 0;
       long offset = thread_id*localN*NumPositions;
-      Eigen::Map<Eigen::Matrix<std::complex<U>, -1, -1, Eigen::RowMajor>> locallMU(OrderedMU.data() + offset, localN, NumPositions);
+      Eigen::Map<Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>> locallMU(OrderedMU.data() + offset, localN, NumPositions);
       
       //std::cout << "locallMU: \n" << locallMU << "\n";
       
-      Eigen::Matrix<std::complex<U>, -1, -1> GammaE;
-      GammaE = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(NumEnergies, localN);
+      Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> GammaE;
+      GammaE = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, localN);
       
-      U factor;
+      T factor;
       
       if(kernel == "jackson"){
 	for(int i = 0; i < NumEnergies; i++){
 	  for(int m = 0; m < localN; m++){
-	    factor = 1.0/(1.0 + U((m + thread_id*localN)==0));
-	    GammaE(i,m) += delta(m + thread_id*localN,energies(i))*kernel_jackson<U>(m + thread_id*localN, NumMoments)*factor;
+	    factor = static_cast<T>(1.0/(1.0 + static_cast<T>((m + thread_id*localN)==0)));
+	    GammaE(i,m) += delta(m + thread_id*localN,energies(i))*kernel_jackson<T>(m + thread_id*localN, NumMoments)*factor;
 	  }
 	}
       }
       
       
       if(kernel == "green"){
-	std::complex<U> c_energy;
+	std::complex<T> c_energy;
 	for(int i = 0; i < NumEnergies; i++){
-	  c_energy = std::complex<U>(energies(i), kernel_parameter);
+	  c_energy = std::complex<T>(energies(i), kernel_parameter);
 	  for(int m = 0; m < localN; m++){
-	    factor = 1.0/(1.0 + U((m + thread_id*localN)==0));
-	    GammaE(i,m) += -factor*green<std::complex<U>>(m, 1, c_energy).imag();
+	    factor = static_cast<T>(1.0/(1.0 + static_cast<T>((m + thread_id*localN)==0)));
+	    GammaE(i,m) += -factor*green<std::complex<T>>(m, 1, c_energy).imag();
 	  }
 	}
       }
@@ -287,8 +287,8 @@ void ldos<U, DIM>::calculate(){
       //}
       //}
       
-      Eigen::Matrix<std::complex<U>, -1, -1> localLDOS;
-      localLDOS = Eigen::Matrix<std::complex<U>, -1, -1>::Zero(NumEnergies, NumPositions);
+      Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> localLDOS;
+      localLDOS = Eigen::Matrix<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic>::Zero(NumEnergies, NumPositions);
       localLDOS = GammaE*locallMU;
       //#pragma omp critical
       LDOS += localLDOS;
@@ -296,7 +296,7 @@ void ldos<U, DIM>::calculate(){
   }
   
   // Save the density of states to a file
-  U mult = 1.0/systemInfo->energy_scale;
+  T mult = static_cast<T>(1.0/systemInfo->energy_scale);
   std::ofstream myfile;
   double scale = systemInfo->energy_scale;
   double shift = systemInfo->energy_shift;

@@ -8,6 +8,7 @@
 
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
+#include "H5Cpp.h"
 #include "tools/myHDF5.hpp"
 
 template<>
@@ -64,7 +65,7 @@ typename std::enable_if<!is_tt<std::complex, T>::value, void>::type get_hdf5(T *
 
 template <typename T>
 typename std::enable_if<!is_tt<std::complex, T>::value, void>::type
-write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File *  file, const std::string  name)
+write_hdf5(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu, H5::H5File *  file, const std::string  name)
 {
   hsize_t    dims[2], chunk_dims[2]; // dataset dimensions
   dims[0] = chunk_dims[0] = mu.cols();
@@ -79,7 +80,7 @@ write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File *  file, const std::s
     H5::Exception::dontPrint();
     dataset = file->createDataSet(name, DataTypeFor<T>::value, dataspace);
   }
-  catch (H5::FileIException & E) { 
+  catch (H5::FileIException&) {
     dataset = file->openDataSet(name);
   }
   
@@ -89,7 +90,7 @@ write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File *  file, const std::s
 
 template <typename T>
 typename std::enable_if<is_tt<std::complex, T>::value, void>::type
-write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File * file, const std::string name)
+write_hdf5(const Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic > & mu, H5::H5File * file, const std::string name)
 {
   hsize_t    dims[2], chunk_dims[2]; // dataset dimensions
   dims[0] = chunk_dims[0] = mu.cols();
@@ -110,7 +111,7 @@ write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File * file, const std::st
     H5::Exception::dontPrint();
     dataset = file->createDataSet(name, complex_datatype, dataspace);
   }
-  catch (H5::FileIException & E) { 
+  catch (H5::FileIException&) {
     dataset = file->openDataSet( name);
   }  
   dataset.write(mu.data(), complex_datatype);
@@ -119,7 +120,7 @@ write_hdf5(const Eigen::Array<T, -1, -1 > & mu, H5::H5File * file, const std::st
 
 #define instantiateTYPE(type)              template void get_hdf5<type>(type *, H5::H5File *, char * ); \
   template void get_hdf5<type>(type *, H5::H5File*, std::string &);	\
-  template void write_hdf5(const Eigen::Array<type, -1, -1 > & , H5::H5File * , const std::string );
+  template void write_hdf5(const Eigen::Array<type, Eigen::Dynamic, Eigen::Dynamic > & , H5::H5File * , const std::string );
 
 
 

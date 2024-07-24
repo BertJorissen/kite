@@ -1,5 +1,6 @@
 try:
     from .lib import kitecore
+    from .execute import *
 except ImportError as e:
     import warnings
     warnings.warn("The KITE-executables for KITEx and KITE-tools were not found.", UserWarning)
@@ -10,7 +11,6 @@ from .disorder import *
 from .modification import *
 from .system import *
 from .utils import *
-from .execute import *
 from typing import Optional, List
 
 def tests(options=None, plugins=None):

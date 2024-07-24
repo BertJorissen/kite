@@ -7,6 +7,7 @@
 
 
 
+template <typename T> using ema = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>;
 
 template <typename T,unsigned D>
 class Simulation : public ComplexTraits<T> {
@@ -28,19 +29,20 @@ public:
   void Gamma1D(int, int, int, std::vector<std::vector<unsigned>>, std::string );
   void Gamma2D(int, int, std::vector<int>,  std::vector<std::vector<unsigned>>, std::string );
   void Gamma3D(int, int, std::vector<int>,  std::vector<std::vector<unsigned>>, std::string );
-  void GammaGeneral(int, int, std::vector<int>, std::vector<std::vector<unsigned>>, std::string );
-  void recursive_KPM(int, int, std::vector<int>, long *, long *,  std::vector<std::vector<unsigned>>, std::vector<KPM_Vector<T,D>*> *, Eigen::Array<T, -1, -1> *);
-  void store_gamma(Eigen::Array<T, -1, -1> *, std::vector<int>,  std::vector<std::vector<unsigned>>, std::string );
-  void store_gamma1D(Eigen::Array<T, -1, -1> *, std::string );
-  void store_gamma3D(Eigen::Array<T, -1, -1> *, std::vector<int>, std::vector<std::vector<unsigned>>, std::string );
+  void GammaGeneral(int, int, const std::vector<int>&, const std::vector<std::vector<unsigned>>&, const std::string& );
+  void recursive_KPM(int, int, std::vector<int>, long *, long *,  const std::vector<std::vector<unsigned>>&,
+          std::vector<KPM_Vector<T,D>*> *, Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *);
+  void store_gamma(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *, std::vector<int>,  std::vector<std::vector<unsigned>>, std::string );
+  void store_gamma1D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *, std::string );
+  void store_gamma3D(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *, std::vector<int>, std::vector<std::vector<unsigned>>, std::string );
   std::vector<std::vector<unsigned>> process_string(std::string);
   double time_kpm(int);
 
   void calc_singleshot();
-  void singleshot(Eigen::Array<double, -1, 1> energies,
-  Eigen::Array<double, -1, 1> gammas,
-  Eigen::Array<int, -1, 1> preserve_disorders,
-  Eigen::Array<int, -1, 1> moments,
+  void singleshot(Eigen::Array<double, Eigen::Dynamic, 1> energies,
+  Eigen::Array<double, Eigen::Dynamic, 1> gammas,
+  Eigen::Array<int, Eigen::Dynamic, 1> preserve_disorders,
+  Eigen::Array<int, Eigen::Dynamic, 1> moments,
   int NDisorder, int NRandom, std::string direction_string);
 
   
@@ -55,16 +57,16 @@ public:
 
   void calc_DOS();
   void DOS(int, int, int);
-  void store_MU(Eigen::Array<T, -1, -1> *);
+  void store_MU(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *);
 
   void Gaussian_Wave_Packet();
   void calc_wavepacket();
 
-  void LMU(int, int, Eigen::Array<unsigned long, -1, 1>);
+  void LMU(int, int, Eigen::Array<unsigned long, Eigen::Dynamic, 1>);
   void calc_LDOS();
-  void store_LMU(Eigen::Array<T, -1, -1> *);
+  void store_LMU(Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *);
 	
   void calc_ARPES();
-  void ARPES(int NDisorder, int NMoments, Eigen::Array<double, -1, -1> & k_vectors, Eigen::Matrix<T, -1, 1> & weight);
-  void store_ARPES(Eigen::Array<T, -1, -1> *);
+  void ARPES(int NDisorder, int NMoments, Eigen::Array<double, Eigen::Dynamic, Eigen::Dynamic> & k_vectors, Eigen::Matrix<T, Eigen::Dynamic, 1> & weight);
+  void store_ARPES(ema<T> *);
 };

@@ -4,6 +4,7 @@
 /*  A. Ferreira, S. M. Joao, J. V. Lopes, T. G. Rappoport  */
 /*                                                         */
 /***********************************************************/
+
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "simulation/Global.hpp"
@@ -11,14 +12,18 @@
 #include "lattice/LatticeStructure.hpp"
 #include "tools/myHDF5.hpp"
 #include "tools/Random.hpp"
+
 template <typename T, unsigned D>
 class Hamiltonian;
+
 template <typename T, unsigned D>
 class KPM_Vector;
+
 //#include "queue.hpp"
 #include "simulation/Simulation.hpp"
 #include "simulation/SimulationGlobal.hpp"
 #include "hamiltonian/Hamiltonian.hpp"
+
 template <typename T,unsigned D>
 GlobalSimulation<T,D>::GlobalSimulation( char *name ) : rglobal(name){
   debug_message("Entered global_simulation\n");
@@ -34,7 +39,7 @@ GlobalSimulation<T,D>::GlobalSimulation( char *name ) : rglobal(name){
   Global.ghosts.resize( rglobal.get_BorderSize() );
   std::fill(Global.ghosts.begin(), Global.ghosts.end(), 0);
     
-  H5::H5File * file12         = new H5::H5File(name, H5F_ACC_RDONLY);
+  auto * file12         = new H5::H5File(name, H5F_ACC_RDONLY);
   get_hdf5<double>(&EnergyScale,  file12, (char *)   "/EnergyScale");
   file12->close();
   delete file12;

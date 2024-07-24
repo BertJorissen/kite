@@ -19,7 +19,7 @@ endfunction()
 # Download tar.gz file from URL, extract it and copy
 # files given by ARGN glob expressions to DIR.
 function(download_tar_gz URL DIR)
-    set(tmp_dir "${CMAKE_CURRENT_SOURCE_DIR}/deps/tmp")
+    set(tmp_dir "${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/tmp")
     set(tar_file "${tmp_dir}/tmp.tar.gz")
     download("${url}/${first_file}" ${tar_file})
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${tar_file} WORKING_DIRECTORY ${tmp_dir}
@@ -54,9 +54,9 @@ endfunction()
 # The version number is saved in a file along with the dependency.
 # If a matching version already exists, the download is skipped.
 function(download_dependency NAME VERSION URL_FMT FIRST_FILE_FMT)
-    set(dir "${CMAKE_CURRENT_SOURCE_DIR}/deps/${NAME}")
+    set(dir "${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/${NAME}")
 
-    set(version_file "${dir}/_pybinding_dependency_version")
+    set(version_file "${dir}/_kite_dependency_version")
     if(EXISTS ${version_file})
         file(READ ${version_file} cached_version)
     endif()

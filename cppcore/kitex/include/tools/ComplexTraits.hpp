@@ -7,6 +7,7 @@
 
 #include <complex>
 #include <type_traits>
+
 /*
   Auxiliar code to define specialized methods in templated classes depending on the argument T is complex:
 

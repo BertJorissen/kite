@@ -5,7 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
 #include "tools/ComplexTraits.hpp"
 
 /****** assign *************/
@@ -81,11 +80,6 @@ template <typename T>
 T ComplexTraits<T>::aux_wr(std::size_t x) {
   return ComplexTraits<T>::aux_wrB<T>(x);
 }
-
-
-
-
-
 
 template struct ComplexTraits<double>;
 template struct ComplexTraits<float>;

@@ -67,10 +67,10 @@ class conductivity_optical{
     shell_input variables;
 
     // Objects required to successfully calculate the conductivity
-    Eigen::Array<std::complex<T>, -1, -1> Gamma;
-    Eigen::Array<std::complex<T>, -1, -1> Gamma_Padded;
-    Eigen::Array<std::complex<T>, -1, -1> Lambda;
-    Eigen::Array<std::complex<T>, -1, -1> Lambda_Padded;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Gamma;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Gamma_Padded;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Lambda;
+    Eigen::Array<std::complex<T>, Eigen::Dynamic, Eigen::Dynamic> Lambda_Padded;
 
     conductivity_optical(system_info<T, DIM>&, shell_input &);
     bool is_required();

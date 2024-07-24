@@ -92,7 +92,7 @@
 
 //template <typename T,unsigned D>
 //void Simulation<T,D>::recursive_KPM(int depth, int max_depth, std::vector<int> N_moments, long *average, long *index_gamma, 
-                   //std::vector<std::vector<unsigned>> indices, std::vector<KPM_Vector<T,D>*> *kpm_vector, Eigen::Array<T, -1, -1> *gamma){
+                   //std::vector<std::vector<unsigned>> indices, std::vector<KPM_Vector<T,D>*> *kpm_vector, Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> *gamma){
   //debug_message("Entered recursive_KPM\n");
   //typedef typename extract_value_type<T>::value_type value_type;
   //Eigen::Matrix < T, 1, 2> tmp =  Eigen::Matrix < T, 1, 2> ::Zero();		
@@ -194,7 +194,7 @@
   //KPM_Vector<T,D> *kpm1 = kpm_vector.at(1);
 			
   //// Make sure the local gamma matrix is zeroed
-  //Eigen::Array<T, -1, -1> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
 
   //long average = 0;
   //for(int disorder = 0; disorder < NDisorder; disorder++){
@@ -266,7 +266,7 @@
   //KPM_Vector<T,D> *kpm1 = kpm_vector.at(1);
 			
   //// Make sure the local gamma matrix is zeroed
-  //Eigen::Array<T, -1, -1> gamma = Eigen::Array<T, -1, -1 >::Zero(1, size_gamma);
+  //Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic> gamma = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic >::Zero(1, size_gamma);
 
   //long average = 0;
   //for(int disorder = 0; disorder < NDisorder; disorder++){

@@ -5,8 +5,6 @@
 /*                                                         */
 /***********************************************************/
 
-
-
 #include "Generic.hpp"
 #include "tools/ComplexTraits.hpp"
 #include "tools/Random.hpp"
@@ -17,15 +15,13 @@
 #include "hamiltonian/Hamiltonian.hpp"
 #include "hamiltonian/HamiltonianAux.hpp"
 
-
-
 extern "C" herr_t getMembers(hid_t loc_id, const char *name, void *opdata);
 template <typename T, unsigned D>
 Hamiltonian<T,D>::Hamiltonian(char *filename,  LatticeStructure<D> & rr, GLOBAL_VARIABLES <T> & gg) : name(filename), r(rr) , Global(gg),  hr(name, r), cross_mozaic(r.NStr), hV(name, rr, rnd)
 {
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(filename, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(filename, H5F_ACC_RDONLY);
     get_hdf5<double>(&EnergyScale, file, (char *) "/EnergyScale");
     delete file;
   }
@@ -89,7 +85,7 @@ void Hamiltonian<T,D>::build_structural_disorder()
   
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
     // Test if there is a strutural disorder to build
     H5::Group  grp;
     std::vector<std::string> defects;
@@ -101,7 +97,7 @@ void Hamiltonian<T,D>::build_structural_disorder()
       for(auto id = defects.begin(); id != defects.end(); id++)
         hd.push_back(Defect_Operator<T,D> (*this,  *id, file ));
     }
-    catch(H5::Exception& e) {
+    catch(H5::Exception&) {
       // Do nothing
     };
     delete file;
@@ -135,7 +131,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
           try {
             H5::Exception::dontPrint();
             get_hdf5<double> ( &p, file, field );
-          } catch(H5::Exception& e) {
+          } catch(H5::Exception&) {
             // Do nothing
             p = 0.;
           }; 
@@ -151,7 +147,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
             dataspace.close();
             dataset.close();
             get_hdf5<int> ( tmp.data(), file, field );
-          } catch(H5::Exception& e) {
+          } catch(H5::Exception&) {
           };
           
           field = *id + std::string("/NumOrbitals");
@@ -163,7 +159,7 @@ void Hamiltonian<T,D>::build_vacancies_disorder()
           tmp.clear();
         }
     }
-    catch(H5::Exception& e) {
+    catch(H5::Exception&) {
       // Do nothing
     }
     delete file;
@@ -205,7 +201,7 @@ void Hamiltonian<T,D>::build_Anderson_disorder() {
     
   Anderson_orb_address.resize(r.Orb);
   U_Orbital.resize(r.Orb);
-  Eigen::Array<int,-1,-1> vv = Eigen::Map<Eigen::Array<int,-1,-1>>(orb_num.data(), dim[1], dim[0]);
+  Eigen::Array<int,Eigen::Dynamic,Eigen::Dynamic> vv = Eigen::Map<Eigen::Array<int,Eigen::Dynamic,Eigen::Dynamic>>(orb_num.data(), dim[1], dim[0]);
     
   std::fill_n ( Anderson_orb_address.begin(), r.Orb, -2 );
   std::fill_n ( U_Orbital.begin(), r.Orb,  0 );
@@ -310,7 +306,7 @@ void Hamiltonian<T,D>::generate_custom_local(){
 #pragma omp critical
 {
     try { 
-      H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+      auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
       get_hdf5(&custom_required, file, (char*)"Hamiltonian/CustomLocalEnergy");
       get_hdf5(&print_flag, file, (char*)"Hamiltonian/PrintCustomLocalEnergy");
       delete file;
@@ -333,15 +329,15 @@ void Hamiltonian<T,D>::generate_custom_local(){
 }
 
 template <typename T, unsigned D>
-Eigen::Array<T,-1,-1> Hamiltonian<T,D>::fetch_type1(){
-//void Hamiltonian<T,D>::fetch_type1(Eigen::Array<T, -1,-1> local){
+Eigen::Array<T,Eigen::Dynamic,Eigen::Dynamic> Hamiltonian<T,D>::fetch_type1(){
+//void Hamiltonian<T,D>::fetch_type1(Eigen::Array<T, Eigen::Dynamic,-1> local){
     // This function could be in LatticeStructure, but that class is not templated
     // with respect to the variable T, so I chose to put it in Hamiltonian
 
     // The reason for this to be a separate function is that I might want to recycle it
 
-    Eigen::Array<T, -1,-1> vec;
-    vec = Eigen::Array<T, -1, -1>::Zero(r.Sized,1); // with ghosts
+    Eigen::Array<T, Eigen::Dynamic,Eigen::Dynamic> vec;
+    vec = Eigen::Array<T, Eigen::Dynamic, Eigen::Dynamic>::Zero(r.Sized,1); // with ghosts
 
     Coordinates<std::size_t, D+1> coord_Lt(r.Lt); // total (without ghosts)
     Coordinates<std::size_t, D+1> coord_ld(r.ld); // domain without ghosts
@@ -352,7 +348,7 @@ Eigen::Array<T,-1,-1> Hamiltonian<T,D>::fetch_type1(){
 
 #pragma omp critical
     {
-        H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+        auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
         get_hdf5(&Escale, file, (char*)"EnergyScale");
         get_hdf5(&Eshift, file, (char*)"EnergyShift");
         delete file;
@@ -419,19 +415,39 @@ herr_t getMembers(hid_t loc_id, const char *name, void *opdata)
   std::string  sep = "/";
   std::string Defect = name;
   std::string group = Disorder+sep+name; 
-  std::vector<std::string> * v = static_cast<std::vector<std::string> *> (opdata);
+  auto * v = static_cast<std::vector<std::string> *> (opdata);
   
   try {
     H5::Exception::dontPrint();
     grp.openGroup(group);
     v->push_back(group);
   }
-  catch(H5::Exception& e) {
+  catch(H5::Exception&) {
     // Don't do anything
   }
   return 0;
 }
 
+template class Hamiltonian<float,1u>;
+template class Hamiltonian<double,1u>;
+template class Hamiltonian<long double,1u>;
+template class Hamiltonian<std::complex<float>,1u>;
+template class Hamiltonian<std::complex<double>,1u>;
+template class Hamiltonian<std::complex<long double>,1u>;
+template class Hamiltonian<float,2u>;
+template class Hamiltonian<double,2u>;
+template class Hamiltonian<long double,2u>;
+template class Hamiltonian<std::complex<float>,2u>;
+template class Hamiltonian<std::complex<double>,2u>;
+template class Hamiltonian<std::complex<long double>,2u>;
+template class Hamiltonian<float,3u>;
+template class Hamiltonian<double,3u>;
+template class Hamiltonian<long double,3u>;
+template class Hamiltonian<std::complex<float>,3u>;
+template class Hamiltonian<std::complex<double>,3u>;
+template class Hamiltonian<std::complex<long double>,3u>;
+
+/*
 #define instantiate(type, dim)               template class Hamiltonian<type,dim>;
 #include "tools/instantiate.hpp"
-
+*/

@@ -15,7 +15,7 @@ class Configuration:
     def __init__(self, divisions=(1, 1, 1), length=(1, 1, 1), boundaries=('open', 'open', 'open'),
                  is_complex=False, precision=1, spectrum_range=None, angles=(0, 0, 0), custom_local=False,
                  custom_local_print=False):
-        """Define basic parameters used in the calculation
+        r"""Define basic parameters used in the calculation
 
        Parameters
        ----------

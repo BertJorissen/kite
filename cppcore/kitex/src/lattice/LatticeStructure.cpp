@@ -20,7 +20,7 @@ LatticeStructure<D>::LatticeStructure(char *name )
   
 #pragma omp critical
   {
-    H5::H5File *file = new H5::H5File(name, H5F_ACC_RDONLY);
+    auto *file = new H5::H5File(name, H5F_ACC_RDONLY);
     get_hdf5<unsigned>(&Orb, file, (char *) "/NOrbitals");
     get_hdf5<double>(rLat.data(), file, (char *) "/LattVectors");    
     rOrb = Eigen::MatrixXd::Zero(D, Orb);
@@ -30,14 +30,14 @@ LatticeStructure<D>::LatticeStructure(char *name )
     get_hdf5<unsigned>(Bd, file, (char *) "/Boundaries");
     get_hdf5<unsigned>(nd, file, (char *) "/Divisions");      
     get_hdf5<double>(BdTwist, file, (char *) "/BoundaryTwists");
-    for(int i=0; i<D;i++)
+    for(unsigned int i=0; i<D;i++)
       RandomBoundaries[i] = (Bd[i]==2);
     
     try {
       H5::Exception::dontPrint();
       get_hdf5<int>(&MagneticField, file, (char *) "/Hamiltonian/MagneticFieldMul");
     }
-    catch (H5::Exception& e){}
+    catch (H5::Exception&){}
     file->close();
   }
 
@@ -45,8 +45,8 @@ LatticeStructure<D>::LatticeStructure(char *name )
   // The vector potential always changes in the direction of the slow coordinate
   // which is 1 in 2D and 2 in 3D
   ghost_pot.setZero();
-  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 /Lt[1]*M_PI;
-  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 /Lt[2]*M_PI;
+  if(D==2) ghost_pot(0,1) = MagneticField * 2.0 / Lt[1] * M_PI;
+  if(D==3) ghost_pot(0,1) = MagneticField * 2.0 / Lt[2] * M_PI;
 
 
   test_divisibility();
@@ -235,7 +235,7 @@ void LatticeStructure<D>::print_coordinates(std::size_t pos1, std::size_t pos2)
   Coordinates<long, D + 1> Latt1(Ld);
   Coordinates<long, D + 1> Latt2(Ld);
   Eigen::Matrix<double, D, 1> r1, r2;
-  Eigen::Map<Eigen::Matrix<std::ptrdiff_t, D, 1>> v1(Latt1.coord), v2(Latt2.coord); // Column vectors
+  Eigen::Map<Eigen::Matrix<long, D, 1>> v1(Latt1.coord), v2(Latt2.coord); // Column vectors
   Latt1.set_coord(pos1);
   Latt2.set_coord(pos2);
     
@@ -252,11 +252,11 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
   // 0 is in the ghosts
   // 1 isn't in the ghosts
   
-  bool teste = 1;
+  bool teste = true;
   
-  for(int j = 0; j < int(D); j++)
+  for(int j = 0; j < static_cast<int>(D); j++)
     if(teste && (Latt.coord[j] < NGHOSTS || Latt.coord[j] >= std::ptrdiff_t(Ld[j] - NGHOSTS)) )
-      teste = 0;                                        // node is in the ghosts!
+      teste = false;                                        // node is in the ghosts!
     else  if(Latt.coord[j] < 0 || Latt.coord[j] > std::ptrdiff_t(Ld[j] - 1))
       {
         //std::cout << "Big Mistake" << std::endl;
@@ -268,10 +268,20 @@ bool LatticeStructure<D>::test_ghosts(  Coordinates<std::size_t, D + 1> & Latt)
 template struct LatticeStructure<1u>;
 template struct LatticeStructure<2u>;
 template struct LatticeStructure<3u>;
+
 template void LatticeStructure<1u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 2u> &, Coordinates<std::size_t, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 3u> &, Coordinates<std::size_t, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<std::size_t>(Coordinates<std::size_t, 4u> &, Coordinates<std::size_t, 4u> &);
 template void LatticeStructure<1u>::convertCoordinates<long>(Coordinates<long, 2u> &, Coordinates<long, 2u> &);
 template void LatticeStructure<2u>::convertCoordinates<long>(Coordinates<long, 3u> &, Coordinates<long, 3u> &);
 template void LatticeStructure<3u>::convertCoordinates<long>(Coordinates<long, 4u> &, Coordinates<long, 4u> &);
+// only for MSVC
+#ifdef _MSC_VER
+template void LatticeStructure<1u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 2u> &, Coordinates<unsigned long, 2u> &);
+template void LatticeStructure<2u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 3u> &, Coordinates<unsigned long, 3u> &);
+template void LatticeStructure<3u>::convertCoordinates<unsigned long>(Coordinates<unsigned long, 4u> &, Coordinates<unsigned long, 4u> &);
+#endif
+template void LatticeStructure<1u>::convertCoordinates<long long>(Coordinates<long long, 2u> &, Coordinates<long long, 2u> &);
+template void LatticeStructure<2u>::convertCoordinates<long long>(Coordinates<long long, 3u> &, Coordinates<long long, 3u> &);
+template void LatticeStructure<3u>::convertCoordinates<long long>(Coordinates<long long, 4u> &, Coordinates<long long, 4u> &);
 

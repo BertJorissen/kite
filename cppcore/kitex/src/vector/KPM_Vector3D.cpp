@@ -21,7 +21,10 @@ class Simulation;
 #include "vector/KPM_Vector.hpp"
 //#include "queue.hpp"
 #include "simulation/Simulation.hpp"
-
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 // VER o que tenho que por aqui: tile, tile_ghosts, transf_max, x, std
 
@@ -252,15 +255,15 @@ T KPM_Vector <T, 3>::get_point()
 
 
 template <typename T>
-void KPM_Vector <T, 3>::build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen::Matrix<T,-1,-1> & psi0, double & sigma,
+void KPM_Vector <T, 3>::build_wave_packet(Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> & k, Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic> & psi0, double & sigma,
                                           Eigen::Matrix<double,1,2> & vb)
 {
   index = 0;
   Coordinates<std::size_t, 4> x(r.Ld), z(r.Lt);
-  Eigen::Matrix<T,-1,-1>  sum(r.Orb, 1);
+  Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>  sum(r.Orb, 1);
   Eigen::Map<Eigen::Matrix<std::size_t,3, 1>> vv(z.coord);
   Eigen::Matrix<double, 1, 3> va;
-  Eigen::Matrix<double, -1,-1> phase(1, psi0.cols());
+  Eigen::Matrix<double, Eigen::Dynamic,Eigen::Dynamic> phase(1, psi0.cols());
   T soma = assign_value(0,0);
   auto bbs = r.rLat.inverse(); // each row is a bi / 2*M_PI 
   auto vOrb = bbs * r.rOrb;    // each columns is a vector in a1 basis
@@ -279,7 +282,7 @@ void KPM_Vector <T, 3>::build_wave_packet(Eigen::Matrix<double,-1,-1> & k, Eigen
   
 #pragma omp master 
   {
-    simul.Global.mu = Eigen::Matrix<T,-1,-1>(psi0.cols(), 1);      
+    simul.Global.mu = Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic>(psi0.cols(), 1);
     for(int ik = 0; ik < psi0.cols(); ik++)
       simul.Global.mu(ik, 0) = assign_value( simul.rnd.get(), 0 );
   }
@@ -408,35 +411,35 @@ void KPM_Vector <T, 3>::empty_ghosts(int mem_index) {
 
   // perpendicular to x axis
   
-  for(long  io = 0; io < r.Ld[3]; io++)
-    for(long i2 = 0; i2 < r.Ld[2]; i2++)
-      for(long i1 = 0; i1 <  r.Ld[1]; i1++)
+  for(long  io = 0; io < static_cast<long>(r.Ld[3]); io++)
+    for(long i2 = 0; i2 < static_cast<long>(r.Ld[2]); i2++)
+      for(long i1 = 0; i1 <  static_cast<long>(r.Ld[1]); i1++)
         for(long i0 = 0; i0 < NGHL; i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({r.Ld[0] - 1 - i0, i1, i2, io}).index, mem_index) *= 0;
+            v(x.set({static_cast<long>(r.Ld[0]) - 1 - i0, i1, i2, io}).index, mem_index) *= 0;
           }
 
   // perpendicular to y axis
   
-  for(long  io = 0; io < r.Ld[3]; io++)
-    for(long i2 = 0; i2 < r.Ld[2]; i2++)
+  for(long  io = 0; io < static_cast<long>(r.Ld[3]); io++)
+    for(long i2 = 0; i2 < static_cast<long>(r.Ld[2]); i2++)
       for(long i1 = 0; i1 < NGHL; i1++)
-        for(long i0 = 0; i0 < r.Ld[0]; i0++)
+        for(long i0 = 0; i0 < static_cast<long>(r.Ld[0]); i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({i0,r.Ld[1] - 1 -  i1, i2, io}).index, mem_index) *= 0;
+            v(x.set({i0,static_cast<long>(r.Ld[1]) - 1 -  i1, i2, io}).index, mem_index) *= 0;
           }
   
   // perpendicular to y axis
   
-  for(long  io = 0; io < r.Ld[3]; io++)
+  for(long  io = 0; io < static_cast<long>(r.Ld[3]); io++)
     for(long i2 = 0; i2 < NGHL; i2++)
-      for(long i1 = 0; i1 < r.Ld[1]; i1++)
-        for(long i0 = 0; i0 <  r.Ld[0]; i0++)
+      for(long i1 = 0; i1 < static_cast<long>(r.Ld[1]); i1++)
+        for(long i0 = 0; i0 <  static_cast<long>(r.Ld[0]); i0++)
           {
             v(x.set({i0,i1,i2,io}).index, mem_index) *= 0;
-            v(x.set({i0,i1,r.Ld[2] - 1 - i2, io}).index, mem_index) *= 0;
+            v(x.set({i0,i1,static_cast<long>(r.Ld[2]) - 1 - i2, io}).index, mem_index) *= 0;
           }
 }
 
@@ -453,21 +456,21 @@ void KPM_Vector <T, 3>::measure_wave_packet(T * bra, T * ket, T * results)
   
   for(unsigned io = 0; io < r.Orb; io++)
     {
-      value_type deltax = r.rOrb(0,io);
-      value_type deltay = r.rOrb(1,io);
-      value_type deltaz = r.rOrb(2,io);
+      auto deltax = static_cast<value_type>(r.rOrb(0,io));
+      auto deltay = static_cast<value_type>(r.rOrb(1,io));
+      auto deltaz = static_cast<value_type>(r.rOrb(2,io));
       
       for(unsigned i2 = 0; i2 < r.ld[2]; i2++)
         for(unsigned i1 = 0; i1 < r.ld[1]; i1++)
           {
             std::size_t ind = ad.set({std::size_t(NGHOSTS),std::size_t(NGHOSTS + i1), std::size_t(i2 + NGHOSTS), std::size_t(io)}).index;
-            value_type z0 = at.coord[0] +  0;
-            value_type z1 = at.coord[1] + i1;
-            value_type z2 = at.coord[2] + i2;
+            auto z0 = static_cast<value_type>(at.coord[0] +  0);
+            auto z1 = static_cast<value_type>(at.coord[1] + i1);
+            auto z2 = static_cast<value_type>(at.coord[2] + i2);
             
-            value_type xt = z0*r.rLat(0,0) + z1 * r.rLat(0,1) + z2 * r.rLat(0,2) + deltax;
-            value_type yt = z0*r.rLat(1,0) + z1 * r.rLat(1,1) + z2 * r.rLat(1,2) + deltay;
-            value_type zt = z0*r.rLat(0,0) + z1 * r.rLat(2,1) + z2 * r.rLat(2,2) + deltaz;
+            auto xt = static_cast<value_type>(z0*r.rLat(0,0) + z1 * r.rLat(0,1) + z2 * r.rLat(0,2) + deltax);
+            auto yt = static_cast<value_type>(z0*r.rLat(1,0) + z1 * r.rLat(1,1) + z2 * r.rLat(1,2) + deltay);
+            auto zt = static_cast<value_type>(z0*r.rLat(0,0) + z1 * r.rLat(2,1) + z2 * r.rLat(2,2) + deltaz);
             
             
             T xl1 = assign_value(0., 0.);
@@ -480,9 +483,9 @@ void KPM_Vector <T, 3>::measure_wave_packet(T * bra, T * ket, T * results)
             for(unsigned i0 = 0; i0 < r.ld[0]; i0++)
               {
                 std::size_t j0 = ind + i0;
-                value_type x = xt + i0 * r.rLat(0,0);
-                value_type y = yt + i0 * r.rLat(1,0);
-                value_type z = zt + i0 * r.rLat(2,0);
+                auto x = static_cast<value_type>(xt + i0 * r.rLat(0,0));
+                auto y = static_cast<value_type>(yt + i0 * r.rLat(1,0));
+                auto z = static_cast<value_type>(zt + i0 * r.rLat(2,0));
                 
                 T p = myconj(*(bra + j0)) * (*(ket + j0));
                 xl1 += p * x;
@@ -733,7 +736,7 @@ void KPM_Vector <T, 3>::build_regular_phases(int i2min, unsigned axis) {
           
           for(std::size_t i2 = 0; i2 < TILE; i2++ )
             {
-              value_type phase = vee(0) * (global.coord[2] + int(i2)) * r.ghost_pot(0,D - 2);
+              auto phase = static_cast<value_type>(vee(0) * (global.coord[2] + int(i2)) * r.ghost_pot(0,D - 2));
               mult_t1_ghost_cor[io][ib][i2] =  tt * multEiphase(phase);
             }
         }
@@ -757,7 +760,7 @@ void KPM_Vector <T, 3>::KPM_MOTOR(KPM_Vector<T,3> *kpm_final, unsigned axis)
   
   // Iterate over tiles first
   for( i2 = NGHOSTS; i2 < r.Ld[2] - NGHOSTS; i2 += TILE  ){
-      build_regular_phases<MULT,VELOCITY>(i2, axis);
+      build_regular_phases<MULT,VELOCITY>(static_cast<int>(i2), axis);
       for( i1 = NGHOSTS; i1 < r.Ld[1] - NGHOSTS; i1 += TILE  )
         for( i0 = NGHOSTS; i0 < r.Ld[0] - NGHOSTS; i0 += TILE ){
             
@@ -848,7 +851,7 @@ void KPM_Vector <T, 3>::build_site(unsigned long pos){
 
 
 template <typename T>
-void KPM_Vector <T, 3>::build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::Matrix<T,-1,1> & weight){
+void KPM_Vector <T, 3>::build_planewave(Eigen::Matrix<double,Eigen::Dynamic,1> & k, Eigen::Matrix<T,Eigen::Dynamic,1> & weight){
   
     // Builds an initial vector which is a plane wave with a specific value of k
     // weight is the weight of each orbital for this plane wave 
@@ -868,14 +871,14 @@ void KPM_Vector <T, 3>::build_planewave(Eigen::Matrix<double,-1,1> & k, Eigen::M
     Eigen::Map<Eigen::Matrix<std::size_t, 3, 1>> position(global_coords.coord); // spacial part of the coord vector in global_coords
     auto orb_a_coords = r.rLat.inverse() * r.rOrb;          // column i is the position of the i-th orbital in basis a
                                                             // r.rLat.inverse() each row is a bi / 2*M_PI 
-    Eigen::Array<T, -1, 1> exp_R;
-    exp_R = Eigen::Array<T, -1, 1>::Zero(r.Orb, 1);   // exponential related to the orbital
+    Eigen::Array<T, Eigen::Dynamic, 1> exp_R;
+    exp_R = Eigen::Array<T, Eigen::Dynamic, 1>::Zero(r.Orb, 1);   // exponential related to the orbital
     T exp_r;                                                // exponential related to the lattice site
 
     // Calculate the exponential related to the orbital exp(i k R) w(R)
     // It is already divided by the norm, which is the number of total sites r.Nt
     for(std::size_t io = 0; io < r.Orb; io++)
-        exp_R(io) = weight(io)*exp(assign_value(0, 2.0*M_PI*orb_a_coords.col(io).transpose()*k))/T(sqrt(r.Nt));
+        exp_R(io) = weight(io)*exp(assign_value(0, 2.0*M_PI*orb_a_coords.col(io).transpose()*k))/static_cast<T>(sqrt(r.Nt));
 
 
     // Calculate the exponential related to each unit cell

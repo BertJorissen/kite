@@ -32,7 +32,7 @@ def twisted_bilayer_lattice(angle_index=0):
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # define the name of the pb.Lattice object
-    name = script_dir + 'lattice_twisted_bilayer/lattice_tblg_{:.3f}'.format(angle)
+    name = script_dir + os.path.sep + 'lattice_twisted_bilayer' + os.path.sep + 'lattice_tblg_{:.3f}'.format(angle)
 
     # load a predefined lattice object, the lattice can be saved with pb.save(lattice, name)
     lat = pb.load(name)

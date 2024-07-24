@@ -35,5 +35,5 @@ public:
   
   template <unsigned MULT, bool VELOCITY>  
   void     multiply_defect(std::size_t istr, T* & phi0, T* & phiM1, unsigned axis);
-  void     build_defect_planewave(Eigen::Matrix<double,-1,1> & k , Eigen::Matrix<T,-1,1> & weight );
+  void     build_defect_planewave(Eigen::Matrix<double,Eigen::Dynamic,1> & k , Eigen::Matrix<T,Eigen::Dynamic,1> & weight );
 };

@@ -49,7 +49,7 @@ add_library(cppcore_kitex STATIC
         src/tools/myHDF5.cpp
         src/tools/queue.cpp
         src/tools/Random.cpp
-        src/tools/recursive_kpm.cpp
+        # src/tools/recursive_kpm.cpp
         src/vector/KPM_Vector.cpp
         src/vector/KPM_Vector2D.cpp
         src/vector/KPM_Vector3D.cpp
@@ -58,17 +58,21 @@ add_library(cppcore_kitex STATIC
 
 add_library(kite::cppcore_kitex ALIAS cppcore_kitex)
 target_include_directories(cppcore_kitex SYSTEM PRIVATE include)
+if (WIN32)
+    target_link_libraries(cppcore_kitex PRIVATE Shlwapi)
+endif ()
 
 add_executable(KITEx src/main.cpp)
 target_include_directories(KITEx SYSTEM PRIVATE include)
+
 
 if(${DOWNLOAD_HDF5}) # failed to find HDF5, so install it
 	add_dependencies(cppcore_kitex hdf5_local)
     target_include_directories(KITEx SYSTEM PRIVATE ${hdf5_includes})
     target_include_directories(cppcore_kitex SYSTEM PRIVATE ${hdf5_includes})
+    target_link_libraries(KITEx PRIVATE ${hdf5_libs})
     target_link_libraries(cppcore_kitex PRIVATE ${hdf5_libs})
-    target_link_libraries(cppcore_kitex PRIVATE ${hdf5_libs})
-    MESSAGE(STATUS "Using downloaded HDF5")
+    MESSAGE(STATUS "Using downloaded OpenMP for KITEx with includes ${hdf5_includes} and libs ${hdf5_libs}")
 else()
     target_include_directories(cppcore_kitex SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
     target_include_directories(KITEx SYSTEM PRIVATE ${HDF5_INCLUDE_DIR})
@@ -78,38 +82,37 @@ endif()
 
 target_include_directories(cppcore_kitex SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-if(${OPENMP_FOUND})
-    target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
-    set(CORRECT_CODING_FLAGS "-Wall ")
-    set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-else()
-    set(CMAKE_C_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -O3 ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CORRECT_CODING_FLAGS} -g")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-endif()
+target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
 
+set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()
+    set(CMAKE_CXX_FLAGS "${CORRECT_CODING_FLAGS} -g -O3 ${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 set(compile_wp 1)
 set(use_bst 0)
 if(${CMAKE_CXX_COMPILER_ID} MATCHES ".*Clang.*" OR
    (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 8.0.0))
-    MESSAGE("-- Clang is used, or gcc<8.0.0. Try to fallback on Boost for C++17 feature 'std::cyl_bessel_j'")
-    find_package(Boost)
+    MESSAGE(STATUS "Clang is used, or gcc<8.0.0. Try to fallback on Boost for C++17 feature 'std::cyl_bessel_j'")
+    find_package(Boost CONFIG 1.20.0)
     if(Boost_FOUND)
         get_target_property(Boost_INCLUDE_DIRS Boost::headers INTERFACE_INCLUDE_DIRECTORIES)
         target_include_directories(cppcore_kitex SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
-        MESSAGE("-- BOOST was found: ${Boost_INCLUDE_DIRS}")
+        MESSAGE(STATUS "BOOST was found: ${Boost_INCLUDE_DIRS}")
         set(use_bst 1)
     else()
-        MESSAGE("-- Didn't find BOOST, Guassian wavepacket won't be compiled")
+        MESSAGE(STATUS "Didn't find BOOST, Guassian wavepacket won't be compiled")
         set(compile_wp 0)
     endif()
 endif()
-target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
+
+if(NOT MSVC)  # match default visibility of core library and extension module
+    target_compile_options(cppcore_kitex PRIVATE -fvisibility=hidden)
+endif ()
 add_definitions(-DCOMPILE_WAVEPACKET=${compile_wp})
 add_definitions(-DUSE_BOOST=${use_bst})
 
