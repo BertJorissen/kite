@@ -29,14 +29,12 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cppcore/cmake") # include the copy and download scripts
 option(QK_NATIVE_HDF5 "Use installed machine version of HDF5, if found." ON) # option to use machine HDF5
 option(QK_NATIVE_EIGEN "Use installed machine version of Eigen, if found." ON) # option to use machine EIGEN
-option(QK_NATIVE_OPENMP "Use installed machine version of OpenMP, if found." ON) # option to use machine OPENMP
-option(QK_FORCE_NATIVE "Force installed machine version of OpenMP, Eigen3 and HDF5." OFF) # option to force native libs
+option(QK_FORCE_NATIVE "Force installed machine version of Eigen3 and HDF5." OFF) # option to force native libs
 option(QK_CCACHE "Use CCache" ON) # option to use CCache. Python builds give problems when compiling different versions.
 
 # print out the settings
 MESSAGE(STATUS "QK_NATIVE_HDF5:   ${QK_NATIVE_HDF5}")
 MESSAGE(STATUS "QK_NATIVE_EIGEN:  ${QK_NATIVE_EIGEN}")
-MESSAGE(STATUS "QK_NATIVE_OPENMP: ${QK_NATIVE_OPENMP}")
 MESSAGE(STATUS "QK_FORCE_NATIVE:  ${QK_FORCE_NATIVE}")
 MESSAGE(STATUS "QK_CCACHE:        ${QK_CCACHE}")
 
@@ -60,12 +58,13 @@ if(QK_CCACHE)
     endif()
 endif()
 
+
+find_package(OpenMP)
+
 # download the dependencies if needed
 if (QK_FORCE_NATIVE)
-    set(DOWNLOAD_OPENMP False)
     set(DOWNLOAD_HDF5 False)
     set(DOWNLOAD_EIGEN False)
-    find_package(OpenMP REQUIRED)
     find_package(HDF5 COMPONENTS CXX REQUIRED)
     find_package(Eigen3 REQUIRED)
 else ()
@@ -74,18 +73,7 @@ else ()
     include(ExternalProject)
 
     set(DOWNLOAD_HDF5 True)
-    set(DOWNLOAD_OPENMP True)
     set(DOWNLOAD_EIGEN True)
-
-    if(QK_NATIVE_OPENMP)
-        find_package(OpenMP QUIET)
-        if(OpenMP_FOUND)
-            set(DOWNLOAD_OPENMP False)
-            MESSAGE(STATUS "Using native machine OpenMP.")
-        else()
-            MESSAGE(STATUS "Couldn't find OpenMP, installing it instead.")
-        endif()
-    endif()
 
     if(QK_NATIVE_HDF5)
         find_package(HDF5 COMPONENTS CXX QUIET)
@@ -118,7 +106,7 @@ else ()
         endif()
     endif()
 
-    if (${DOWNLOAD_OPENMP} OR ${DOWNLOAD_HDF5})
+    if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
         if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
             set(KITECORE_LIBS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/kite/lib)
         else()
@@ -133,71 +121,7 @@ else ()
             set(SHARED_LIB_EXT "so")
         endif()
         message(STATUS "SHARED_LIB_EXT: ${SHARED_LIB_EXT}")
-    endif()
 
-    if(${DOWNLOAD_OPENMP}) # failed to find OpenMP or chose to not use local version, so install it
-        if(NOT LLVM_DOWNLOAD_VERSION)
-            set(LLVM_DOWNLOAD_VERSION "18.1.8")
-        endif()
-        MESSAGE(STATUS "OPENMP/LLVM VERSION-${LLVM_DOWNLOAD_VERSION}")
-
-        set(LLVM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/cppcore/deps/llvm)
-
-        if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-            set(DETECTED_ARCH "AArch64")
-        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64" OR CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
-            set(DETECTED_ARCH "X86")
-        else()
-            MESSAGE(WARNING "Unknown architecture, defaulting to X86")
-            set(DETECTED_ARCH "X86")
-        endif()
-
-        message(STATUS "Detected architecture: ${DETECTED_ARCH} (${CMAKE_SYSTEM_PROCESSOR})")
-
-        set(LLVM_ExternalProjectCMakeArgs
-                "-DCMAKE_INSTALL_PREFIX=${LLVM_DIR}/install"
-                "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-                "-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
-                "-DLLVM_INSTALL_UTILS=ON"
-                "-DLLVM_ENABLE_PROJECTS=openmp"
-                "-DLLVM_TARGETS_TO_BUILD=${DETECTED_ARCH}"
-                "-DLIBOMP_ENABLE_SHARED=ON"
-                "-DENABLE_CHECK_TARGETS=OFF"
-                "-DOPENMP_STANDALONE_BUILD=ON"
-                )
-
-        if(WIN32)
-            set(OMP_BUILD_DIR ${LLVM_DIR}/build/Release/bin/Release)
-        else()
-            set(OMP_BUILD_DIR ${LLVM_DIR}/build/bin/Release)
-        endif()
-        ExternalProject_Add(openmp_local
-                URL "https://github.com/llvm/llvm-project/releases/download/llvmorg-${LLVM_DOWNLOAD_VERSION}/llvm-project-${LLVM_DOWNLOAD_VERSION}.src.tar.xz"
-                CMAKE_ARGS ${LLVM_ExternalProjectCMakeArgs}
-                SOURCE_DIR ${LLVM_DIR}/src/llvm-project-${LLVM_DOWNLOAD_VERSION}
-                SOURCE_SUBDIR llvm
-                BINARY_DIR ${LLVM_DIR}/build
-                STAMP_DIR  ${LLVM_DIR}/stamp
-                TMP_DIR    ${LLVM_DIR}/tmp
-                DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-                INSTALL_COMMAND ""
-                POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -DEXECUTE_MOVE=TRUE -DFILES_WITH_WILDCARD=${OMP_BUILD_DIR}/libomp.${SHARED_LIB_EXT} -DFILES_MOVE_DESTINATION=${KITECORE_LIBS_DIR} -P ${CMAKE_SOURCE_DIR}/cppcore/cmake/copy.cmake
-
-        )
-        set(openmp_includes ${LLVM_DIR}/build/projects/openmp/runtime/src)
-        set_target_properties(openmp_local PROPERTIES POSITION_INDEPENDENT_CODE ON)
-        if (WIN32)
-            set(openmp_libs ${LLVM_DIR}/Release/bin/Release/libomp.dll.lib)
-        else()
-            set(openmp_libs ${KITECORE_LIBS_DIR}/libomp.${SHARED_LIB_EXT})
-        endif()
-        set(OpenMP_CXX_FLAGS "-fopenmp")
-        MESSAGE(STATUS "OPENMP_INCLUDES: ${openmp_includes}")
-        MESSAGE(STATUS "OPENMP_LIBS: ${openmp_libs}")
-    endif()
-
-    if(${DOWNLOAD_HDF5}) # failed to find HDF5 or chose to not use local version, so install it
         if(NOT HDF5_DOWNLOAD_VERSION)
             set(HDF5_DOWNLOAD_VERSION "1.14.2")
         endif()

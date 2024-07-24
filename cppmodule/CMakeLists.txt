@@ -28,16 +28,8 @@ endif()
 set_target_properties(cppcore_kitex PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(cppcore_kitetools PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
-    add_dependencies(kitecore openmp_local)
-    target_include_directories(kitecore SYSTEM PRIVATE ${OPENMP_includes})
-    target_link_libraries(kitecore PRIVATE ${OPENMP_libs})
-    MESSAGE(STATUS "Using downloaded OpenMP for kitecore with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
-else()
-    message(STATUS "kitecore - OpenMP")
-    target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
-    set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-endif()
+target_link_libraries(kitecore PRIVATE OpenMP::OpenMP_CXX)
+set(CMAKE_EXE_LINKER_FLAGS "${CORRECT_CODING_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
 if(MSVC)

@@ -12,7 +12,7 @@ jobs:
     env:
       QK_BUILD_TYPE: Release
       QK_CMAKE_PREFIX_PATH: "."
-      QK_NATIVE_OPENMP: "ON"
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     strategy:
       fail-fast: false
       matrix:
@@ -32,22 +32,28 @@ jobs:
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
-          brew install boost
+          brew install libomp boost
+          brew info libomp
           brew info boost
           clang --version
+          brew --prefix libomp
           brew --prefix boost
+          LIBOMP_PATH=$(brew --prefix libomp)
           BOOST_PATH=$(brew --prefix boost)
-          echo "LDFLAGS=-L$BOOST_PATH/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$BOOST_PATH/include" >> $GITHUB_ENV
-          echo "QK_CMAKE_PREFIX_PATH=$BOOST_PATH" >> $GITHUB_ENV
-          echo "QK_NATIVE_OPENMP=OFF" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+          echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
+          LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1))
+          echo $MIN_VERSION
+          echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Install dependenecies for Quantum-KITE
         run: python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev  --prefer-binary
       - name: Build with CMake and test Python / C++
         run: |
           mkdir build_tests
           cd build_tests
-          cmake .. -DQK_CMAKE_PREFIX_PATH="${QK_CMAKE_PREFIX_PATH}" -DQK_NATIVE_OPENMP="${QK_NATIVE_OPENMP}"
+          cmake .. -DQK_CMAKE_PREFIX_PATH="${QK_CMAKE_PREFIX_PATH}" -DMACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET}"
           cmake --build . -j --target hdf5_local --config Release
           cmake --build . -j --target kitecore --config Release
           cd ..
@@ -62,26 +68,22 @@ jobs:
     env:
       QK_BUILD_TYPE: Release
       QK_CMAKE_PREFIX_PATH: "."
-      QK_NATIVE_OPENMP: "ON"
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
             arch: x86_64
-            dt: 0.0
             python-version: "3.10"
           - os: windows-latest
             arch: x86_64
-            dt: 0.0
             python-version: "3.10"
           - os: macos-12
             arch: x86_64
-            dt: 10.9
             python-version: "3.10"
           - os: macos-14
             arch: arm64
-            dt: 11.0
             python-version: "3.10"
     steps:
       - uses: actions/checkout@v4
@@ -96,23 +98,29 @@ jobs:
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
-          brew install boost
+          brew install libomp boost
+          brew info libomp
           brew info boost
           clang --version
+          brew --prefix libomp
           brew --prefix boost
+          LIBOMP_PATH=$(brew --prefix libomp)
           BOOST_PATH=$(brew --prefix boost)
-          echo "LDFLAGS=-L$BOOST_PATH/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$BOOST_PATH/include" >> $GITHUB_ENV
-          echo "QK_CMAKE_PREFIX_PATH=$BOOST_PATH" >> $GITHUB_ENV
-          echo "QK_NATIVE_OPENMP=OFF" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+          echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
+          LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1))
+          echo $MIN_VERSION
+          echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.dt }}
           CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           CIBW_ARCHS_LINUX: x86_64
           CIBW_BEFORE_ALL_MACOS: |
             echo "$QK_CMAKE_PREFIX_PATH"
+            echo "$MACOSX_DEPLOYMENT_TARGET"
           CIBW_BUILD_VERBOSITY: 1
           CIBW_BEFORE_TEST: pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja contourpy h5py==3.11.0 pybinding-dev --prefer-binary
           CIBW_TEST_REQUIRES: pytest
@@ -161,7 +169,7 @@ jobs:
     env:
       QK_BUILD_TYPE: Release
       QK_CMAKE_PREFIX_PATH: "."
-      QK_NATIVE_OPENMP: "ON"
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     strategy:
       fail-fast: false
       matrix:
@@ -186,15 +194,21 @@ jobs:
       - name: MacOS install BOOST and LIBOMP
         if: runner.os == 'macOS'
         run: |
-          brew install boost
+          brew install libomp boost
+          brew info libomp
           brew info boost
           clang --version
+          brew --prefix libomp
           brew --prefix boost
+          LIBOMP_PATH=$(brew --prefix libomp)
           BOOST_PATH=$(brew --prefix boost)
-          echo "LDFLAGS=-L$BOOST_PATH/lib" >> $GITHUB_ENV
-          echo "CPPFLAGS=-I$BOOST_PATH/include" >> $GITHUB_ENV
-          echo "QK_CMAKE_PREFIX_PATH=$BOOST_PATH" >> $GITHUB_ENV
-          echo "QK_NATIVE_OPENMP=OFF" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$LIBOMP_PATH/lib -L$BOOST_PATH/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$LIBOMP_PATH/include -I$BOOST_PATH/include" >> $GITHUB_ENV
+          echo "QK_CMAKE_PREFIX_PATH=$LIBOMP_PATH;$BOOST_PATH" >> $GITHUB_ENV
+          LIBOMP_BIN=$(find $LIBOMP_PATH/lib -name 'libomp.dylib' | head -n 1)
+          MIN_VERSION=$(otool -l $LIBOMP_BIN | grep -E -A4 'LC_VERSION_MIN_MACOSX' | grep version | grep -oP '\d+\.\d+' | head -n 1))
+          echo $MIN_VERSION
+          echo "MACOSX_DEPLOYMENT_TARGET=$MIN_VERSION" >> $GITHUB_ENV
       - name: Install Quantum-Kite
         run: |
           python -m pip install wheel scipy matplotlib==3.9.0 pytest cmake ninja build numpy setuptools pybinding-dev h5py==3.11.0

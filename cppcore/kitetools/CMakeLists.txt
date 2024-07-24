@@ -76,19 +76,8 @@ endif()
 target_include_directories(cppcore_kitetools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 target_include_directories(KITE-tools SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-
-if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
-    add_dependencies(cppcore_kitetools openmp_local)
-    target_include_directories(KITE-tools SYSTEM PRIVATE ${OPENMP_includes})
-    target_include_directories(cppcore_kitetools SYSTEM PRIVATE ${OPENMP_includes})
-    target_link_libraries(KITE-tools PRIVATE ${OPENMP_libs})
-    target_link_libraries(cppcore_kitetools PRIVATE ${OPENMP_libs})
-    MESSAGE(STATUS "Using downloaded OpenMP for KITE-tools with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
-else ()
-    message(STATUS "KITE-tools - OpenMP")
-    target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
-endif()
+target_link_libraries(cppcore_kitetools PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(KITE-tools PRIVATE OpenMP::OpenMP_CXX)
 
 set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
 if(MSVC)

@@ -82,18 +82,8 @@ endif()
 
 target_include_directories(cppcore_kitex SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 
-if(${DOWNLOAD_OPENMP}) # failed to find OPENMP, so install it
-    add_dependencies(cppcore_kitex openmp_local)
-    target_include_directories(KITEx SYSTEM PRIVATE ${OPENMP_includes})
-    target_include_directories(cppcore_kitex SYSTEM PRIVATE ${OPENMP_includes})
-    target_link_libraries(KITEx PRIVATE ${OPENMP_libs})
-    target_link_libraries(cppcore_kitex PRIVATE ${OPENMP_libs})
-    MESSAGE(STATUS "Using downloaded HDF5 for KITEx with includes ${OPENMP_includes} and libs ${OPENMP_libs}")
-else ()
-    message(STATUS "KITEx - OpenMP")
-    target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
-    target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
-endif()
+target_link_libraries(cppcore_kitex PRIVATE OpenMP::OpenMP_CXX)
+target_link_libraries(KITEx PRIVATE OpenMP::OpenMP_CXX)
 
 set(CORRECT_CODING_FLAGS "-Wall -DH5_BUILT_AS_DYNAMIC_LIB")
 if(MSVC)
