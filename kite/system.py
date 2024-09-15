@@ -837,6 +837,99 @@ def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calcul
 
         grpc_p = grpc.create_group('Custom1v')
 
+        operator_names = [operator[0] for operator in calculation.get_operators]
+        operator_values = [operator[1] for operator in calculation.get_operators]
+        operator_hoppings = []
+
+        lat_name_to_alias = {v.alias_id: k for k, v in lattice.sublattices.items()}
+
+        imag_part = 0
+        for operator_value, operator_name in zip(operator_values, operator_names):
+            operator_hoppings_local = []
+            for operator_name, hop in operator_value.hoppings.items():
+                imag_part += np.linalg.norm(np.asarray(hop.energy).imag)
+                # check if there's complex hopping or magnetic field but identifier is_complex is 0
+            if name not in lat_name_to_alias:
+                raise SystemExit(f"The sublattice {name} for operator {operator_name} is not defined in the lattice.")
+            for name, sub in lattice.sublattices.items():
+                # num of orbitals at each sublattice is equal to size of onsite energy
+                num_energies = np.asarray(sub.energy).shape[0]
+                num_orbitals[sub.alias_id] = num_energies
+                # position_atoms is a list of vectors of size space_size
+                position_atoms[sub.alias_id, :] = sub.position[0:space_size]
+                # define hopping dict from relative hopping index from and to id (relative number of sublattice in relative
+                # index lattice) and onsite
+                # energy shift is substracted from onsite potential, this is later added to the hopping dictionary,
+                # hopping terms shouldn't be substracted
+                hopping = {'relative_index': np.zeros(space_size, dtype=np.int32), 'from_id': sub.alias_id,
+                           'to_id': sub.alias_id, 'hopping_energy': sub.energy - config.energy_shift}
+                hoppings.append(hopping)
+
+            # num_orbitals = np.asarray(num_orbitals)
+            position_atoms = np.array(position_atoms)
+            # repeats the positions of atoms based on the number of orbitals
+            position = np.repeat(position_atoms, num_orbitals, axis=0)
+
+            # iterate through all the hoppings and add hopping energies to hoppings list
+            for name, hop in lattice.hoppings.items():
+                hopping_energy = hop.energy
+                for term in hop.terms:
+                    hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': term.from_id,
+                               'to_id': term.to_id, 'hopping_energy': hopping_energy}
+                    hoppings.append(hopping)
+                    # if the unit cell is [0, 0]
+                    if np.linalg.norm(term.relative_index[0:space_size]) == 0:
+                        hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': term.to_id,
+                                   'to_id': term.from_id, 'hopping_energy': np.conj(np.transpose(hopping_energy))}
+                        hoppings.append(hopping)
+                    # if the unit cell [i, j] is different than [0, 0] and also -[i, j] hoppings with opposite direction
+                    if np.linalg.norm(term.relative_index[0:space_size]):
+                        hopping = {'relative_index': -term.relative_index[0:space_size], 'from_id': term.to_id,
+                                   'to_id': term.from_id, 'hopping_energy': np.conj(np.transpose(hopping_energy))}
+                        hoppings.append(hopping)
+
+
+        if imag_part > 0 and config._is_complex == 0:
+            print('Complex hoppings are added in the operator, but is_complex identifier is 0. Unexpected behaviour expected. ')
+
+        operator_vertices = calculation.get_operator_vertices
+        operator_list_indices: List[List[Tuple[int, int]]] = []
+        conversion_dict = {"vx": -1, "vy": -2, "vz": -3, "e": -4}
+
+        def check_name(operator_name: str) -> int:
+            # check if the operator_couple is in the operator_names
+            if operator_name in operator_names:
+                return operator_names.index(operator_name)
+            # check if the operator_couple is in the conversion_dict
+            elif operator_name in conversion_dict:
+                return conversion_dict[operator_name]
+            else:
+                raise SystemExit('The operator {} is not a defined operator'.format(operator_couple))
+
+        for operator_list, spectrum in operator_vertices:
+            operator_list_indices_one_spectrum: List[Tuple[int, int]] = []
+            for operator_couple in operator_list:
+                # check whether the operator_couple is a string or a list/tuple
+                if isinstance(operator_couple, str):
+                    operator_list_indices_one_spectrum.append(
+                        (check_name(operator_couple), conversion_dict["e"])
+                    )
+                else:
+                    operator_list_indices_one_spectrum.append(
+                        (check_name(operator_couple[0]), check_name(operator_couple[1]))
+                    )
+            operator_list_indices.append(operator_list_indices_one_spectrum)
+
+        # to store the operator, use the sublattice alias-id from the 'lattice' that is used for the Hamiltonian,
+        #  this can be different than the alias-id defined in the 'operator' object.
+
+
+        # create the local operators
+        grp_local = grpc_p.create_group('LocalOperators')
+        for idx, operator in enumerate(operator_values):
+            grp_local.create_dataset(str(idx), data=operator, dtype=config.type)
+
+
         moments, random, dis, energies, eta, direction, preserve_disorder = [], [], [], [], [], [], []
 
         for operator in calculation.get_operators:

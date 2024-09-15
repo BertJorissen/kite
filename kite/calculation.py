@@ -1,7 +1,8 @@
 """Calculation specification"""
 import numpy as np
+import pybinding as pb
 from .configuration import Configuration
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple,Literal
 
 __all__ = ['Calculation']
 
@@ -23,7 +24,11 @@ class Calculation:
         self._conductivity_optical_nonlinear: List[dict] = []
         self._gaussian_wave_packet: List[dict] = []
         self._singleshot_conductivity_dc: List[dict] = []
-        self._operators: List[dict] = []
+        self._operators: List[Tuple[str, pb.Lattice]] = []
+        self._operator_vertices: List[Tuple[
+            List[Tuple[str, str] | str],
+            Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]]
+        ] = []
 
         self._avail_dir_full: Dict[str, int] = {
             'xx': 0, 'yy': 1, 'zz': 2, 'xy': 3, 'xz': 4, 'yx': 5, 'yz': 6, 'zx': 7, 'zy': 8}
@@ -76,9 +81,17 @@ class Calculation:
         return self._singleshot_conductivity_dc
 
     @property
-    def get_operators(self) -> List[dict]:
+    def get_operators(self) -> List[Tuple[str, pb.Lattice]]:
         """Returns the requested operators."""
         return self._operators
+
+    @property
+    def get_operator_vertices(self) -> List[Tuple[
+        List[Tuple[str, str] | str],
+        Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]
+    ]]:
+        """Returns the requested operator vertices."""
+        return self._operator_vertices
 
     def dos(self, num_points, num_moments, num_random, num_disorder=1):
         """Calculate the density of states as a function of energy
@@ -298,9 +311,33 @@ class Calculation:
                  'num_random': num_random, 'num_disorder': num_disorder,
                  'preserve_disorder': np.atleast_1d(preserve_disorder)})
 
-    def one_vertex_operator(self, energy, eta, num_moments, num_random, num_disorder=1):
-        self._operators.append(
-            {'energy': (np.atleast_1d(energy)),
-             'eta': np.atleast_1d(eta), 'num_moments': np.atleast_1d(num_moments),
-             'num_random': num_random, 'num_disorder': num_disorder}
-        )
+    def add_operator(self, operator: pb.Lattice, name: str):
+        """Add an operator to the calculation
+
+        Parameters
+        ----------
+        operator : pb.Lattice
+            Operator to be added to the calculation.
+        name : str
+            Name of the operator.
+        """
+
+        self._operators.append((name, operator))
+
+    def add_vertex(
+            self,
+            operatorlist: List[Tuple[str, str] | str],
+            spectrum: Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]):
+        """Add an operator to the calculation
+
+        Parameters
+        ----------
+
+        operatorlist : List[Tuple[str, str] | str]
+            List of operators to be added to the calculation.
+
+        spectrum : Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]
+            Tuple of the type of spectrum, type of operator and the coefficients of the spectrum.
+        """
+
+        self._operator_vertices.append((operatorlist, spectrum))
