@@ -237,7 +237,7 @@ jobs:
 
   testpypi:
     name: Test upload on PyPi
-    environment: actions
+    environment: ci
     permissions:
       id-token: write
     needs: [ merge-artifacts ]

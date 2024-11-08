@@ -27,7 +27,7 @@ For the info, RAM requirements for running DOS on a small system specified above
 
 
 The second example is twisted bilayer graphene lattice in the clean limit, with the number of atoms exceeding `~0.7` billion.
-The model Hamiltonian [2]_ of such a system has much larger coordination number (average number of neighbors per each atomic site), and the important parameter when estimating the running time (and the memory requirements) is the "effective" size, the product of the number of sites and the coordination number.
+The model Hamiltonian [^2] of such a system has much larger coordination number (average number of neighbors per each atomic site), and the important parameter when estimating the running time (and the memory requirements) is the "effective" size, the product of the number of sites and the coordination number.
 In that sense, this system is in the mid-range, between the small and the large system of the previous example.
 
 Depending on the rotation between adjacent layers, the resulting moiré pattern will have more or less effect on the low energy electrons in graphene.
