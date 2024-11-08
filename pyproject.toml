@@ -1,6 +1,6 @@
 [project]
 name = "quantum-kite"
-version = "0.0.4"
+version = "0.0.4.post1"
 authors = [
     {name="Simão M. João"},
     {name="João M.V.P Lopes"},
