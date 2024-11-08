@@ -67,8 +67,9 @@
         {% set class = "" %}
         <nav id="header-nav-wrap">
             <ul class="header-main-nav">
+                {% import "partials/tabs-item.html" as item with context %}
                 {% for nav_item in nav %}
-                {% include "partials/tabs-item.html" %}
+                    {{ item.render(nav_item) }}
                 {% endfor %}
             </ul>
         </nav>

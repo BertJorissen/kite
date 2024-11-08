@@ -26,15 +26,14 @@ The tutorial is structured as follows:
     import numpy as np
     import matplotlib.pyplot as plt 
     from pybinding.repository import graphene
-    from os import system as terminal
 
     conf = kite.Configuration(divisions=[4, 4], length=[512, 512], boundaries=["periodic", "periodic"])
     calc = kite.Calculation(conf)
     calc.dos(num_points=4000, num_moments=512, num_random=2, num_disorder=1)
     kite.config_system(graphene.monolayer(), conf, calc, filename="first_calculation.h5")
 
-    terminal("build/KITEx first_calculation.h5")
-    terminal("tools/build/KITE-tools first_calculation.h5")
+    kite.kitex("first_calculation.h5")
+    kite.kitetools("first_calculation.h5")
 
     dos = np.loadtxt("dos.dat")
     plt.plot(dos[:, 0], dos[:, 1])

@@ -7,7 +7,7 @@ magnetic field configuration with vanishing total flux through the unit cell [^1
 This model is a Chern insulator, or a quantum anomalous Hall insulator because it hosts integer quantum Hall effect
 in the absence of an external magnetic field.
 
-This characteristic makes Haldane model ideal for illustrating another capability of KITE: the calculation of transverse conductivities.
+This characteristic makes Haldane model ideal for illustrating another capability of KITE [^2]: the calculation of transverse conductivities.
 
 ### Lattice
 Let us begin with the definition of the Hamiltonian for the case of pure imaginary next-nearest-neighbor hoppings:
