@@ -167,20 +167,12 @@ def extract_hamiltonian(
         t_row = t_list[i_row]
         d[i_row, :len(d_row)] = d_row
         t[i_row, :len(t_row)] = t_row
-    print({
-        "NHoppings": num_hoppings,
-        "d": d,
-        "Hoppings": t,
-        "num_orbitals": num_orbitals
-    })
     return {
         "NHoppings": num_hoppings,
         "d": d,
         "Hoppings": t,
         "num_orbitals": num_orbitals
     }
-
-
 
 
 def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: kite.Calculation,
@@ -693,6 +685,7 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
             it = np.nditer(lattice_sub.energy, flags=['multi_index'])
 
             # orbit_idx = [i, j, k] x [1, Lx, Lx*Ly] + orbital * Lx*Ly*Lz
+            orbitals_before = np.cumsum(num_orbitals) - num_orbitals
             while not it.finished:
                 orbit = int(orbitals_before[sub_id] + it.multi_index[0])
                 orbitals.append(orbit)

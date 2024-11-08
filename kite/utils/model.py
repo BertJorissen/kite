@@ -176,7 +176,7 @@ def make_pybinding_model(lattice, disorder=None, disorder_structural=None, **kwa
         num_each_dir = (referent_size / norm).astype(int)
 
         shape_size = 2 * num_each_dir[0:space_size]
-        symmetry = 1 * num_each_dir[0:space_size]
+        symmetry = norm * num_each_dir[0:space_size]
 
         shape = pb.primitive(*shape_size)
         trans_symm = pb.translational_symmetry(*symmetry)
