@@ -3,187 +3,17 @@
 import numpy as np
 import h5py as hp
 import pybinding as pb
+import pybinding
 from scipy.sparse import coo_matrix
 
 import kite
-from typing import Optional, Dict, Union, Literal
+from typing import Optional
 from .modification import Modification
 from .utils.model import estimate_bounds
 __all__ = ['config_system']
 
 
-def extract_hamiltonian(
-        lattice: pb.Lattice, complx: int = 1, energy_shift: float = 0, alias_lookup: Optional[np.ndarray] = None,
-        nsub: int = 0, num_orbitals_ref: Optional[np.ndarray] = None,
-) -> Dict[Literal["NHoppings", "d", "Hoppings", "num_orbitals"], Union[np.ndarray, int]]:
-    """Extract the Hamiltonian from the lattice object
-
-    Parameters
-    ----------
-    lattice : pb.Lattice
-        Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
-        onsite energies.
-    complx : int
-        Hamiltonian is complex 1 or real 0
-    energy_shift : float
-        Shift factor for the hopping parameters
-    alias_lookup : Optional[np.ndarray]
-        Alias lookup for the sublattices
-    nsub : int
-        Number of sublattices
-    num_orbitals : Optional[np.ndarray]
-        Number of orbitals at each atom
-
-    Returns
-    -------
-    Dict
-        Dictionary with the Hamiltonian data
-    """
-    if nsub == 0:
-        nsub = lattice.nsub
-    if alias_lookup is None:
-        alias_lookup = np.arange(nsub)
-
-    # get number of orbitals at each atom.
-    num_orbitals = np.zeros(nsub, dtype=np.int64) - 1
-
-    space_size = lattice.ndim
-
-    # iterate through all the sublattices and add onsite energies to hoppings list and count num of orbital
-    # We save everything as hoppings, onsites are hoppings with zero shift.
-    hoppings = []
-
-    ############################
-    # Extract all the Hoppings #
-    ############################
-
-    for name, sub in lattice.sublattices.items():
-        # num of orbitals at each sublattice is equal to size of onsite energy
-        num_energies = np.asarray(sub.energy).shape[0]
-        num_orbitals[alias_lookup[sub.alias_id]] = num_energies
-        # define hopping dict from relative hopping index from and to id (relative number of sublattice in relative
-        # index lattice) and onsite
-        # energy shift is substracted from onsite potential, this is later added to the hopping dictionary,
-        # hopping terms shouldn't be substracted
-        hopping = {'relative_index': np.zeros(space_size, dtype=np.int32), 'from_id': alias_lookup[sub.alias_id],
-                   'to_id': alias_lookup[sub.alias_id], 'hopping_energy': sub.energy - energy_shift}
-        hoppings.append(hopping)
-
-    # check if the number of orbitals is the same as the reference array
-    if num_orbitals_ref is not None:
-        assert len(num_orbitals) == len(num_orbitals_ref), "Number of orbitals in the lattice object and the reference array are not the same!"
-        for num_orb_idx, num_orb_ref in enumerate(num_orbitals_ref):
-            if num_orbitals[num_orb_idx] == -1:
-                num_orbitals[num_orb_idx] = num_orb_ref
-            assert num_orbitals[num_orb_idx] == num_orb_ref, "Number of orbitals in the lattice object and the reference array are not the same!"
-    else:
-        for num_orb_idx, num_orb in enumerate(num_orbitals):
-            assert num_orb != -1, "Number of orbitals at sublattice {} is not defined!".format(num_orb_idx)
-
-    # iterate through all the hoppings and add hopping energies to hoppings list
-    for name, hop in lattice.hoppings.items():
-        hopping_energy = hop.energy
-        for term in hop.terms:
-            hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': alias_lookup[term.from_id],
-                       'to_id': alias_lookup[term.to_id], 'hopping_energy': hopping_energy}
-            hoppings.append(hopping)
-            # if the unit cell is [0, 0]
-            if np.linalg.norm(term.relative_index[0:space_size]) == 0:
-                hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': alias_lookup[term.to_id],
-                           'to_id': alias_lookup[term.from_id], 'hopping_energy': np.conj(np.transpose(hopping_energy))}
-                hoppings.append(hopping)
-            # if the unit cell [i, j] is different than [0, 0] and also -[i, j] hoppings with opposite direction
-            if np.linalg.norm(term.relative_index[0:space_size]):
-                hopping = {'relative_index': -term.relative_index[0:space_size], 'from_id': alias_lookup[term.to_id],
-                           'to_id': alias_lookup[term.from_id], 'hopping_energy': np.conj(np.transpose(hopping_energy))}
-                hoppings.append(hopping)
-
-    ########################
-    # Analyze the Hoppings #
-    ########################
-
-    orbital_from = []
-    orbital_to = []
-    orbital_hop = []
-    # number of orbitals before i-th sublattice, where is is the array index
-    orbitals_before = np.cumsum(num_orbitals) - num_orbitals
-    # iterate through all hoppings, and define unique orbital hoppings
-    # orbital_to in unit cell [i, j] is defined  as [i, j] x [1, 3] + relative_orbital_num*3**2 2D
-    # orbital_to in unit cell [i, j, k] is defined  as [i, j, k] x [1, 3, 9] + relative_orbital_num*3**3 3D
-    # relative index of orbital_from is unique as only hoppings from the orbitals in the initial unit cell are exported
-    for h in hoppings:
-        hopping_energy = h['hopping_energy']
-        it = np.nditer(hopping_energy, flags=['multi_index'])
-        while not it.finished:
-            # get the indices of the hopping
-            row_idx, col_idx = it.multi_index
-            # get the shift of the hopping
-            shift_vector = h['relative_index'] + 1
-            # make the "grid" from the dimension of the space
-            space_vector = 3 ** np.linspace(0, space_size - 1, space_size, dtype=np.int32)
-            # apply the relative shifts (in units of the lattice vectors)
-            relative_move = np.dot(shift_vector, space_vector)
-
-            orbital_from.append(orbitals_before[h['from_id']] + row_idx)
-            orbital_to.append(relative_move + (orbitals_before[h['to_id']] + col_idx) * 3 ** space_size)
-            orbital_hop.append(it[0] if complx else np.real(it[0]))
-            it.iternext()
-
-    ###################################
-    # Generate hopping lists for KITE #
-    ###################################
-
-    # extract:
-    #   t - hoppings where each row corresponds to hopping from row number orbital
-    #   d - for each hopping it's unique identifier
-    t_list = []
-    d_list = []
-
-    # make a sparse matrix from orbital_hop, and (orbital_from, orbital_to)
-    #   as it's easier to take nonzero hoppings from  sparse matrix
-    # Onsites with energy = 0. will disapear as they are not added in the sparse matrix
-    matrix = coo_matrix((orbital_hop, (orbital_from, orbital_to)),
-                        shape=(np.max(orbital_from) + 1, np.max(orbital_to) + 1))
-
-    # num_hoppings is a vector where each value corresponds to num of hoppings from orbital equal to it's index
-    hop_shape = np.sum(num_orbitals)
-    num_hoppings = np.zeros(hop_shape, dtype=np.int32)
-
-    # iterate through all rows of matrix, number of row = number of orbital from
-    for i in range(matrix.shape[0]):
-        # all hoppings from orbital i
-        row_mat = matrix.getrow(i)
-        # number of hoppings from orbital i
-        num_hoppings[i] = row_mat.size
-
-        t_list.append(row_mat.data)
-        d_list.append(row_mat.indices)
-
-    # fix the size of hopping and distance matrices, where the number of columns is max number of hoppings
-    max_hop = int(np.max(num_hoppings))
-    d = np.zeros((hop_shape, max_hop))
-    t = np.zeros((hop_shape, max_hop), dtype=matrix.data.dtype)
-    for i_row, d_row in enumerate(d_list):
-        t_row = t_list[i_row]
-        d[i_row, :len(d_row)] = d_row
-        t[i_row, :len(t_row)] = t_row
-    print({
-        "NHoppings": num_hoppings,
-        "d": d,
-        "Hoppings": t,
-        "num_orbitals": num_orbitals
-    })
-    return {
-        "NHoppings": num_hoppings,
-        "d": d,
-        "Hoppings": t,
-        "num_orbitals": num_orbitals
-    }
-
-
-
-
-def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: kite.Calculation,
+def config_system(lattice: pybinding.Lattice, config: kite.Configuration, calculation: kite.Calculation,
                   modification: Optional[kite.Modification] = None, **kwargs):
     """Export the lattice and related parameters to the *.h5 file
 
@@ -191,7 +21,7 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
     ----------
     lattice
         pb.Lattice: Pybinding lattice object that carries the info about the unit cell vectors, unit cell cites, hopping terms and
-        onsite energies. :class:`pb.Lattice`
+        onsite energies. :class:`pybinding.Lattice`
     config
         Configuration object, basic parameters defining size, precision, energy scale and number of decomposition parts
         in the calculation.
@@ -208,7 +38,7 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
     print('#                        KITE | Release  1.1                                 #')
     print('#                        Kite home: quantum-kite.com                         #')
     print('#                                                                            #')
-    print('#                        Copyright 2024, KITE                                #')
+    print('#                        Copyright 2022, KITE                                #')
     print('##############################################################################')
 
     # hamiltonian is complex 1 or real 0
@@ -271,29 +101,109 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
     print('\n##############################################################################\n')
     print('BOUNDARY CONDITIONS:\n')
 
-    ###########################
-    # Extract the Hamiltonian #
-    ###########################
+    vectors = np.asarray(lattice.vectors)
+    space_size = vectors.shape[0]
+    vectors = vectors[:, 0:space_size]
 
-    space_size = lattice.ndim
-    hamiltonian_data = extract_hamiltonian(lattice, complx, config.energy_shift)
-    vectors = np.asarray(lattice.vectors)[:, 0:space_size]
+    # iterate through all the sublattices and add onsite energies to hoppings list
+    # count num of orbitals and read the atom positions.
+    hoppings = []
     # get number of orbitals at each atom.
-    num_orbitals = hamiltonian_data["num_orbitals"]
-
+    num_orbitals = np.zeros(lattice.nsub, dtype=np.int64)
     # get all atom positions to the position array.
     position_atoms = np.zeros([lattice.nsub, space_size], dtype=np.float64)
     for name, sub in lattice.sublattices.items():
+        # num of orbitals at each sublattice is equal to size of onsite energy
+        num_energies = np.asarray(sub.energy).shape[0]
+        num_orbitals[sub.alias_id] = num_energies
         # position_atoms is a list of vectors of size space_size
         position_atoms[sub.alias_id, :] = sub.position[0:space_size]
+        # define hopping dict from relative hopping index from and to id (relative number of sublattice in relative
+        # index lattice) and onsite
+        # energy shift is substracted from onsite potential, this is later added to the hopping dictionary,
+        # hopping terms shouldn't be substracted
+        hopping = {'relative_index': np.zeros(space_size, dtype=np.int32), 'from_id': sub.alias_id,
+                   'to_id': sub.alias_id, 'hopping_energy': sub.energy - config.energy_shift}
+        hoppings.append(hopping)
 
+    # num_orbitals = np.asarray(num_orbitals)
     position_atoms = np.array(position_atoms)
     # repeats the positions of atoms based on the number of orbitals
     position = np.repeat(position_atoms, num_orbitals, axis=0)
 
-    ######################
-    # create a HDF5 file #
-    ######################
+    # iterate through all the hoppings and add hopping energies to hoppings list
+    for name, hop in lattice.hoppings.items():
+        hopping_energy = hop.energy
+        for term in hop.terms:
+            hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': term.from_id,
+                       'to_id': term.to_id, 'hopping_energy': hopping_energy}
+            hoppings.append(hopping)
+            # if the unit cell is [0, 0]
+            if np.linalg.norm(term.relative_index[0:space_size]) == 0:
+                hopping = {'relative_index': term.relative_index[0:space_size], 'from_id': term.to_id,
+                           'to_id': term.from_id, 'hopping_energy': np.conj(np.transpose(hopping_energy))}
+                hoppings.append(hopping)
+            # if the unit cell [i, j] is different than [0, 0] and also -[i, j] hoppings with opposite direction
+            if np.linalg.norm(term.relative_index[0:space_size]):
+                hopping = {'relative_index': -term.relative_index[0:space_size], 'from_id': term.to_id,
+                           'to_id': term.from_id, 'hopping_energy': np.conj(np.transpose(hopping_energy))}
+                hoppings.append(hopping)
+
+    orbital_from = []
+    orbital_to = []
+    orbital_hop = []
+    # number of orbitals before i-th sublattice, where is is the array index
+    orbitals_before = np.cumsum(num_orbitals) - num_orbitals
+    # iterate through all hoppings, and define unique orbital hoppings
+    # orbital_to in unit cell [i, j] is defined  as [i, j] x [1, 3] + relative_orbital_num*3**2 2D
+    # orbital_to in unit cell [i, j, k] is defined  as [i, j, k] x [1, 3, 9] + relative_orbital_num*3**3 3D
+    # relative index of orbital_from is unique as only hoppings from the orbitals in the initial unit cell are exported
+    for h in hoppings:
+        hopping_energy = h['hopping_energy']
+        it = np.nditer(hopping_energy, flags=['multi_index'])
+        while not it.finished:
+            relative_move = np.dot(h['relative_index'] + 1,
+                                   3 ** np.linspace(0, space_size - 1, space_size, dtype=np.int32))
+            # if hopping_energy.size > 1:
+            orbital_from.append(orbitals_before[h['from_id']] + it.multi_index[0])
+            orbital_to.append(relative_move + (orbitals_before[h['to_id']] + it.multi_index[1]) * 3 ** space_size)
+            # else:
+            #     orbital_from.append(h['from_id'])
+            #     orbital_to.append(relative_move + h['to_id'] * 3 ** space_size)
+
+            orbital_hop.append(it[0] if complx else np.real(it[0]))
+
+            it.iternext()
+
+    # extract t - hoppings where each row corresponds to hopping from row number orbital and d - for each hopping it's
+    # unique identifier
+    t_list = []
+    d_list = []
+    # make a sparse matrix from orbital_hop, and (orbital_from, orbital_to) as it's easier to take nonzero hoppings from
+    # sparse matrix
+    matrix = coo_matrix((orbital_hop, (orbital_from, orbital_to)),
+                        shape=(np.max(orbital_from) + 1, np.max(orbital_to) + 1))
+    # num_hoppings is a vector where each value corresponds to num of hoppings from orbital equal to it's index
+    num_hoppings = np.zeros(matrix.shape[0])
+    # iterate through all rows of matrix, number of row = number of orbital from
+
+    for i in range(matrix.shape[0]):
+        # all hoppings from orbital i
+        row_mat = matrix.getrow(i)
+        # number of hoppings from orbital i
+        num_hoppings[i] = row_mat.size
+
+        t_list.append(row_mat.data)
+        d_list.append(row_mat.indices)
+
+    # fix the size of hopping and distance matrices, where the number of columns is max number of hoppings
+    max_hop = int(np.max(num_hoppings))
+    d = np.zeros((matrix.shape[0], max_hop))
+    t = np.zeros((matrix.shape[0], max_hop), dtype=matrix.data.dtype)
+    for i_row, d_row in enumerate(d_list):
+        t_row = t_list[i_row]
+        d[i_row, :len(d_row)] = d_row
+        t[i_row, :len(t_row)] = t_row
 
     f = hp.File(filename, 'w')
 
@@ -371,13 +281,12 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
     f.create_dataset('EnergyScale', data=config.energy_scale, dtype=np.float64)
     # shift factor for the hopping parameters
     f.create_dataset('EnergyShift', data=config.energy_shift, dtype=np.float64)
-
     # Hamiltonian group
     grp = f.create_group('Hamiltonian')
     # Hamiltonian group
-    grp.create_dataset('NHoppings', data=hamiltonian_data["NHoppings"], dtype='u4')
+    grp.create_dataset('NHoppings', data=num_hoppings, dtype='u4')
     # distance
-    grp.create_dataset('d', data=hamiltonian_data["d"], dtype='i4')
+    grp.create_dataset('d', data=d, dtype='i4')
     # custom pot
     grp.create_dataset('CustomLocalEnergy', data=localEn, dtype=int)
     # custom pot
@@ -385,10 +294,10 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
 
     if complx:
         # hoppings
-        grp.create_dataset('Hoppings', data=(hamiltonian_data["Hoppings"].astype(config.type)) / config.energy_scale)
+        grp.create_dataset('Hoppings', data=(t.astype(config.type)) / config.energy_scale)
     else:
         # hoppings
-        grp.create_dataset('Hoppings', data=(hamiltonian_data["Hoppings"].real.astype(config.type)) / config.energy_scale)
+        grp.create_dataset('Hoppings', data=(t.real.astype(config.type)) / config.energy_scale)
     # magnetic field
     if modification.magnetic_field or modification.flux:
         print('\n##############################################################################\n')
@@ -673,7 +582,7 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
 
         if space_size == 3:
             if not np.all(0 <= np.squeeze(np.asarray(item))[0] < Lx and 0 <= np.squeeze(np.asarray(item))[1] < Ly
-                       and 0 <= np.squeeze(np.asarray(item))[2] < Lz for item in position):
+                          and 0 <= np.squeeze(np.asarray(item))[2] < Lz for item in position):
                 raise SystemExit('The probing position for the LDOS should be selected within the relative '
                                  'coordinates [[0, {}],[0, {}],[0, {}]] with the relative index '
                                  'of length {}'.format(Lx - 1, Ly - 1, Lz - 1, space_size))
@@ -737,7 +646,7 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
         grpc_p = grpc.create_group('gaussian_wave_packet')
 
         num_moments, num_points, num_disorder, spinor, width, k_vector, mean_value, \
-        probing_points = [], [], [], [], [], [], [], []
+            probing_points = [], [], [], [], [], [], [], []
         timestep = []
         for single_gauss_wavepacket in calculation.get_gaussian_wave_packet:
             num_moments.append(single_gauss_wavepacket['num_moments'])
@@ -889,157 +798,6 @@ def config_system(lattice: pb.Lattice, config: kite.Configuration, calculation: 
         grpc_p.create_dataset('Gamma', data=np.asarray(eta) / config.energy_scale, dtype=np.float64)
         grpc_p.create_dataset('Direction', data=np.asarray(direction), dtype=np.int32)
         grpc_p.create_dataset('PreserveDisorder', data=np.asarray(preserve_disorder).astype(int), dtype=np.int32)
-
-    if calculation.get_operators:
-        grpc_spectraloperator = grpc.create_group("SpectralOperators")
-
-        # The operator names (str) and operators (pb.Lattice)
-        operator_names = [operator[0] for operator in calculation.get_operators]
-        operator_values = [operator[1] for operator in calculation.get_operators]
-        operator_hamiltonians: Dict[str, dict] = {}
-
-        lat_name_to_alias = {k: v.alias_id for k, v in lattice.sublattices.items()}
-
-        # check if the sublattices in the operator are defined in the 'main' lattice and the datatypes are as expected
-        imag_part = 0
-        print("ref")
-        print(hamiltonian_data)
-        for operator_value, operator_name in zip(operator_values, operator_names):
-            assert isinstance(operator_value, pb.Lattice), \
-                f"The operator {operator_name} is not a valid operator, pb.Lattice object expected."
-            assert lattice.ndim == operator_value.ndim, \
-                f"The operator {operator_name} has a different dimension than the lattice, {lattice.ndim} != {operator_value.ndim}."
-            for hop in operator_value.hoppings.values():
-                # check if there's complex hopping or magnetic field but identifier is_complex is 0
-                imag_part += np.linalg.norm(np.asarray(hop.energy).imag)
-            # conversion list
-            lookup_alias = -1 * np.ones(operator_value.nsub, dtype=int)
-            for operator_onsite_name, operator_onsite_sub in operator_value.sublattices.items():
-                assert operator_onsite_name in lattice.sublattices,\
-                    f"The sublattice {operator_onsite_name} for operator {operator_name} is not defined in the lattice."
-                lookup_alias[operator_onsite_sub.alias_id] = lat_name_to_alias[operator_onsite_name]
-            # check if the alias_id is defined in the lattice
-            assert np.all(lookup_alias != -1),\
-                f"Sublattice alias_id not defined in the lattice for operator {operator_name}"
-            # place the operator in the dictionary
-            operator_hamiltonians[operator_name] = extract_hamiltonian(
-                operator_value,
-                complx,
-                alias_lookup=lookup_alias,
-                nsub=lattice.nsub,
-                num_orbitals_ref=num_orbitals
-            )
-
-        if imag_part > 0 and config._is_complex == 0:
-            print("Complex hoppings are added in the operator, but 'is_complex' is 0. Unexpected behaviour expected.")
-
-        operator_list_indices: List[List[Tuple[int, int]]] = []
-        spectrum_list: List[Tuple[int, int, Tuple[int, int] | Tuple[np.ndarray, np.ndarray, np.ndarray]]] = []
-        conversion_dict = {"vx": -1, "vy": -2, "vz": -3, "e": -4}
-
-        def check_name(operator_name: str) -> int:
-            # check if the operator_couple is in the operator_names
-            if operator_name in operator_names:
-                return operator_names.index(operator_name)
-            # check if the operator_couple is in the conversion_dict
-            elif operator_name in conversion_dict:
-                return conversion_dict[operator_name]
-            assert False, f"The operator {operator_couple} is not a defined operator"
-
-        # extract the operators
-        for operator_list in calculation.get_operator_vertices[0]["operators_list"]:
-            # sort the list of operators and convert them to indices
-            operator_list_indices_one_spectrum: List[Tuple[int, int]] = []
-            for operator_couple in operator_list:
-                # check whether the operator_couple is a string or a list/tuple
-                if isinstance(operator_couple, str):
-                    operator_list_indices_one_spectrum.append(
-                        (check_name(operator_couple), conversion_dict["e"])
-                    )
-                else:
-                    operator_list_indices_one_spectrum.append(
-                        (check_name(operator_couple[0]), check_name(operator_couple[1]))
-                    )
-            operator_list_indices.append(operator_list_indices_one_spectrum)
-
-
-        conversion_dict_spectrum = {"FullSpectrum": 0, "SingleShot": 1}
-        conversion_dict_type = {"Dirac": 0, "Greens": 1}
-        # extract the spectrum
-        for spectrum in calculation.get_operator_vertices[0]["spectrum_list"]:
-            # spectrum properties
-            assert spectrum[0] in conversion_dict_spectrum, f"The spectrum type {spectrum[0]} is not defined."
-            spectrum_one = conversion_dict_spectrum[spectrum[0]]
-            assert spectrum[1] in conversion_dict_type, f"The spectrum type {spectrum[1]} is not defined."
-            spectrum_one_type = conversion_dict_type[spectrum[1]]
-            # FullSpectrum
-            if spectrum_one == 0:
-                assert len(spectrum[2]) == 2, "The spectrum should be a iterable of dimension 2, got {spectrum[2]}"
-                for check_type, check_name in zip([spectrum[2][0], spectrum[2][1]], ["energy", "moments"]):
-                    assert np.isscalar(check_type), f"Number of {check_name} should be a single value, got {check_type}"
-                spectrum_one_data = spectrum[2]
-            # SingleShot
-            else:
-                assert len(spectrum[2]) == 3, f"The spectrum should be a iterable of dimension 3, got {spectrum[2]}"
-                energy = np.atleast_1d(spectrum[2][0])
-                eta = np.atleast_1d(spectrum[2][1])
-                moments = np.atleast_1d(spectrum[2][2])
-                # find the max length
-                max_length = np.max([energy.size, eta.size, moments.size])
-
-                # check if lenghts are consistent
-                for check_type, check_name in zip([energy, eta, moments], ["energy", "eta", "moments"]):
-                    assert (check_type.size == max_length or check_type.size == 1), \
-                        f"Number of {check_name} should either have the same length or specified as a single value, got {check_type.size} != {max_length} or 1"
-                # make all lists equal in length
-                if energy.size == 1:
-                    energy = np.repeat(energy, max_length)
-                if eta.size == 1:
-                    eta = np.repeat(eta, max_length)
-                if moments.size == 1:
-                    moments = np.repeat(moments, max_length)
-                spectrum_one_data = (energy, eta, moments)
-            spectrum_list.append((spectrum_one, spectrum_one_type, spectrum_one_data))
-
-        grpc_spectraloperator.create_dataset('NumRandom', data=np.asarray(calculation.get_operator_vertices[0]["num_random"]), dtype=np.int32)
-        grpc_spectraloperator.create_dataset('NumDisorder', data=np.asarray(calculation.get_operator_vertices[0]["num_disorder"]), dtype=np.int32)
-        grpc_spectraloperator.create_dataset('PreserveDisorder', data=np.asarray(calculation.get_operator_vertices[0]["preserve_disorder"]).astype(int), dtype=np.int32)
-
-        # create the local operators
-        grpcs_operators = grpc_spectraloperator.create_group('Operators')
-        for idx, operator_name in enumerate(operator_names):
-            grpcsi_operator = grpcs_operators.create_group(str(idx))
-            # Hamiltonian group
-            grpcsi_operator.create_dataset('NHoppings', data=operator_hamiltonians[operator_name]["NHoppings"], dtype='u4')
-            # distance
-            grpcsi_operator.create_dataset('d', data=operator_hamiltonians[operator_name]["d"], dtype='i4')
-            if complx:
-                # hoppings
-                grpcsi_operator.create_dataset('Hoppings', data=(operator_hamiltonians[operator_name]["Hoppings"].astype(config.type)) / config.energy_scale)
-            else:
-                # hoppings
-                grpcsi_operator.create_dataset('Hoppings', data=(operator_hamiltonians[operator_name]["Hoppings"].real.astype(config.type)) / config.energy_scale)
-
-        grpcs_vertices = grpc_spectraloperator.create_group('Vertices')
-        # create the spectral operators and the list of operations
-        for vertex_idx, (operatorvertex, spectrum_vertex) in enumerate(zip(operator_list_indices, spectrum_list)):
-            grpcsi_vertex = grpcs_vertices.create_group(str(vertex_idx))
-            # create the list of operators
-            grpcsi_vertex.create_dataset('Operators', data=np.asarray(operatorvertex), dtype='i4')
-            # create the spectrum
-            grpcsi_vertex.create_dataset('Spectrum', data=np.asarray(spectrum_vertex[0]), dtype='i4')
-            grpcsi_vertex.create_dataset('SpectrumType', data=np.asarray(spectrum_vertex[1]), dtype='i4')
-            # FullSpectrum
-            if spectrum_vertex[0] == 0:
-                moments, points = spectrum_vertex[2]
-                grpcsi_vertex.create_dataset('NumMoments', data=np.asarray(moments), dtype=np.int32)
-                grpcsi_vertex.create_dataset('NumPoints', data=np.asarray(points), dtype=np.int32)
-            # SingleShot
-            else:
-                energy, eta, moments = spectrum_vertex[2]
-                grpcsi_vertex.create_dataset('Energy', data=(np.asarray(energy) - config.energy_shift) / config.energy_scale, dtype=np.float64)
-                grpcsi_vertex.create_dataset('Gamma', data=np.asarray(eta) / config.energy_scale, dtype=np.float64)
-                grpcsi_vertex.create_dataset('NumMoments', data=np.asarray(moments), dtype=np.int32)
 
     print('\n##############################################################################\n')
     print('OUTPUT:\n')

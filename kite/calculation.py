@@ -25,14 +25,11 @@ class Calculation:
         self._gaussian_wave_packet: List[dict] = []
         self._singleshot_conductivity_dc: List[dict] = []
         self._operators: List[Tuple[str, pb.Lattice]] = []
-        self._operator_vertices: List[Tuple[
-            List[Tuple[str, str] | str],
-            Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]]
-        ] = []
+        self._operator_vertices: List[dict] = []
 
         self._avail_dir_full: Dict[str, int] = {
             'xx': 0, 'yy': 1, 'zz': 2, 'xy': 3, 'xz': 4, 'yx': 5, 'yz': 6, 'zx': 7, 'zy': 8}
-        self._avail_dir_nonl_avail_dir_full = {
+        self._avail_dir_nonl: Dict[str, int] = {
             'xxx': 0, 'xxy': 1, 'xxz': 2, 'xyx': 3, 'xyy': 4, 'xyz': 5, 'xzx': 6, 'xzy': 7,
             'xzz': 8, 'yxx': 9, 'yxy': 10, 'yxz': 11, 'yyx': 12, 'yyy': 13, 'yyz': 14, 'yzx': 15,
             'yzy': 16, 'yzz': 17, 'zxx': 18, 'zxy': 19, 'zxz': 20, 'zyx': 21, 'zyy': 22, 'zyz': 23,
@@ -86,10 +83,7 @@ class Calculation:
         return self._operators
 
     @property
-    def get_operator_vertices(self) -> List[Tuple[
-        List[Tuple[str, str] | str],
-        Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]
-    ]]:
+    def get_operator_vertices(self) -> List[dict]:
         """Returns the requested operator vertices."""
         return self._operator_vertices
 
@@ -324,20 +318,37 @@ class Calculation:
 
         self._operators.append((name, operator))
 
-    def add_vertex(
+    def vertex(
             self,
-            operatorlist: List[Tuple[str, str] | str],
-            spectrum: Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]):
+            operators: List[List[Tuple[str, str] | str]],
+            spectrum: List[Tuple[
+                Literal["FullSpectrum", "SingleShot"],
+                Literal["Dirac", "Greens"],
+                Tuple[int, int] | Tuple[np.ndarray, np.ndarray, np.ndarray]
+            ]],
+            num_random: int,
+            num_disorder: int,
+            preserve_disorder: bool = False
+    ):
         """Add an operator to the calculation
 
         Parameters
         ----------
 
-        operatorlist : List[Tuple[str, str] | str]
+        operators : List[Tuple[str, str] | str]
             List of operators to be added to the calculation.
-
-        spectrum : Tuple[Literal["FS", "SS"], Literal["Dirac", "Greens"], float | np.ndarray]
+        spectrum : Tuple[Literal["FullSpectrum", "SingleShot"], Literal["Dirac", "Greens"], Tuple[int, int] | Tuple[np.ndarray, np.ndarray, np.ndarray]]
             Tuple of the type of spectrum, type of operator and the coefficients of the spectrum.
+            If FullSpectrum, the last part is the number of moments and the number of points.
+            If SingleShot, the last part is the coefficients of the spectrum, given as energy, eta and the moments
+        num_random : int
+            Number of random vectors to use for the stochastic evaluation of trace.
+        num_disorder : int
+            Number of different disorder realisations. Only the first entry is used.
+        preserve_disorder : bool
+            If True, preverse the disorder configuration for calculations with different random vectors. Default False
         """
 
-        self._operator_vertices.append((operatorlist, spectrum))
+        self._operator_vertices.append(
+            {"num_random": num_random, "num_disorder": num_disorder, "preserve_disorder": preserve_disorder,
+             "operators_list": operators, "spectrum_list": spectrum})
