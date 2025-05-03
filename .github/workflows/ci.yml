@@ -1,14 +1,16 @@
 # Build the documentation on GitHub and publish on GitHub pages
+
 name: ci
-on: [push]
+on:
+  push:
+    branches:
+      - master
 permissions:
   contents: write
-
 
 jobs:
   test-compile:
     name: Test Build on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     runs-on: ${{ matrix.os }}
     env:
       QK_BUILD_TYPE: Release
@@ -64,7 +66,6 @@ jobs:
 
   build-wheels:
     name: Build wheels on ${{ matrix.os }} for Python 3.${{ matrix.python-version }}
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ test-compile ]
     runs-on: ${{ matrix.os }}
     env:
@@ -76,7 +77,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
-        python-version: [ "9", "10", "11", "12" ] 
+        python-version: [ "9", "10", "11", "12" ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -138,7 +139,6 @@ jobs:
       matrix:
         os: [ ubuntu-latest]
         python-version: [ "3.10" ]
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ test-compile ]
     steps:
       - uses: actions/checkout@v4
@@ -160,7 +160,6 @@ jobs:
 
   test-sdist:
     name: Test sources on ${{ matrix.os }} with Python ${{ matrix.python-version }}
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     needs: [ build-sdist ]
     runs-on: ${{ matrix.os }}
     env:
@@ -249,7 +248,7 @@ jobs:
           name: pythonfiles
           path: dist
       - name: Publish distribution 📦 to Test PyPI
-        if: (github.ref == 'refs/heads/master') # && (github.repository_owner == 'quantum-kite')
+        if: (github.ref == 'refs/heads/master')
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
@@ -268,14 +267,12 @@ jobs:
           name: pythonfiles
           path: dist
       - name: Publish distribution 📦 to PyPI
-        if: (github.ref == 'refs/heads/master') # && (github.repository_owner == 'quantum-kite')
+        if: (github.ref == 'refs/heads/master')
         uses: pypa/gh-action-pypi-publish@release/v1
 
   deploy:
     name: Make and upload the documentation
     runs-on: ubuntu-latest
-    needs: [ test-compile ]
-    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
